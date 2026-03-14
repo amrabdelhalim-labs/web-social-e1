@@ -8,47 +8,47 @@
 
 ## 1. هوية المشروع
 
-| الحقل | القيمة |
-|-------|--------|
-| الاسم العربي | صوري |
-| الاسم الإنجليزي | My Photos |
-| مجلد المستودع | `web-social-e1` |
-| الوصف | موقع ويب لمشاركة الصور يتيح للمستخدمين رفع الصور أو التقاطها (PNG/JPEG) مع عناوين وأوصاف، ومشاهدة صور الآخرين، والتفاعل معها بالإعجاب |
-| نوع المشروع | Full-Stack SSR (Next.js App Router) |
-| المنصة المستهدفة | الويب |
-| اللغة | TypeScript (strict mode) |
-| واجهة المستخدم | عربية (RTL) |
-| الترخيص | MIT |
+| الحقل            | القيمة                                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| الاسم العربي     | صوري                                                                                                                                  |
+| الاسم الإنجليزي  | My Photos                                                                                                                             |
+| مجلد المستودع    | `web-social-e1`                                                                                                                       |
+| الوصف            | موقع ويب لمشاركة الصور يتيح للمستخدمين رفع الصور أو التقاطها (PNG/JPEG) مع عناوين وأوصاف، ومشاهدة صور الآخرين، والتفاعل معها بالإعجاب |
+| نوع المشروع      | Full-Stack SSR (Next.js App Router)                                                                                                   |
+| المنصة المستهدفة | الويب                                                                                                                                 |
+| اللغة            | TypeScript (strict mode)                                                                                                              |
+| واجهة المستخدم   | عربية (RTL)                                                                                                                           |
+| الترخيص          | MIT                                                                                                                                   |
 
 ---
 
 ## 2. القرارات التقنية
 
-| القرار | الاختيار | المبرر |
-|--------|---------|--------|
-| إطار العمل | Next.js App Router | SSR + API routes في deploy واحد، أداء SEO ممتاز للصفحة الرئيسية العامة |
-| قاعدة البيانات | MongoDB + Mongoose | مرونة عالية للبيانات، تكامل ممتاز مع Next.js |
-| واجهة المستخدم | MUI + Emotion | مكتبة مكونات شاملة مع دعم RTL مدمج وتخصيص سهل |
-| لغة البرمجة | TypeScript (strict) | أمان الأنواع، تجربة تطوير أفضل، اكتشاف مبكر للأخطاء |
-| المصادقة | JWT (7 أيام) + bcrypt (12 rounds) | بدون حالة، ملائم لبيئة serverless |
-| تخزين الصور | Strategy Pattern (Local / Cloudinary / S3) | مرونة التبديل بين بيئات التطوير والإنتاج |
-| إدارة الحالة | React Context + Custom Hooks | كافية للمشروع، لا حاجة لمكتبات خارجية |
-| التنسيق | Prettier (standard config) | اتساق الكود عبر المشروع |
-| الاختبارات | Vitest + Testing Library | سريع، حديث، متوافق مع Next.js |
-| النمط المعماري | Repository Pattern + Validators | فصل طبقات الوصول للبيانات والتحقق |
-| الكاميرا | getUserMedia API + input capture | التقاط فوري للصور من المتصفح بدون مكتبات خارجية |
-| النشر | Vercel (auto-deploy من main) | تكامل مباشر مع Next.js، نشر تلقائي عند كل push |
+| القرار         | الاختيار                                   | المبرر                                                                 |
+| -------------- | ------------------------------------------ | ---------------------------------------------------------------------- |
+| إطار العمل     | Next.js App Router                         | SSR + API routes في deploy واحد، أداء SEO ممتاز للصفحة الرئيسية العامة |
+| قاعدة البيانات | MongoDB + Mongoose                         | مرونة عالية للبيانات، تكامل ممتاز مع Next.js                           |
+| واجهة المستخدم | MUI + Emotion                              | مكتبة مكونات شاملة مع دعم RTL مدمج وتخصيص سهل                          |
+| لغة البرمجة    | TypeScript (strict)                        | أمان الأنواع، تجربة تطوير أفضل، اكتشاف مبكر للأخطاء                    |
+| المصادقة       | JWT (7 أيام) + bcrypt (12 rounds)          | بدون حالة، ملائم لبيئة serverless                                      |
+| تخزين الصور    | Strategy Pattern (Local / Cloudinary / S3) | مرونة التبديل بين بيئات التطوير والإنتاج                               |
+| إدارة الحالة   | React Context + Custom Hooks               | كافية للمشروع، لا حاجة لمكتبات خارجية                                  |
+| التنسيق        | Prettier (standard config)                 | اتساق الكود عبر المشروع                                                |
+| الاختبارات     | Vitest + Testing Library                   | سريع، حديث، متوافق مع Next.js                                          |
+| النمط المعماري | Repository Pattern + Validators            | فصل طبقات الوصول للبيانات والتحقق                                      |
+| الكاميرا       | getUserMedia API + input capture           | التقاط فوري للصور من المتصفح بدون مكتبات خارجية                        |
+| النشر          | Vercel (auto-deploy من main)               | تكامل مباشر مع Next.js، نشر تلقائي عند كل push                         |
 
 ### ما لا يحتاجه المشروع (حاليًا)
 
-| الميزة | السبب |
-|--------|-------|
-| i18n (تعدد اللغات) | الواجهة عربية فقط |
-| PWA / Service Worker | لا حاجة للعمل بدون اتصال |
-| Push Notifications | لا حاجة للإشعارات |
-| Real-time (Socket.IO) | لا حاجة لتحديثات فورية |
-| Rich Text Editor | الأوصاف نص عادي فقط |
-| GitHub Actions CI/CD | Vercel ينشر تلقائيًا من الفرع الرئيسي |
+| الميزة                | السبب                                 |
+| --------------------- | ------------------------------------- |
+| i18n (تعدد اللغات)    | الواجهة عربية فقط                     |
+| PWA / Service Worker  | لا حاجة للعمل بدون اتصال              |
+| Push Notifications    | لا حاجة للإشعارات                     |
+| Real-time (Socket.IO) | لا حاجة لتحديثات فورية                |
+| Rich Text Editor      | الأوصاف نص عادي فقط                   |
+| GitHub Actions CI/CD  | Vercel ينشر تلقائيًا من الفرع الرئيسي |
 
 ---
 
@@ -72,6 +72,7 @@ Indexes:
 ```
 
 **ملاحظة على الصورة الشخصية:**
+
 - `null` أو `undefined` → يُعرض avatar مُولَّد من الاسم (MUI Avatar fallback)
 - قيمة موجودة → URL من Storage Service (local/cloudinary/s3)
 - عند حذف الحساب: حذف ملف الصورة من التخزين (إذا وُجد) قبل حذف المستخدم
@@ -130,43 +131,43 @@ Photo ──< Like    (one-to-many: الصورة تملك عدة إعجابات)
 
 ### 4.1 نقاط المصادقة
 
-| Method | Path | Auth | الوصف |
-|--------|------|------|-------|
-| POST | `/api/auth/register` | — | إنشاء حساب جديد + إرجاع JWT تلقائيًا |
-| POST | `/api/auth/login` | — | تسجيل الدخول + إرجاع JWT |
-| GET | `/api/auth/me` | JWT | جلب بيانات المستخدم الحالي |
+| Method | Path                 | Auth | الوصف                                |
+| ------ | -------------------- | ---- | ------------------------------------ |
+| POST   | `/api/auth/register` | —    | إنشاء حساب جديد + إرجاع JWT تلقائيًا |
+| POST   | `/api/auth/login`    | —    | تسجيل الدخول + إرجاع JWT             |
+| GET    | `/api/auth/me`       | JWT  | جلب بيانات المستخدم الحالي           |
 
 ### 4.2 نقاط الملف الشخصي
 
-| Method | Path | Auth | الوصف |
-|--------|------|------|-------|
-| PUT | `/api/profile` | JWT | تحديث الاسم أو البريد الإلكتروني |
-| PUT | `/api/profile/password` | JWT | تغيير كلمة المرور (يتطلب كلمة المرور الحالية) |
-| PUT | `/api/profile/avatar` | JWT | رفع/تغيير صورة المستخدم (multipart/form-data) |
-| DELETE | `/api/profile/avatar` | JWT | حذف صورة المستخدم (العودة إلى الافتراضي) |
-| DELETE | `/api/profile` | JWT | حذف الحساب نهائيًا (يتطلب كلمة المرور) |
+| Method | Path                    | Auth | الوصف                                         |
+| ------ | ----------------------- | ---- | --------------------------------------------- |
+| PUT    | `/api/profile`          | JWT  | تحديث الاسم أو البريد الإلكتروني              |
+| PUT    | `/api/profile/password` | JWT  | تغيير كلمة المرور (يتطلب كلمة المرور الحالية) |
+| PUT    | `/api/profile/avatar`   | JWT  | رفع/تغيير صورة المستخدم (multipart/form-data) |
+| DELETE | `/api/profile/avatar`   | JWT  | حذف صورة المستخدم (العودة إلى الافتراضي)      |
+| DELETE | `/api/profile`          | JWT  | حذف الحساب نهائيًا (يتطلب كلمة المرور)        |
 
 ### 4.3 نقاط الصور
 
-| Method | Path | Auth | الوصف |
-|--------|------|------|-------|
-| GET | `/api/photos` | — | جلب الصور العامة (مع pagination) |
-| POST | `/api/photos` | JWT | رفع صورة جديدة (multipart/form-data) |
-| GET | `/api/photos/mine` | JWT | جلب صور المستخدم الحالي (مع pagination) |
-| PUT | `/api/photos/[id]` | JWT | تعديل عنوان/وصف صورة (المالك فقط) |
-| DELETE | `/api/photos/[id]` | JWT | حذف صورة (المالك فقط) + حذف الملف + إعجابات مرتبطة |
+| Method | Path               | Auth | الوصف                                              |
+| ------ | ------------------ | ---- | -------------------------------------------------- |
+| GET    | `/api/photos`      | —    | جلب الصور العامة (مع pagination)                   |
+| POST   | `/api/photos`      | JWT  | رفع صورة جديدة (multipart/form-data)               |
+| GET    | `/api/photos/mine` | JWT  | جلب صور المستخدم الحالي (مع pagination)            |
+| PUT    | `/api/photos/[id]` | JWT  | تعديل عنوان/وصف صورة (المالك فقط)                  |
+| DELETE | `/api/photos/[id]` | JWT  | حذف صورة (المالك فقط) + حذف الملف + إعجابات مرتبطة |
 
 ### 4.4 نقاط الإعجابات
 
-| Method | Path | Auth | الوصف |
-|--------|------|------|-------|
-| POST | `/api/photos/[id]/like` | JWT | تبديل الإعجاب (like/unlike) |
+| Method | Path                    | Auth | الوصف                       |
+| ------ | ----------------------- | ---- | --------------------------- |
+| POST   | `/api/photos/[id]/like` | JWT  | تبديل الإعجاب (like/unlike) |
 
 ### 4.5 نقطة الصحة
 
-| Method | Path | Auth | الوصف |
-|--------|------|------|-------|
-| GET | `/api/health` | — | حالة التطبيق وقاعدة البيانات |
+| Method | Path          | Auth | الوصف                        |
+| ------ | ------------- | ---- | ---------------------------- |
+| GET    | `/api/health` | —    | حالة التطبيق وقاعدة البيانات |
 
 ### 4.6 شكل الاستجابة الموحد
 
@@ -337,12 +338,12 @@ components/
 
 ### 5.5 التصميم المتجاوب
 
-| الشاشة | الأعمدة | ملاحظات |
-|--------|---------|---------|
-| xs (< 600px) | 1 | عمود واحد، بطاقات بعرض كامل |
-| sm (600px+) | 2 | عمودان |
-| md (900px+) | 3 | ثلاثة أعمدة |
-| lg (1200px+) | 4 | أربعة أعمدة |
+| الشاشة       | الأعمدة | ملاحظات                     |
+| ------------ | ------- | --------------------------- |
+| xs (< 600px) | 1       | عمود واحد، بطاقات بعرض كامل |
+| sm (600px+)  | 2       | عمودان                      |
+| md (900px+)  | 3       | ثلاثة أعمدة                 |
+| lg (1200px+) | 4       | أربعة أعمدة                 |
 
 ---
 
@@ -353,6 +354,7 @@ components/
 **الهدف:** مشروع Next.js قابل للتشغيل مع كل ملفات الإعداد والتوثيق الأساسي.
 
 **المخرجات (مكتملة):**
+
 - بنية المجلدات الكاملة
 - ملفات الإعداد: `tsconfig.json`, `.prettierrc.json`, `.gitattributes`, `eslint.config.mjs`, `vitest.config.ts`
 - `package.json` مع جميع الاعتماديات والسكريبتات
@@ -362,6 +364,7 @@ components/
 - `scripts/format.mjs` + `scripts/validate-workflow.mjs`
 
 **الإيداع:**
+
 ```text
 feat(init): scaffold My Photos (صوري) project baseline
 ```
@@ -373,6 +376,7 @@ feat(init): scaffold My Photos (صوري) project baseline
 **الهدف:** إنشاء النماذج، المستودعات، المُحققين، وسلسلة المصادقة.
 
 **المهام:**
+
 1. Mongoose models: `User` (مع `avatarUrl`), `Photo`, `Like`
 2. Repository interface + BaseRepository (Mongoose)
 3. UserRepository, PhotoRepository, LikeRepository
@@ -384,6 +388,7 @@ feat(init): scaffold My Photos (صوري) project baseline
 9. `middlewares/auth.middleware.ts` — authenticateRequest()
 
 **الإيداع:**
+
 ```text
 feat(db): add Mongoose models, Repository Pattern, validators, and auth utilities
 ```
@@ -395,6 +400,7 @@ feat(db): add Mongoose models, Repository Pattern, validators, and auth utilitie
 **الهدف:** بناء Storage Strategy Pattern لإدارة الملفات.
 
 **المهام:**
+
 1. `lib/storage/storage.interface.ts` — عقد الواجهة
 2. `lib/storage/local.strategy.ts` — تخزين محلي في `public/uploads/`
 3. `lib/storage/cloudinary.strategy.ts` — Cloudinary (CLOUDINARY_URL أو الحقول المنفصلة)
@@ -404,6 +410,7 @@ feat(db): add Mongoose models, Repository Pattern, validators, and auth utilitie
 **ملاحظة:** الـ Storage Service يُستخدم لصور المنشورات **وصور الملف الشخصي (avatars)** معًا.
 
 **الإيداع:**
+
 ```text
 feat(storage): add pluggable storage service with local, Cloudinary, and S3 strategies
 ```
@@ -415,6 +422,7 @@ feat(storage): add pluggable storage service with local, Cloudinary, and S3 stra
 **الهدف:** تشغيل جميع نقاط API الخلفية.
 
 **المهام:**
+
 1. `POST /api/auth/register` — إنشاء حساب + JWT
 2. `POST /api/auth/login` — تسجيل دخول + JWT
 3. `GET /api/auth/me` — بيانات المستخدم الحالي
@@ -432,6 +440,7 @@ feat(storage): add pluggable storage service with local, Cloudinary, and S3 stra
 15. `GET /api/health` — فحص الصحة
 
 **الإيداع:**
+
 ```text
 feat(api): add auth, profile management, photos CRUD, and likes API routes
 ```
@@ -443,6 +452,7 @@ feat(api): add auth, profile management, photos CRUD, and likes API routes
 **الهدف:** الأساسيات: السمة، المصادقة، التخطيط، التنقل.
 
 **المهام:**
+
 1. `ThemeContext.tsx` — MUI theme مع dark/light + RTL + Cairo font + WCAG AA
 2. `AuthContext.tsx` — JWT state + login/register/logout + updateUser (لتحديث الـ user بعد تعديل الملف)
 3. `providers.tsx` — شجرة Providers
@@ -455,6 +465,7 @@ feat(api): add auth, profile management, photos CRUD, and likes API routes
 10. `GuestRoute.tsx` — حماية صفحات الضيوف
 
 **الإيداع:**
+
 ```text
 feat(ui): add theme system, auth context, layout, and client infrastructure
 ```
@@ -466,10 +477,12 @@ feat(ui): add theme system, auth context, layout, and client infrastructure
 **الهدف:** صفحات تسجيل الدخول وإنشاء الحساب.
 
 **المهام:**
+
 1. `login/page.tsx` — نموذج مع التحقق ورسائل الخطأ
 2. `register/page.tsx` — نموذج مع تأكيد كلمة المرور + تسجيل دخول تلقائي
 
 **الإيداع:**
+
 ```text
 feat(auth): add login and register pages with form validation
 ```
@@ -481,6 +494,7 @@ feat(auth): add login and register pages with form validation
 **الهدف:** بناء hook وmكوّن مشتركين لالتقاط الصور من الكاميرا، يُستخدمان في صفحتي الملف الشخصي وصوري.
 
 **المهام:**
+
 1. `hooks/useCamera.ts` — hook لإدارة الكاميرا:
    - `isSupported`: هل المتصفح يدعم `getUserMedia`؟
    - `isActive`: هل الكاميرا مفتوحة؟
@@ -488,7 +502,6 @@ feat(auth): add login and register pages with form validation
    - `stopCamera()`: إيقاف الـ stream وإغلاق الكاميرا
    - `capturePhoto()`: التقاط الإطار الحالي → Canvas → Blob → File
    - `hasPermission`: حالة الإذن (`granted` / `denied` / `prompt`)
-   
 2. `components/camera/CameraCapture.tsx` — مكوّن UI مكتمل:
    - عرض الـ video stream بالكامل
    - زر التقاط (دائري كبير)
@@ -497,11 +510,13 @@ feat(auth): add login and register pages with form validation
    - رسالة خطأ واضحة عند رفض إذن الكاميرا
 
 **استراتيجية التوافق:**
+
 - **Desktop/Android (Chrome/Firefox):** `getUserMedia` + Canvas
 - **iOS Safari:** `<input type="file" accept="image/*" capture="environment">` كبديل (لا يدعم `getUserMedia` بنفس الطريقة)
 - يكتشف `useCamera` تلقائيًا النوع المتاح
 
 **الإيداع:**
+
 ```text
 feat(camera): add useCamera hook and CameraCapture component for instant photo capture
 ```
@@ -513,6 +528,7 @@ feat(camera): add useCamera hook and CameraCapture component for instant photo c
 **الهدف:** عرض الصور العامة مع الإعجابات والتكبير.
 
 **المهام:**
+
 1. `ExpandableText.tsx` — نص مقتطع مع "عرض المزيد"
 2. `LikeButton.tsx` — زر إعجاب (optimistic update + rollback)
 3. `PhotoCard.tsx` — بطاقة صورة كاملة
@@ -522,6 +538,7 @@ feat(camera): add useCamera hook and CameraCapture component for instant photo c
 7. `page.tsx` (الرئيسية) — تركيب المكونات
 
 **الإيداع:**
+
 ```text
 feat(home): add public photo feed with grid, lightbox, likes, and pagination
 ```
@@ -533,6 +550,7 @@ feat(home): add public photo feed with grid, lightbox, likes, and pagination
 **الهدف:** إدارة صور المستخدم مع دعم الكاميرا.
 
 **المهام:**
+
 1. `PhotoUploadForm.tsx` — نموذج رفع صورة مع **tab للاختيار:**
    - تبويب "رفع من الجهاز": drag & drop + file picker
    - تبويب "التقاط بالكاميرا": يفتح `<CameraCapture>` → صورة ملتقطة → معاينة → رفع
@@ -541,6 +559,7 @@ feat(home): add public photo feed with grid, lightbox, likes, and pagination
 4. `my-photos/page.tsx` — صفحة مع FAB وشبكة الصور
 
 **الإيداع:**
+
 ```text
 feat(my-photos): add user gallery with photo upload, camera capture, edit, and delete
 ```
@@ -552,6 +571,7 @@ feat(my-photos): add user gallery with photo upload, camera capture, edit, and d
 **الهدف:** إدارة الحساب الكاملة (صورة، بيانات، كلمة مرور، حذف).
 
 **المهام:**
+
 1. `AvatarUploader.tsx` — صورة شخصية مع:
    - Overlay كاميرا عند التحويم
    - Menu عند الضغط: "رفع من الجهاز" + "التقاط بالكاميرا"
@@ -567,6 +587,7 @@ feat(my-photos): add user gallery with photo upload, camera capture, edit, and d
 5. `profile/page.tsx` — تجميع الأقسام
 
 **الإيداع:**
+
 ```text
 feat(profile): add profile page with avatar upload, camera capture, info edit, and account deletion
 ```
@@ -578,6 +599,7 @@ feat(profile): add profile page with avatar upload, camera capture, info edit, a
 **الهدف:** تحسين تجربة المستخدم وإمكانية الوصول.
 
 **المهام:**
+
 1. حالات التحميل (Skeleton/Spinner) لجميع العمليات
 2. حالات الخطأ المرئية (Snackbar/Alert)
 3. صفحة 404 مخصصة
@@ -586,6 +608,7 @@ feat(profile): add profile page with avatar upload, camera capture, info edit, a
 6. تنسيق الكود بـ Prettier
 
 **الإيداع:**
+
 ```text
 fix(ux): add loading states, error handling, 404 page, and accessibility improvements
 ```
@@ -597,6 +620,7 @@ fix(ux): add loading states, error handling, 404 page, and accessibility improve
 **الهدف:** تغطية اختبارية شاملة.
 
 **المهام:**
+
 1. اختبارات validators (register, login, photo, profile)
 2. اختبارات repositories (User, Photo, Like)
 3. اختبارات API routes (auth, profile, photos, likes)
@@ -605,6 +629,7 @@ fix(ux): add loading states, error handling, 404 page, and accessibility improve
 6. اختبارات config + types
 
 **الإيداع:**
+
 ```text
 test: add comprehensive test suite for all layers
 ```
@@ -616,6 +641,7 @@ test: add comprehensive test suite for all layers
 **الهدف:** توثيق شامل + ضبط Vercel.
 
 **المهام:**
+
 1. تحديث `README.md` الكامل
 2. `docs/ai/architecture.md`
 3. `docs/ai/feature-guide.md`
@@ -626,12 +652,14 @@ test: add comprehensive test suite for all layers
 8. إعداد مشروع Vercel وربطه بالمستودع (نشر تلقائي من `main`)
 
 **ملاحظة على النشر:**
+
 - مشاريع Next.js تُنشر على Vercel بدون GitHub Actions
 - كل push إلى `main` يُشغّل نشرًا تلقائيًا مباشرةً
 - المتغيرات البيئية تُضبط من Vercel Dashboard
 - Vercel Preview Deployments تعمل تلقائيًا على كل PR
 
 **الإيداع:**
+
 ```text
 docs: add comprehensive documentation and deployment guide
 ```
@@ -825,23 +853,23 @@ STORAGE_TYPE=local
 
 ### 9.1 الوضع الفاتح
 
-| العنصر | اللون | التباين |
-|--------|-------|---------|
-| Primary | `#1565c0` | AA+ على أبيض |
-| Background | `#f5f5f5` | — |
-| Paper | `#ffffff` | — |
-| Text Primary | `#0d1117` | AAA على أبيض |
-| Text Secondary | `#24292f` | AA على أبيض |
+| العنصر         | اللون     | التباين      |
+| -------------- | --------- | ------------ |
+| Primary        | `#1565c0` | AA+ على أبيض |
+| Background     | `#f5f5f5` | —            |
+| Paper          | `#ffffff` | —            |
+| Text Primary   | `#0d1117` | AAA على أبيض |
+| Text Secondary | `#24292f` | AA على أبيض  |
 
 ### 9.2 الوضع الداكن
 
-| العنصر | اللون | التباين |
-|--------|-------|---------|
-| Primary | `#42a5f5` | AA+ على داكن |
-| Background | `#121212` | — |
-| Paper | `#1e1e1e` | — |
-| Text Primary | `#e8eaed` | AAA على داكن |
-| Text Secondary | `#b0b8c4` | AA على داكن |
+| العنصر         | اللون     | التباين      |
+| -------------- | --------- | ------------ |
+| Primary        | `#42a5f5` | AA+ على داكن |
+| Background     | `#121212` | —            |
+| Paper          | `#1e1e1e` | —            |
+| Text Primary   | `#e8eaed` | AAA على داكن |
+| Text Secondary | `#b0b8c4` | AA على داكن  |
 
 ### 9.3 مبادئ التصميم
 
@@ -854,14 +882,14 @@ STORAGE_TYPE=local
 
 ## 10. استراتيجية الاختبارات
 
-| الطبقة | النوع | الأمثلة |
-|--------|-------|---------|
-| Validators | Unit | `validateRegisterInput`, `validateChangePasswordInput` |
-| Repositories | Unit | `UserRepo.findByEmail`, `LikeRepo.toggleLike` |
-| API Routes | Integration | `PUT /api/profile`, `POST /api/photos` |
-| Hooks | Unit | `useAuth()`, `usePhotos()`, `useCamera()` |
-| Components | Component | `PhotoCard`, `AvatarUploader`, `CameraCapture` |
-| Config/Types | Unit | ثوابت، type guards |
+| الطبقة       | النوع       | الأمثلة                                                |
+| ------------ | ----------- | ------------------------------------------------------ |
+| Validators   | Unit        | `validateRegisterInput`, `validateChangePasswordInput` |
+| Repositories | Unit        | `UserRepo.findByEmail`, `LikeRepo.toggleLike`          |
+| API Routes   | Integration | `PUT /api/profile`, `POST /api/photos`                 |
+| Hooks        | Unit        | `useAuth()`, `usePhotos()`, `useCamera()`              |
+| Components   | Component   | `PhotoCard`, `AvatarUploader`, `CameraCapture`         |
+| Config/Types | Unit        | ثوابت، type guards                                     |
 
 - Vitest + jsdom + @testing-library/react
 - أسماء الاختبارات بالعربية: `'يجب أن يرفض البريد المكرر'`
@@ -878,7 +906,12 @@ const formData = await request.formData();
 const file = formData.get('photo') as File;
 const buffer = Buffer.from(await file.arrayBuffer());
 const storage = getStorageService();
-const result = await storage.uploadFile({ buffer, originalname: file.name, mimetype: file.type, size: file.size });
+const result = await storage.uploadFile({
+  buffer,
+  originalname: file.name,
+  mimetype: file.type,
+  size: file.size,
+});
 ```
 
 ### 11.2 الكاميرا — useCamera Hook
@@ -893,19 +926,21 @@ const canvas = document.createElement('canvas');
 canvas.width = video.videoWidth;
 canvas.height = video.videoHeight;
 canvas.getContext('2d')!.drawImage(video, 0, 0);
-const blob = await new Promise<Blob>(resolve => canvas.toBlob(resolve!, 'image/jpeg', 0.9));
+const blob = await new Promise<Blob>((resolve) => canvas.toBlob(resolve!, 'image/jpeg', 0.9));
 const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
 
 // إيقاف الكاميرا
-stream.getTracks().forEach(track => track.stop());
+stream.getTracks().forEach((track) => track.stop());
 ```
 
 **التوافق:**
+
 - Chrome/Firefox/Edge (Desktop + Android): `getUserMedia` مدعوم
 - Safari iOS: يُستخدم `<input type="file" accept="image/*" capture="environment">` كبديل مباشر
 - `useCamera.isSupported` يكتشف تلقائيًا الدعم
 
 **أماكن الاستخدام:**
+
 1. `PhotoUploadForm` (صفحة صوري) — تبويب "التقاط بالكاميرا"
 2. `AvatarUploader` (صفحة الملف الشخصي) — خيار "التقاط بالكاميرا"
 
@@ -932,11 +967,13 @@ stream.getTracks().forEach(track => track.stop());
 ### 11.6 حذف الصورة أو الحساب (Cascade)
 
 **حذف صورة منشور:**
+
 1. حذف إعجابات الصورة (`Like.deleteMany({ photo: id })`)
 2. حذف الملف من التخزين (`storage.deleteFile(imageUrl)`)
 3. حذف سجل الصورة
 
 **حذف الحساب:**
+
 1. التحقق من كلمة المرور
 2. جمع جميع صور المنشورات + ملف الـ avatar
 3. حذف جميع البيانات (photos, likes, user) بعملية آمنة
@@ -979,5 +1016,5 @@ stream.getTracks().forEach(track => track.stop());
 
 ---
 
-*هذه الخطة قابلة للتحديث مع تقدم التطوير.*
-*آخر تحديث: مارس 14, 2026*
+_هذه الخطة قابلة للتحديث مع تقدم التطوير._
+_آخر تحديث: مارس 14, 2026_

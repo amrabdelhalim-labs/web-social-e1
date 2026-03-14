@@ -37,9 +37,12 @@ yarn-error.log*
 # keep .env.example tracked
 !.env.example
 
-# uploads (local storage)
+# uploads (local storage — STORAGE_TYPE=local)
 public/uploads/*
 !public/uploads/.gitkeep
+
+# test uploads (created by storage.test.ts)
+.test-uploads/
 
 # vercel
 .vercel

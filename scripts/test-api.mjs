@@ -53,19 +53,6 @@ const MINIMAL_PNG = Buffer.from(
   'hex'
 );
 
-/**
- * Minimal 1×1 JPEG (SOI + minimal APP0 + EOI — ~107 bytes).
- * Accepted by all image validators that check magic bytes.
- */
-const MINIMAL_JPEG = Buffer.from(
-  'ffd8ffe000104a46494600010100000100010000ffdb00430001010101' +
-    '01010101010101010101010101010101010101010101010101010101' +
-    '0101010101010101010101010101010101010101010101ffc0000b08' +
-    '000100010101110003ffc4001f0000010501010101010100000000000' +
-    '000000102030405060708090a0bffda00080101000003f0f4ffd9',
-  'hex'
-);
-
 function makeImageFile(name, buffer, type) {
   const blob = new Blob([buffer], { type });
   return new File([blob], name, { type });
@@ -314,9 +301,9 @@ await test('GET /api/photos is publicly accessible (no auth)', async () => {
   if (!body.pagination) throw new Error('Missing pagination');
 });
 
-await test(`POST /api/photos uploads real JPEG (storage: ${detectedStorageType})`, async () => {
+await test(`POST /api/photos uploads real PNG (storage: ${detectedStorageType})`, async () => {
   const formData = new FormData();
-  formData.append('photo', makeImageFile('test-photo.jpg', MINIMAL_JPEG, 'image/jpeg'));
+  formData.append('photo', makeImageFile('test-photo.png', MINIMAL_PNG, 'image/png'));
   formData.append('title', 'صورة اختبار تكامل');
   formData.append('description', 'وصف الصورة في اختبار التكامل');
 

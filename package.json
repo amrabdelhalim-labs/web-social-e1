@@ -7,15 +7,18 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\"",
+    "dev:clean": "npm run clean && next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint src/",
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "node scripts/format.mjs",
     "format:check": "node scripts/format.mjs --check",
-    "validate": "node scripts/validate-workflow.mjs"
+    "validate": "node scripts/validate-workflow.mjs",
+    "db:init": "node scripts/init-db.mjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
@@ -23,15 +26,13 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
-    "@mui/material-nextjs": "^7.3.9",
     "@mui/stylis-plugin-rtl": "^7.3.8",
     "bcryptjs": "^3.0.3",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.0",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "stylis-plugin-rtl": "^2.1.1"
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

@@ -11,7 +11,7 @@
  * Uses MUI Avatar with initials fallback when avatarUrl is null.
  */
 
-import { useState, type MouseEvent } from 'react';
+import { useState } from 'react';
 import {
   Avatar,
   Box,
@@ -43,7 +43,7 @@ export function UserMenu() {
 
   const open = Boolean(anchor);
 
-  const handleOpen = (e: MouseEvent<HTMLElement>) => setAnchor(e.currentTarget);
+  const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchor(e.currentTarget);
   const handleClose = () => setAnchor(null);
 
   const navigate = (href: string) => {

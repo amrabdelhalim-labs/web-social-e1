@@ -1,16 +1,19 @@
-import { Box, Typography, Container } from '@mui/material';
+'use client';
+
+import { Box, Typography } from '@mui/material';
+import { MainLayout } from '@/app/components/layout/MainLayout';
 import { APP_NAME } from './config';
 
 export default function HomePage() {
   return (
-    <Container maxWidth="lg">
+    <MainLayout>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '100vh',
+          minHeight: { xs: '50vh', md: '60vh' },
           gap: 2,
         }}
       >
@@ -21,6 +24,6 @@ export default function HomePage() {
           موقع مشاركة الصور — قيد التطوير
         </Typography>
       </Box>
-    </Container>
+    </MainLayout>
   );
 }

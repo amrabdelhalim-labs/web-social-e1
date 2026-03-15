@@ -56,13 +56,14 @@ describe('hashPassword / comparePassword', () => {
   });
 
   it('ينتج هاشات مختلفة لنفس كلمة المرور (salt عشوائي)', async () => {
+    // bcrypt with 12 rounds is intentionally slow — allow extra time
     const h1 = await hashPassword('same-password');
     const h2 = await hashPassword('same-password');
     expect(h1).not.toBe(h2);
     // لكن كلاهما صحيح
     await expect(comparePassword('same-password', h1)).resolves.toBe(true);
     await expect(comparePassword('same-password', h2)).resolves.toBe(true);
-  });
+  }, 20_000);
 
   it('يبدأ الهاش بـ bcrypt prefix', async () => {
     const hashed = await hashPassword('test');

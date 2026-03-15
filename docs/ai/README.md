@@ -2,6 +2,16 @@
 
 > اقرأ هذا الملف أولاً قبل إجراء أي تعديل على هذا المشروع.
 
+## سياق المشروع المستقل
+
+هذا المشروع يُطوَّر في **سياق مستقل** — لا يعتمد على مشاريع أخرى ولا يتأثر بها:
+
+- **لا Docker** — استخدم MongoDB محلي أو Atlas مباشرة
+- **لا service worker** — ليس PWA، لا مكونات مشتركة مع مشاريع PWA
+- **لا مراجع لمشاريع أخرى** — التوثيق والإعداد خاص بهذا المشروع فقط
+
+عند إضافة ميزات، تجنب استيراد أنماط أو ملفات من مشاريع أخرى إلا للاستلهام فقط (نسخ وتكيف، لا ربط).
+
 ## هوية المشروع
 
 | الحقل      | القيمة                                               |
@@ -71,10 +81,14 @@
 ## التشغيل السريع
 
 ```bash
-cp .env.example .env.local
+# قاعدة البيانات: npm run db:init (محلي) أو MongoDB Atlas (سحابي)
+cp .env.example .env.local   # أو استخدم .env.local الجاهز
 npm install
 npm run dev
 ```
+
+- `.env.local` الجاهز يستخدم: `DATABASE_URL=mongodb://localhost:27017/web-social-e1` و `STORAGE_TYPE=local`
+- المشروع يستخدم Webpack (`--webpack`) لتجنب أخطاء Turbopack مع MUI
 
 ## تشغيل اختبارات التكامل الحية (Heroku)
 
@@ -90,6 +104,18 @@ node scripts/test-api.mjs https://<your-heroku-app>.herokuapp.com
 
 - عند `STORAGE_TYPE=cloudinary` يجب وجود `cloudinary` ضمن `optionalDependencies` في المشروع المنشور.
 - عند استخدام MongoDB Atlas: إذا كلمة المرور تحتوي رموزًا خاصة، يجب ترميزها داخل `DATABASE_URL` بصيغة URL-encoding.
+
+## استكشاف الأخطاء — خطأ AppRouterCacheProvider / module factory
+
+إذا ظهر خطأ مثل:
+`Module ... AppRouterCacheProvider was instantiated because it was required from providers.tsx, but the module factory is not available`
+
+**السبب:** Turbopack يحتفظ بمرجع قديم لـ `@mui/material-nextjs` بعد إزالته.
+
+**الحل:** المشروع يستخدم **Webpack** بدل Turbopack (`next dev --webpack`) — يتجنب هذا الخطأ. إذا رجعت لـ Turbopack:
+1. إيقاف الخادم (Ctrl+C)
+2. تشغيل `npm run dev:clean`
+3. تحديث قسري في المتصفح (Ctrl+Shift+R)
 
 ## إضافة ميزة جديدة
 

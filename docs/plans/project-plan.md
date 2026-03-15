@@ -472,7 +472,7 @@ feat(ui): add theme system, auth context, layout, and client infrastructure
 
 ---
 
-### المرحلة 6: صفحات المصادقة
+### المرحلة 6: صفحات المصادقة ✅
 
 **الهدف:** صفحات تسجيل الدخول وإنشاء الحساب.
 

@@ -29,22 +29,29 @@
 
 - Node.js >= 20
 - npm >= 10
-- MongoDB (محلي أو Atlas)
+- MongoDB (محلي أو Atlas) — راجع [docs/setup-local.md](docs/setup-local.md)
 
 ## التشغيل السريع
 
 ```bash
-# 1. نسخ المتغيرات البيئية
+# 1. إعداد البيئة وقاعدة البيانات
+
+# خيار أ: MongoDB مثبت محليًا
+npm run db:init
+
+# خيار ب: MongoDB Atlas (سحابي) — راجع docs/setup-local.md
+
+# 2. نسخ المتغيرات البيئية (إذا لم يكن .env.local موجودًا)
 cp .env.example .env.local
 
-# 2. تثبيت الاعتماديات
+# 3. تثبيت الاعتماديات
 npm install
 
-# 3. تشغيل خادم التطوير
+# 4. تشغيل خادم التطوير
 npm run dev
 ```
 
-ثم افتح [http://localhost:3000](http://localhost:3000).
+ثم افتح [http://localhost:3000](http://localhost:3000). للتحقق من الاتصال: [http://localhost:3000/api/health](http://localhost:3000/api/health)
 
 ## السكريبتات المتاحة
 
@@ -58,6 +65,7 @@ npm run dev
 | `npm run format`       | تنسيق الكود بـ Prettier |
 | `npm run format:check` | التحقق من التنسيق       |
 | `npm run validate`     | فحص شامل قبل الدفع      |
+| `npm run db:init`      | إنشاء قاعدة البيانات المحلية |
 
 ## بنية المشروع
 
@@ -80,9 +88,19 @@ src/app/
 | الملف                                                    | الموضوع             |
 | -------------------------------------------------------- | ------------------- |
 | [docs/plans/project-plan.md](docs/plans/project-plan.md) | خطة المشروع المفصلة |
+| [docs/setup-local.md](docs/setup-local.md)               | إعداد البيئة المحلية |
 | [docs/ai/README.md](docs/ai/README.md)                   | دليل AI للمشروع     |
 
 ## سجل التغييرات
+
+### v0.1.1 — إعداد محلي وتنظيف
+
+- قاعدة بيانات محلية: سكربت `db:init` لإنشاء MongoDB محلي
+- إصلاح اتصال IPv6: استخدام `127.0.0.1` بدل `localhost`
+- تحسين التباين: إعدادات WCAG AA للقوائم والنصوص (من مشروع الملاحظات)
+- AppBar: شريط علوي بعرض كامل مع padding متجاوب
+- إصلاح تحذيرات React 19: استبدال `FormEvent` بـ `SyntheticEvent<SubmitEvent>`
+- إزالة Docker و sw.js: مشروع مستقل بسياق تطوير واضح
 
 ### v0.1.0 — الهيكل الأولي
 

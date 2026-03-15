@@ -34,7 +34,10 @@ function run(cmd) {
 
 console.log('\n🔍 Validating project...\n');
 
-console.log('§1 — Required files');
+console.log('§0 — Clean stale build cache');
+check('clean .next', () => run('npm run clean'));
+
+console.log('\n§1 — Required files');
 const requiredFiles = [
   'README.md',
   'CONTRIBUTING.md',

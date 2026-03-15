@@ -4,14 +4,11 @@
  * Providers — Global Client-Side Provider Tree
  *
  * Wraps the app with all required context providers in the correct order:
- *   ThemeProviderWrapper  → MUI theme + RTL + dark/light mode context
+ *   ThemeProviderWrapper  → MUI theme + RTL + dark/light mode (Emotion CacheProvider)
  *   AuthProvider          → JWT auth state + user object
  *
- * The RTL Emotion cache is handled inside ThemeProviderWrapper using
- * @emotion/cache and CacheProvider — no AppRouterCacheProvider needed.
- * This avoids the "Functions cannot be passed directly to Client Components"
- * error that occurs when function-type stylisPlugins are serialized across
- * the Server/Client component boundary.
+ * RTL support is handled inside ThemeProviderWrapper via @emotion/cache +
+ * @mui/stylis-plugin-rtl at module level.
  */
 
 import { ThemeProviderWrapper } from '@/app/context/ThemeContext';

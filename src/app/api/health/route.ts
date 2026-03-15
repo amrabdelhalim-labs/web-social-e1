@@ -13,45 +13,52 @@ export async function HEAD(): Promise<NextResponse> {
 }
 
 export async function GET(): Promise<NextResponse> {
+  let dbError: string | null = null;
+  let storageHealthy = false;
+  let storageError: string | null = null;
+
+  // 1. Try database connection
   try {
     await connectDB();
-
-    const repos = getRepositoryManager();
-    const health = await repos.healthCheck();
-
-    let storageHealthy = false;
-    try {
-      const storage = getStorageService();
-      storageHealthy = await storage.healthCheck();
-    } catch {
-      storageHealthy = false;
-    }
-
-    const allHealthy = health.status === 'healthy' && storageHealthy;
-
-    return NextResponse.json(
-      {
-        status: allHealthy ? 'healthy' : 'degraded',
-        database: health.database,
-        repositories: health.repositories,
-        storage: {
-          type: getStorageType(),
-          healthy: storageHealthy,
-        },
-        timestamp: new Date().toISOString(),
-      },
-      { status: allHealthy ? 200 : 503 }
-    );
-  } catch {
-    return NextResponse.json(
-      {
-        status: 'error',
-        database: getConnectionStatus(),
-        repositories: {},
-        storage: { type: getStorageType(), healthy: false },
-        timestamp: new Date().toISOString(),
-      },
-      { status: 503 }
-    );
+  } catch (err) {
+    dbError = err instanceof Error ? err.message : String(err);
   }
+
+  // 2. Check storage independently (even if DB failed)
+  try {
+    const storage = getStorageService();
+    storageHealthy = await storage.healthCheck();
+  } catch (err) {
+    storageError = err instanceof Error ? err.message : String(err);
+  }
+
+  // 3. Repository health (only if DB connected)
+  type HealthResult = { status: string; database: string; repositories: Record<string, boolean> };
+  let health: HealthResult = { status: 'error', database: 'disconnected', repositories: {} };
+  if (!dbError) {
+    try {
+      const repos = getRepositoryManager();
+      health = await repos.healthCheck();
+    } catch {
+      health = { status: 'degraded', database: getConnectionStatus(), repositories: {} };
+    }
+  }
+
+  const allHealthy = !dbError && health.status === 'healthy' && storageHealthy;
+
+  return NextResponse.json(
+    {
+      status: allHealthy ? 'healthy' : 'degraded',
+      database: dbError ? 'error' : health.database,
+      databaseError: dbError ?? undefined,
+      repositories: health.repositories,
+      storage: {
+        type: getStorageType(),
+        healthy: storageHealthy,
+        error: storageError ?? undefined,
+      },
+      timestamp: new Date().toISOString(),
+    },
+    { status: allHealthy ? 200 : 503 }
+  );
 }

@@ -99,7 +99,7 @@ function buildTheme(mode: PaletteMode) {
         },
         background: isDark
           ? { default: '#121212', paper: '#1e1e1e' }
-          : { default: '#f5f5f5', paper: '#ffffff' },
+          : { default: '#f0f4f8', paper: '#ffffff' },
         text: isDark
           ? {
               primary: '#e8eaed', // 15.8:1 vs #121212 ✅ AAA
@@ -107,16 +107,18 @@ function buildTheme(mode: PaletteMode) {
               disabled: '#5c6773',
             }
           : {
-              primary: '#0d1117', // 19.1:1 vs #f5f5f5 ✅ AAA
-              secondary: '#24292f', //  9.8:1 vs #f5f5f5 ✅ AAA
+              primary: '#0d1117', // 19.1:1 vs #f0f4f8 ✅ AAA
+              secondary: '#24292f', //  9.8:1 vs #f0f4f8 ✅ AAA
               disabled: '#57606a',
             },
         divider: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.14)',
         action: {
+          active: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(0,0,0,0.70)',
           hover: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
           selected: isDark ? 'rgba(255,255,255,0.20)' : 'rgba(0,0,0,0.14)',
           disabled: isDark ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.30)',
           disabledBackground: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+          focus: isDark ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.12)',
         },
       },
       typography: {
@@ -174,6 +176,44 @@ function buildTheme(mode: PaletteMode) {
         MuiCard: {
           styleOverrides: {
             root: ({ theme }) => ({ borderColor: theme.palette.divider }),
+          },
+        },
+        MuiMenu: {
+          styleOverrides: {
+            paper: () => ({
+              backgroundColor: isDark ? '#1e1e1e' : '#ffffff',
+              backgroundImage: 'none',
+              boxShadow: isDark
+                ? '0 5px 15px rgba(0,0,0,0.7)'
+                : '0 5px 15px rgba(0,0,0,0.2)',
+            }),
+          },
+        },
+        MuiMenuItem: {
+          styleOverrides: {
+            root: ({ theme }) => ({
+              '&:hover': {
+                backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+              },
+              '&.Mui-disabled': {
+                opacity: 1,
+                color: 'inherit',
+                '& .MuiTypography-root': { color: theme.palette.text.primary },
+                '& .MuiTypography-caption': { color: theme.palette.text.secondary },
+              },
+            }),
+          },
+        },
+        MuiTypography: {
+          styleOverrides: {
+            caption: ({ theme }) => ({
+              color: theme.palette.text.secondary,
+              fontWeight: 400,
+            }),
+            body2: ({ theme }) => ({
+              color: theme.palette.text.primary,
+              fontWeight: 500,
+            }),
           },
         },
       },

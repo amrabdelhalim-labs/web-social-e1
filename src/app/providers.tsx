@@ -1,24 +1,26 @@
 'use client';
 
-import { createTheme, ThemeProvider, CssBaseline } from '@mui/material';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
-import { prefixer } from 'stylis';
-import rtlPlugin from '@mui/stylis-plugin-rtl';
+/**
+ * Providers — Global Client-Side Provider Tree
+ *
+ * Wraps the app with all required context providers in the correct order:
+ *   ThemeProviderWrapper  → MUI theme + RTL + dark/light mode context
+ *   AuthProvider          → JWT auth state + user object
+ *
+ * The RTL Emotion cache is handled inside ThemeProviderWrapper using
+ * @emotion/cache and CacheProvider — no AppRouterCacheProvider needed.
+ * This avoids the "Functions cannot be passed directly to Client Components"
+ * error that occurs when function-type stylisPlugins are serialized across
+ * the Server/Client component boundary.
+ */
 
-const theme = createTheme({
-  direction: 'rtl',
-  typography: {
-    fontFamily: 'var(--font-cairo), "Roboto", sans-serif',
-  },
-});
+import { ThemeProviderWrapper } from '@/app/context/ThemeContext';
+import { AuthProvider } from '@/app/context/AuthContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <AppRouterCacheProvider options={{ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] }}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
-    </AppRouterCacheProvider>
+    <ThemeProviderWrapper>
+      <AuthProvider>{children}</AuthProvider>
+    </ThemeProviderWrapper>
   );
 }

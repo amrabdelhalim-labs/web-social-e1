@@ -37,7 +37,7 @@
 | الاختبارات     | Vitest + Testing Library                   | سريع، حديث، متوافق مع Next.js                                          |
 | النمط المعماري | Repository Pattern + Validators            | فصل طبقات الوصول للبيانات والتحقق                                      |
 | الكاميرا       | getUserMedia API + input capture           | التقاط فوري للصور من المتصفح بدون مكتبات خارجية                        |
-| النشر          | Vercel (auto-deploy من main)               | تكامل مباشر مع Next.js، نشر تلقائي عند كل push                         |
+| النشر          | Heroku (auto-deploy من GitHub `main`)      | نشر تلقائي بعد كل push إلى `main` مع إدارة متغيرات البيئة من Heroku    |
 
 ### ما لا يحتاجه المشروع (حاليًا)
 
@@ -48,7 +48,7 @@
 | Push Notifications    | لا حاجة للإشعارات                     |
 | Real-time (Socket.IO) | لا حاجة لتحديثات فورية                |
 | Rich Text Editor      | الأوصاف نص عادي فقط                   |
-| GitHub Actions CI/CD  | Vercel ينشر تلقائيًا من الفرع الرئيسي |
+| GitHub Actions CI/CD  | Heroku ينشر تلقائيًا من GitHub `main` |
 
 ---
 
@@ -447,7 +447,7 @@ feat(api): add auth, profile management, photos CRUD, and likes API routes
 
 ---
 
-### المرحلة 5: البنية التحتية للعميل
+### المرحلة 5: البنية التحتية للعميل ✅
 
 **الهدف:** الأساسيات: السمة، المصادقة، التخطيط، التنقل.
 
@@ -638,7 +638,7 @@ test: add comprehensive test suite for all layers
 
 ### المرحلة 13: التوثيق والنشر
 
-**الهدف:** توثيق شامل + ضبط Vercel.
+**الهدف:** توثيق شامل + ضبط Heroku.
 
 **المهام:**
 
@@ -648,15 +648,16 @@ test: add comprehensive test suite for all layers
 4. `docs/api-endpoints.md`
 5. `docs/database-abstraction.md`
 6. `docs/testing.md`
-7. `docs/deployment.md` — إعداد Vercel + متغيرات بيئة الإنتاج
-8. إعداد مشروع Vercel وربطه بالمستودع (نشر تلقائي من `main`)
+7. توثيق إعداد Heroku + متغيرات بيئة الإنتاج
+8. ربط تطبيق Heroku بمستودع GitHub (auto-deploy من `main`)
+9. تنفيذ اختبار حقيقي بعد النشر عبر `scripts/test-api.mjs`
 
 **ملاحظة على النشر:**
 
-- مشاريع Next.js تُنشر على Vercel بدون GitHub Actions
-- كل push إلى `main` يُشغّل نشرًا تلقائيًا مباشرةً
-- المتغيرات البيئية تُضبط من Vercel Dashboard
-- Vercel Preview Deployments تعمل تلقائيًا على كل PR
+- لا حاجة إلى GitHub Actions في هذا المشروع
+- كل push إلى `main` يُشغّل نشرًا تلقائيًا على Heroku
+- المتغيرات البيئية تُضبط من Heroku Config Vars
+- يجب التحقق من `/api/health` ثم تشغيل اختبار API الحقيقي بعد كل نشر مهم
 
 **الإيداع:**
 
@@ -980,13 +981,17 @@ stream.getTracks().forEach((track) => track.stop());
 4. حذف جميع ملفات التخزين bulk
 5. تسجيل خروج العميل + إعادة توجيه
 
-### 11.7 النشر على Vercel
+### 11.7 النشر على Heroku
 
-- لا يوجد GitHub Actions — Vercel يتكامل مباشرة مع GitHub
+- لا يوجد GitHub Actions — Heroku متصل مباشرةً بفرع `main` على GitHub
 - كل push إلى `main` → نشر إنتاجي تلقائي
-- كل PR → Preview Deployment فريد
-- المتغيرات البيئية تُدار من Vercel Dashboard
+- المتغيرات البيئية تُدار من Heroku Config Vars
 - `STORAGE_TYPE=cloudinary` موصى به في الإنتاج (الصور لا تُفقد عند إعادة النشر)
+- حزم التخزين السحابية (`cloudinary`, `@aws-sdk/client-s3`) موجودة كـ `optionalDependencies` ويجب أن تبقى مثبتة في بيئة الإنتاج
+- عند استخدام MongoDB Atlas يجب أن تكون كلمة مرور `DATABASE_URL` مرمّزة URL-encoding إذا احتوت رموزًا خاصة (مثل `&`, `%`, `#`, `$`)
+- مسار التحقق بعد النشر:
+  1. `GET /api/health` يجب أن يعرض `database=connected` و `storage.healthy=true`
+  2. تشغيل `node scripts/test-api.mjs <heroku-app-url>` للتحقق الحقيقي من التسجيل/المصادقة/الرفع/الحذف
 
 ---
 

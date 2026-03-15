@@ -1,3 +1,22 @@
+/**
+ * CloudinaryStorageStrategy — Cloudinary CDN Storage Backend
+ *
+ * Uploads files to Cloudinary using upload_stream (buffer → writable stream)
+ * to avoid writing temp files to disk. Applies `quality: auto:good` to reduce
+ * bandwidth without noticeable quality loss.
+ *
+ * Credentials priority:
+ *   1. CLOUDINARY_URL env var  (e.g. cloudinary://api_key:api_secret@cloud_name)
+ *   2. Individual env vars: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+ *   3. Constructor config object (for testing)
+ *
+ * The cloudinary npm package is an optionalDependency — loaded lazily via dynamic
+ * import. If not installed, the strategy throws on first use with a helpful message.
+ *
+ * deleteFile accepts either a Cloudinary public_id or a full secure_url —
+ * extractPublicId normalizes both to a public_id before calling destroy().
+ */
+
 import type { StorageFile, UploadResult } from '@/app/types';
 import type { IStorageStrategy } from './storage.interface';
 
@@ -59,12 +78,14 @@ export class CloudinaryStorageStrategy implements IStorageStrategy {
       );
     }
 
+    // Start SDK initialization immediately; errors are swallowed here and
+    // re-thrown on first actual use via ensureInitialized().
     this.initPromise = this.initialize();
     this.initPromise.catch(() => {});
   }
 
   private async initialize(): Promise<void> {
-    // Dynamic import — cloudinary is an optional dependency
+    // Dynamic import — cloudinary is an optional dependency not bundled by webpack
     const modulePath = 'cloudinary';
     const sdk = (await import(/* webpackIgnore: true */ modulePath)) as unknown as CloudinarySDK;
     this.cloudinary = sdk.v2;
@@ -146,6 +167,12 @@ export class CloudinaryStorageStrategy implements IStorageStrategy {
     }
   }
 
+  /**
+   * Normalizes a full Cloudinary secure_url or bare public_id to a public_id.
+   * Strips the version segment (e.g. v1234567890) and file extension.
+   * Example: https://res.cloudinary.com/cloud/image/upload/v123/my-photos/abc.jpg
+   *       → my-photos/abc
+   */
   private extractPublicId(urlOrId: string): string | null {
     if (!urlOrId) return null;
     try {
@@ -154,9 +181,9 @@ export class CloudinaryStorageStrategy implements IStorageStrategy {
         const uploadIndex = parts.indexOf('upload');
         if (uploadIndex !== -1) {
           return parts
-            .slice(uploadIndex + 2)
+            .slice(uploadIndex + 2) // skip version segment after 'upload'
             .join('/')
-            .replace(/\.[^/.]+$/, '');
+            .replace(/\.[^/.]+$/, ''); // remove file extension
         }
       }
       return urlOrId;

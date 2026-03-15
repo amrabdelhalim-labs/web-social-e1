@@ -1,3 +1,19 @@
+/**
+ * LocalStorageStrategy — File System Storage Backend
+ *
+ * Stores uploaded files in public/uploads/ on the server's local disk.
+ * Files are served statically via Next.js at /uploads/<filename>.
+ *
+ * Intended for development and single-server deployments. For production
+ * with multiple instances or serverless (Heroku ephemeral fs), use Cloudinary or S3.
+ *
+ * Filename uniqueness: Date.now() + random suffix prevents collisions.
+ * Extension fallback: files without an extension default to .jpg.
+ *
+ * deleteFile accepts either a bare filename ("12345.jpg"), a URL path
+ * ("/uploads/12345.jpg"), or a full HTTP URL — all are normalized via extractFilename.
+ */
+
 import fs from 'node:fs';
 import path from 'node:path';
 import type { StorageFile, UploadResult } from '@/app/types';
@@ -18,6 +34,7 @@ export class LocalStorageStrategy implements IStorageStrategy {
     this.ensureDirectoryExists();
   }
 
+  /** Creates uploads directory if it doesn't exist (e.g. fresh clone) */
   private ensureDirectoryExists(): void {
     if (!fs.existsSync(this.uploadsDir)) {
       fs.mkdirSync(this.uploadsDir, { recursive: true });
@@ -50,6 +67,7 @@ export class LocalStorageStrategy implements IStorageStrategy {
       await fs.promises.unlink(filePath);
       return true;
     } catch (error: unknown) {
+      // ENOENT is not an error in our context — file already gone
       if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return false;
       console.error(`Failed to delete file ${filename}:`, error);
       return false;
@@ -67,6 +85,10 @@ export class LocalStorageStrategy implements IStorageStrategy {
     return results;
   }
 
+  /**
+   * Accepts bare filenames, URL-paths, or full HTTP URLs.
+   * Returns the existing URL as-is if it's already fully qualified.
+   */
   getFileUrl(filename: string): string {
     if (!filename) return filename;
     if (filename.startsWith('http://') || filename.startsWith('https://')) return filename;
@@ -74,6 +96,7 @@ export class LocalStorageStrategy implements IStorageStrategy {
     return `${this.baseUrl}/${filename}`;
   }
 
+  /** Returns true if the uploads directory is writable */
   async healthCheck(): Promise<boolean> {
     try {
       await fs.promises.access(this.uploadsDir, fs.constants.W_OK);
@@ -83,6 +106,12 @@ export class LocalStorageStrategy implements IStorageStrategy {
     }
   }
 
+  /**
+   * Extracts the bare filename from any URL format:
+   *   https://example.com/uploads/abc.jpg  → abc.jpg
+   *   /uploads/abc.jpg                      → abc.jpg
+   *   abc.jpg                               → abc.jpg
+   */
   private extractFilename(imageUrl: string): string | null {
     if (!imageUrl) return null;
     try {

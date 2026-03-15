@@ -1,3 +1,23 @@
+/**
+ * S3StorageStrategy — AWS S3 Storage Backend
+ *
+ * Stores files in an S3 bucket using PutObjectCommand (direct buffer upload).
+ * File URLs follow the standard regional pattern:
+ *   https://<bucket>.s3.<region>.amazonaws.com/<folder>/<timestamp-random>.<ext>
+ *
+ * Required environment variables:
+ *   AWS_S3_BUCKET          — bucket name
+ *   AWS_REGION             — AWS region (default: us-east-1)
+ *   AWS_ACCESS_KEY_ID      — IAM access key
+ *   AWS_SECRET_ACCESS_KEY  — IAM secret key
+ *
+ * @aws-sdk/client-s3 is an optionalDependency — loaded lazily via dynamic import.
+ * If not installed, the strategy throws on first use with a helpful message.
+ *
+ * deleteFile accepts either a full S3 URL or a bare key —
+ * extractKey normalizes both before calling DeleteObjectCommand.
+ */
+
 import path from 'node:path';
 import type { StorageFile, UploadResult } from '@/app/types';
 import type { IStorageStrategy } from './storage.interface';
@@ -17,6 +37,7 @@ type S3Client = {
 
 const S3_MODULE = '@aws-sdk/client-s3';
 
+/** Lazy loader — avoids webpack bundling the optional AWS SDK */
 async function loadS3SDK(): Promise<any> {
   return import(/* webpackIgnore: true */ S3_MODULE);
 }
@@ -44,6 +65,7 @@ export class S3StorageStrategy implements IStorageStrategy {
     }
   }
 
+  /** Lazily initializes the S3 client on first use */
   private async ensureClient(): Promise<void> {
     if (this.s3Client) return;
 
@@ -115,6 +137,7 @@ export class S3StorageStrategy implements IStorageStrategy {
     return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`;
   }
 
+  /** healthCheck uses HeadBucket — confirms credentials are valid without listing objects */
   async healthCheck(): Promise<boolean> {
     try {
       await this.ensureClient();
@@ -126,11 +149,15 @@ export class S3StorageStrategy implements IStorageStrategy {
     }
   }
 
+  /**
+   * Extracts the S3 object key from either a full URL or a bare key.
+   * https://bucket.s3.region.amazonaws.com/uploads/photos/abc.jpg → uploads/photos/abc.jpg
+   */
   private extractKey(urlOrKey: string): string | null {
     if (!urlOrKey) return null;
     try {
       if (urlOrKey.includes('s3.') && urlOrKey.includes('.amazonaws.com')) {
-        return new URL(urlOrKey).pathname.substring(1);
+        return new URL(urlOrKey).pathname.substring(1); // strip leading '/'
       }
       return urlOrKey;
     } catch {

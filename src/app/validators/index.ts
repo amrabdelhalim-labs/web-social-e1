@@ -1,3 +1,16 @@
+/**
+ * Input Validators
+ *
+ * Pure functions — no side effects, no DB access.
+ * Each validator returns an array of Arabic error messages (empty = valid).
+ * Applied on both the server (API routes) and the client (inline form errors).
+ *
+ * Convention:
+ *   - Required field missing → error is always added first
+ *   - Optional fields (undefined) → skipped entirely
+ *   - Length limits come from config.ts for a single source of truth
+ */
+
 import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from '@/app/config';
 import type {
   ChangePasswordInput,
@@ -8,12 +21,14 @@ import type {
   UpdateUserInput,
 } from '@/app/types';
 
+/** Basic structural email check — not exhaustive but catches obvious typos */
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isValidEmail(email: string): boolean {
   return EMAIL_REGEX.test(email);
 }
 
+/** Validates user registration input — all four fields are required */
 export function validateRegisterInput(input: RegisterInput): string[] {
   const errors: string[] = [];
 
@@ -38,6 +53,7 @@ export function validateRegisterInput(input: RegisterInput): string[] {
   return errors;
 }
 
+/** Validates login input — intentionally less strict (no name/confirm fields) */
 export function validateLoginInput(input: LoginInput): string[] {
   const errors: string[] = [];
 
@@ -52,6 +68,7 @@ export function validateLoginInput(input: LoginInput): string[] {
   return errors;
 }
 
+/** Validates new photo upload — title required, description optional */
 export function validatePhotoInput(input: PhotoInput): string[] {
   const errors: string[] = [];
 
@@ -68,6 +85,10 @@ export function validatePhotoInput(input: PhotoInput): string[] {
   return errors;
 }
 
+/**
+ * Validates photo update — at least one field must be provided.
+ * Undefined fields are skipped; empty string for title is an error.
+ */
 export function validateUpdatePhotoInput(input: UpdatePhotoInput): string[] {
   const errors: string[] = [];
 
@@ -91,6 +112,10 @@ export function validateUpdatePhotoInput(input: UpdatePhotoInput): string[] {
   return errors;
 }
 
+/**
+ * Validates profile update — at least one of name or email must be provided.
+ * Accepts partial updates (only name or only email).
+ */
 export function validateUpdateUserInput(input: UpdateUserInput): string[] {
   const errors: string[] = [];
 
@@ -114,6 +139,11 @@ export function validateUpdateUserInput(input: UpdateUserInput): string[] {
   return errors;
 }
 
+/**
+ * Validates password change — enforces current ≠ new and minimum length.
+ * currentPassword correctness is verified by the API route (bcrypt compare),
+ * not here — this validator only checks format.
+ */
 export function validateChangePasswordInput(input: ChangePasswordInput): string[] {
   const errors: string[] = [];
 

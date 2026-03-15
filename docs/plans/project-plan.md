@@ -371,7 +371,7 @@ feat(init): scaffold My Photos (صوري) project baseline
 
 ---
 
-### المرحلة 2: طبقة البيانات والمصادقة
+### المرحلة 2: طبقة البيانات والمصادقة ✅
 
 **الهدف:** إنشاء النماذج، المستودعات، المُحققين، وسلسلة المصادقة.
 
@@ -395,7 +395,7 @@ feat(db): add Mongoose models, Repository Pattern, validators, and auth utilitie
 
 ---
 
-### المرحلة 3: طبقة التخزين (Storage Service)
+### المرحلة 3: طبقة التخزين (Storage Service) ✅
 
 **الهدف:** بناء Storage Strategy Pattern لإدارة الملفات.
 
@@ -417,7 +417,7 @@ feat(storage): add pluggable storage service with local, Cloudinary, and S3 stra
 
 ---
 
-### المرحلة 4: نقاط API
+### المرحلة 4: نقاط API ✅
 
 **الهدف:** تشغيل جميع نقاط API الخلفية.
 

@@ -251,14 +251,15 @@ web-social-e1/
 | الطبقة | عدد الملفات | أمثلة |
 |--------|-------------|-------|
 | المكونات | ~25 | PhotoCard, PhotoGrid, UserMenu, AvatarUploader |
-| الخطافات | 4 | useAuth, useThemeMode, usePhotos, useMyPhotos, useCamera |
+| الخطافات | 5 | useAuth, useThemeMode, usePhotos, useMyPhotos, useCamera |
 | السياقات | 2 | AuthContext, ThemeContext |
 | المكتبات | ~10 | api.ts, auth.ts, mongodb.ts, storage/* |
 | النماذج | 3 | User, Photo, Like |
 | المستودعات | 6 | user, photo, like, base, interface, index |
-| مسارات API | ~12 | auth, profile, photos, health |
+| مسارات API | 11 | auth, profile, photos, health |
 | الصفحات | 6 | page, login, register, my-photos, profile, not-found |
 | المحققون | 1 | validators/index.ts |
+| توثيقات AI وإرشادات المشروع | 4 | docs/ai/README, architecture, feature-guide, CONTRIBUTING |
 
 ### ٦.٢ الاختبارات
 
@@ -266,6 +267,16 @@ web-social-e1/
 |-------|-------------|
 | اختبارات الوحدة | ~25 |
 | إعداد | setup.ts, utils.tsx |
+
+### ٦.٣ حالة التوثيق الحالية (تنفيذ فعلي)
+
+| المسار | الحالة |
+|--------|--------|
+| التوثيقات الانتاجية (`docs/*.md`) | مكتملة |
+| توثيقات AI (`docs/ai/*.md`) | مكتملة |
+| بنية الدروس (`tutorials/README`, `concepts-guide`, `quick-reference`) | مكتملة |
+| الدروس التعليمية المنفذة | 01 → 06 |
+| الدروس المتبقية | 07 → 11 |
 
 ---
 

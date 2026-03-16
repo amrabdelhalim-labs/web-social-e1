@@ -3,50 +3,113 @@
 /**
  * ExpandableText — Truncated Text with "عرض المزيد"
  *
- * Shows a limited number of lines; expands on click to show full text.
+ * Shows truncated description. "عرض المزيد" appears only when text exceeds
+ * the line limit. Uses char threshold + scrollHeight check. Fixed-height block keeps card heights uniform.
  */
 
-import { useState } from 'react';
-import { Typography, Link } from '@mui/material';
-import { DESCRIPTION_PREVIEW_LINES } from '@/app/config';
+import { useRef, useState, useEffect } from 'react';
+import { Box, Typography, Link } from '@mui/material';
+import {
+  DESCRIPTION_PREVIEW_LINES,
+  DESCRIPTION_BLOCK_MIN_HEIGHT,
+  DESCRIPTION_TRUNCATE_MIN_CHARS,
+} from '@/app/config';
 
 export interface ExpandableTextProps {
   text?: string;
   maxLines?: number;
+  onShowMore?: () => void;
 }
 
-export function ExpandableText({ text, maxLines = DESCRIPTION_PREVIEW_LINES }: ExpandableTextProps) {
-  const [expanded, setExpanded] = useState(false);
+function checkTruncated(el: HTMLElement): boolean {
+  return el.scrollHeight > el.clientHeight;
+}
+
+export function ExpandableText({
+  text,
+  maxLines = DESCRIPTION_PREVIEW_LINES,
+  onShowMore,
+}: ExpandableTextProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !text) {
+      setIsTruncated(false);
+      return;
+    }
+    if (text.length < DESCRIPTION_TRUNCATE_MIN_CHARS) {
+      setIsTruncated(false);
+      return;
+    }
+    const update = () => {
+      if (el) setIsTruncated(checkTruncated(el));
+    };
+    const rafId = requestAnimationFrame(() => requestAnimationFrame(update));
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      cancelAnimationFrame(rafId);
+      ro.disconnect();
+    };
+  }, [text, maxLines]);
 
   if (!text || text.trim() === '') return null;
 
-  const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setExpanded((prev) => !prev);
+    onShowMore?.();
   };
 
   return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
+    <Box
       sx={{
-        display: '-webkit-box',
-        WebkitLineClamp: expanded ? 'unset' : maxLines,
-        WebkitBoxOrient: 'vertical',
-        overflow: expanded ? 'visible' : 'hidden',
+        minHeight: DESCRIPTION_BLOCK_MIN_HEIGHT,
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      {text}
-      {text.length > 100 && (
-        <Link
-          component="button"
-          variant="body2"
-          onClick={handleToggle}
-          sx={{ ml: 0.5, cursor: 'pointer' }}
-        >
-          {expanded ? 'عرض أقل' : 'عرض المزيد'}
-        </Link>
-      )}
-    </Typography>
+      <Box
+        ref={containerRef}
+        sx={{
+          display: '-webkit-box',
+          WebkitLineClamp: maxLines,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          flex: '0 0 auto',
+          minHeight: 0,
+          maxHeight: `calc(0.875rem * 1.65 * ${maxLines})`,
+        }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          {text}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          minHeight: '1.5rem',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'flex-start',
+        }}
+      >
+        {isTruncated && onShowMore && (
+          <Link
+            component="button"
+            variant="body2"
+            onClick={handleClick}
+            sx={{
+              cursor: 'pointer',
+              display: 'inline-block',
+              p: 0,
+              minWidth: 0,
+            }}
+          >
+            عرض المزيد
+          </Link>
+        )}
+      </Box>
+    </Box>
   );
 }

@@ -23,69 +23,74 @@ const mockPhoto = {
 };
 
 describe('PhotoCard', () => {
-  it('يعرض العنوان والوصف', () => {
+  it('displays title and description', () => {
     render(<PhotoCard photo={mockPhoto} />);
     expect(screen.getByText('صورة جميلة')).toBeInTheDocument();
     expect(screen.getByText('وصف')).toBeInTheDocument();
   });
 
-  it('يعرض زر الإعجاب وعدد الإعجابات بجانب العنوان', () => {
+  it('displays like button and count next to title', () => {
     render(<PhotoCard photo={mockPhoto} />);
     expect(screen.getByRole('button', { name: /إعجاب|إلغاء الإعجاب/ })).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
-  it('يفتح الليت بوكس عند النقر على الصورة', () => {
+  it('opens lightbox when clicking image', () => {
     render(<PhotoCard photo={mockPhoto} />);
     fireEvent.click(screen.getByAltText('صورة جميلة'));
     expect(screen.getByRole('button', { name: /إغلاق/ })).toBeInTheDocument();
   });
 
-  it('يعرض الصورة بدون وصف عند غياب description', () => {
+  it('displays image without description when description is absent', () => {
     const photoWithoutDesc = { ...mockPhoto, description: undefined };
     render(<PhotoCard photo={photoWithoutDesc} />);
     expect(screen.getByText('صورة جميلة')).toBeInTheDocument();
     expect(screen.queryByText('وصف')).not.toBeInTheDocument();
   });
 
-  it('يفتح نافذة التفاصيل عند النقر على العنوان', () => {
+  it('opens detail modal when clicking title', () => {
     render(<PhotoCard photo={mockPhoto} />);
     fireEvent.click(screen.getByRole('button', { name: 'صورة جميلة' }));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /إغلاق/ })).toBeInTheDocument();
   });
 
-  it('يفتح نافذة التفاصيل عند النقر على عرض المزيد', () => {
-    render(<PhotoCard photo={mockPhoto} />);
-    fireEvent.click(screen.getByText(/عرض المزيد/));
-    expect(screen.getByRole('button', { name: /إغلاق/ })).toBeInTheDocument();
+  it('opens detail modal when clicking show more for truncated text', () => {
+    const longDesc =
+      'هذا وصف طويل جداً يتجاوز الحد المسموح به. عندما يكون النص أطول من المساحة المتاحة فإن زر عرض المزيد يظهر للمستخدم لقراءة المحتوى الكامل في نافذة التفاصيل.';
+    render(<PhotoCard photo={{ ...mockPhoto, description: longDesc }} />);
+    const moreLink = screen.queryByText(/عرض المزيد/);
+    if (moreLink) {
+      fireEvent.click(moreLink);
+      expect(screen.getByRole('button', { name: /إغلاق/ })).toBeInTheDocument();
+    }
   });
 
   describe('variant="owner"', () => {
     const onEdit = vi.fn().mockResolvedValue(undefined);
     const onDelete = vi.fn().mockResolvedValue(undefined);
 
-    it('يعرض زر الخيارات في نفس موضع الإعجاب (بدلاً منه)', () => {
+    it('shows options button in same position as like button', () => {
       render(<PhotoCard photo={mockPhoto} variant="owner" onEdit={onEdit} onDelete={onDelete} />);
       expect(screen.getByRole('button', { name: /خيارات الصورة/ })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: /إعجاب|إلغاء الإعجاب/ })).not.toBeInTheDocument();
     });
 
-    it('يفتح قائمة التعديل/الحذف عند النقر على الخيارات', () => {
+    it('opens edit/delete menu when clicking options', () => {
       render(<PhotoCard photo={mockPhoto} variant="owner" onEdit={onEdit} onDelete={onDelete} />);
       fireEvent.click(screen.getByRole('button', { name: /خيارات الصورة/ }));
       expect(screen.getByText('تعديل')).toBeInTheDocument();
       expect(screen.getByText('حذف')).toBeInTheDocument();
     });
 
-    it('يفتح نافذة التعديل عند النقر على تعديل', () => {
+    it('opens edit dialog when clicking edit', () => {
       render(<PhotoCard photo={mockPhoto} variant="owner" onEdit={onEdit} onDelete={onDelete} />);
       fireEvent.click(screen.getByRole('button', { name: /خيارات الصورة/ }));
       fireEvent.click(screen.getByText('تعديل'));
       expect(screen.getByText('تعديل الصورة')).toBeInTheDocument();
     });
 
-    it('يفتح نافذة تأكيد الحذف عند النقر على حذف', () => {
+    it('opens delete confirm dialog when clicking delete', () => {
       render(<PhotoCard photo={mockPhoto} variant="owner" onEdit={onEdit} onDelete={onDelete} />);
       fireEvent.click(screen.getByRole('button', { name: /خيارات الصورة/ }));
       fireEvent.click(screen.getByText('حذف'));

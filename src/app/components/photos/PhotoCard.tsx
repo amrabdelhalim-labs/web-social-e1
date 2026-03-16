@@ -12,6 +12,7 @@
 
 import { useState } from 'react';
 import {
+  Avatar,
   Box,
   Card,
   CardMedia,
@@ -27,11 +28,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import type { Photo } from '@/app/types';
 import { ExpandableText } from './ExpandableText';
+import { DESCRIPTION_BLOCK_MIN_HEIGHT } from '@/app/config';
 import { PhotoLightbox } from './PhotoLightbox';
 import { PhotoDetailModal } from './PhotoDetailModal';
 import { LikeButton } from './LikeButton';
 import { PhotoEditDialog } from './PhotoEditDialog';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import { OptimizedPhotoImage } from './OptimizedPhotoImage';
 
 export type PhotoCardVariant = 'public' | 'owner';
 
@@ -39,6 +42,8 @@ export interface PhotoCardProps {
   photo: Photo;
   /** public: LikeButton | owner: Menu (edit/delete). Default: public */
   variant?: PhotoCardVariant;
+  /** Mark image as LCP candidate (above-the-fold). Use for first photo in grid. */
+  priority?: boolean;
   /** Required when variant='owner' */
   onEdit?: (id: string, input: { title?: string; description?: string }) => Promise<void>;
   /** Required when variant='owner' */
@@ -57,6 +62,8 @@ const cardMediaSx = {
   aspectRatio: '4/3',
   backgroundColor: 'action.hover',
   flexShrink: 0,
+  position: 'relative',
+  overflow: 'hidden',
   '&:hover': { opacity: 0.95 },
 } as const;
 
@@ -92,7 +99,13 @@ const titleButtonSx = {
   },
 } as const;
 
-export function PhotoCard({ photo, variant = 'public', onEdit, onDelete }: PhotoCardProps) {
+export function PhotoCard({
+  photo,
+  variant = 'public',
+  priority = false,
+  onEdit,
+  onDelete,
+}: PhotoCardProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -167,12 +180,7 @@ export function PhotoCard({ photo, variant = 'public', onEdit, onDelete }: Photo
     <>
       <Card sx={cardSx}>
         <CardMedia component="div" sx={cardMediaSx} onClick={handleImageClick}>
-          <Box
-            component="img"
-            src={photo.imageUrl}
-            alt={photo.title}
-            sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
+          <OptimizedPhotoImage src={photo.imageUrl} alt={photo.title} fill priority={priority} />
         </CardMedia>
         <CardContent sx={cardContentSx}>
           <Box sx={headerRowSx}>
@@ -192,7 +200,34 @@ export function PhotoCard({ photo, variant = 'public', onEdit, onDelete }: Photo
             </Button>
             {headerEndSlot}
           </Box>
-          <Box sx={{ flexGrow: 1, minHeight: 0, overflow: 'hidden' }}>
+          {photo.user?.name && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.75,
+                flexShrink: 0,
+              }}
+            >
+              <Avatar
+                src={photo.user.avatarUrl ?? undefined}
+                sx={{ width: 20, height: 20, fontSize: '0.7rem' }}
+              >
+                {photo.user.name.charAt(0)}
+              </Avatar>
+              <Typography variant="caption" color="text.secondary">
+                نشرها {photo.user.name}
+              </Typography>
+            </Box>
+          )}
+          <Box
+            sx={{
+              flexGrow: 1,
+              minHeight: DESCRIPTION_BLOCK_MIN_HEIGHT,
+              minWidth: 0,
+              overflow: 'hidden',
+            }}
+          >
             <ExpandableText text={photo.description} onShowMore={handleShowDetail} />
           </Box>
         </CardContent>
@@ -209,6 +244,7 @@ export function PhotoCard({ photo, variant = 'public', onEdit, onDelete }: Photo
         open={detailOpen}
         title={photo.title}
         description={photo.description}
+        publisher={photo.user}
         onClose={() => setDetailOpen(false)}
       />
 

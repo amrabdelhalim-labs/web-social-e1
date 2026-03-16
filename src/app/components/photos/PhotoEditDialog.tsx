@@ -14,11 +14,11 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  TextField,
   Typography,
 } from '@mui/material';
-import { MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH } from '@/app/config';
 import type { Photo, UpdatePhotoInput } from '@/app/types';
+import { validateUpdatePhotoInput } from '@/app/validators';
+import { PhotoTitleDescriptionFields } from './PhotoTitleDescriptionFields';
 
 export interface PhotoEditDialogProps {
   open: boolean;
@@ -46,23 +46,21 @@ export function PhotoEditDialog({ open, photo, onSave, onCancel }: PhotoEditDial
     if (!photo) return;
 
     const trimmedTitle = title.trim();
-    if (!trimmedTitle) {
-      setError('عنوان الصورة مطلوب.');
-      return;
-    }
-    if (trimmedTitle.length > MAX_TITLE_LENGTH) {
-      setError(`العنوان يجب ألا يتجاوز ${MAX_TITLE_LENGTH} حرفًا.`);
-      return;
-    }
-    if (description.length > MAX_DESCRIPTION_LENGTH) {
-      setError(`الوصف يجب ألا يتجاوز ${MAX_DESCRIPTION_LENGTH} حرفًا.`);
+    const trimmedDesc = description.trim();
+
+    const errors = validateUpdatePhotoInput({
+      title: trimmedTitle,
+      description: trimmedDesc || undefined,
+    });
+    if (errors.length > 0) {
+      setError(errors[0]);
       return;
     }
 
     setSaving(true);
     setError('');
     try {
-      await onSave({ title: trimmedTitle, description: description.trim() || undefined });
+      await onSave({ title: trimmedTitle, description: trimmedDesc || undefined });
       onCancel();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'فشل في حفظ التعديلات.');
@@ -81,24 +79,13 @@ export function PhotoEditDialog({ open, photo, onSave, onCancel }: PhotoEditDial
               {error}
             </Typography>
           )}
-          <TextField
-            label="العنوان"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            fullWidth
-            required
-            slotProps={{ htmlInput: { maxLength: MAX_TITLE_LENGTH } }}
-            helperText={`${title.length}/${MAX_TITLE_LENGTH}`}
-          />
-          <TextField
-            label="الوصف"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            fullWidth
-            multiline
-            rows={3}
-            slotProps={{ htmlInput: { maxLength: MAX_DESCRIPTION_LENGTH } }}
-            helperText={`${description.length}/${MAX_DESCRIPTION_LENGTH}`}
+          <PhotoTitleDescriptionFields
+            title={title}
+            description={description}
+            onTitleChange={setTitle}
+            onDescriptionChange={setDescription}
+            descriptionRows={3}
+            showCharCount
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

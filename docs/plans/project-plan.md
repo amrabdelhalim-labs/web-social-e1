@@ -489,7 +489,7 @@ feat(auth): add login and register pages with form validation
 
 ---
 
-### المرحلة 7: الكاميرا (Hook مشترك)
+### المرحلة 7: الكاميرا (Hook مشترك) ✅
 
 **الهدف:** بناء hook وmكوّن مشتركين لالتقاط الصور من الكاميرا، يُستخدمان في صفحتي الملف الشخصي وصوري.
 
@@ -523,19 +523,19 @@ feat(camera): add useCamera hook and CameraCapture component for instant photo c
 
 ---
 
-### المرحلة 8: الصفحة الرئيسية
+### المرحلة 8: الصفحة الرئيسية ✅
 
 **الهدف:** عرض الصور العامة مع الإعجابات والتكبير.
 
 **المهام:**
 
-1. `ExpandableText.tsx` — نص مقتطع مع "عرض المزيد"
-2. `LikeButton.tsx` — زر إعجاب (optimistic update + rollback)
-3. `PhotoCard.tsx` — بطاقة صورة كاملة
-4. `PhotoGrid.tsx` — شبكة متجاوبة
-5. `PhotoLightbox.tsx` — عرض الصورة الكامل
-6. `usePhotos.ts` — hook للصور (جلب، pagination، like)
-7. `page.tsx` (الرئيسية) — تركيب المكونات
+1. `hooks/usePhotos.ts` — hook للصور (جلب، pagination، toggleLike بتحديث تفاؤلي)
+2. `ExpandableText.tsx` — نص مقتطع مع "عرض المزيد" / "عرض أقل"
+3. `LikeButton.tsx` — زر إعجاب (optimistic update + rollback)
+4. `PhotoCard.tsx` — بطاقة صورة كاملة (عنوان، وصف، إعجاب، lightbox)
+5. `PhotoGrid.tsx` — شبكة متجاوبة (xs:1, sm:2, md:3, lg:4)
+6. `PhotoLightbox.tsx` — عرض الصورة الكامل في overlay
+7. `page.tsx` (الرئيسية) — تركيب المكونات مع زر "تحميل المزيد"
 
 **الإيداع:**
 
@@ -545,18 +545,32 @@ feat(home): add public photo feed with grid, lightbox, likes, and pagination
 
 ---
 
-### المرحلة 9: صفحة صوري
+### المرحلة 9: صفحة صوري ✅
 
 **الهدف:** إدارة صور المستخدم مع دعم الكاميرا.
 
 **المهام:**
 
-1. `PhotoUploadForm.tsx` — نموذج رفع صورة مع **tab للاختيار:**
-   - تبويب "رفع من الجهاز": drag & drop + file picker
+1. `hooks/useMyPhotos.ts` — hook لجلب صور المستخدم، الرفع، التعديل، والحذف
+2. `PhotoUploadForm.tsx` — نموذج رفع صورة مع **tab للاختيار:**
+   - تبويب "رفع من الجهاز": file picker
    - تبويب "التقاط بالكاميرا": يفتح `<CameraCapture>` → صورة ملتقطة → معاينة → رفع
-2. `PhotoEditDialog.tsx` — Dialog لتعديل العنوان والوصف
-3. `DeleteConfirmDialog.tsx` — Dialog تأكيد الحذف
-4. `my-photos/page.tsx` — صفحة مع FAB وشبكة الصور
+3. `PhotoEditDialog.tsx` — Dialog لتعديل العنوان والوصف
+4. `DeleteConfirmDialog.tsx` — Dialog تأكيد الحذف
+5. `MyPhotoCard.tsx` — بطاقة صورة المستخدم مع قائمة تعديل/حذف
+6. `my-photos/page.tsx` — صفحة محمية مع FAB وشبكة الصور (ProtectedRoute)
+
+**الاختبارات المضافة (المراحل 7–9):**
+
+- `useCamera.test.ts`, `CameraCapture.test.tsx` — المرحلة 7
+- `usePhotos.test.ts`, `ExpandableText.test.tsx`, `LikeButton.test.tsx`, `PhotoCard.test.tsx`, `PhotoGrid.test.tsx`, `PhotoLightbox.test.tsx` — المرحلة 8
+- `useMyPhotos.test.ts`, `PhotoUploadForm.test.tsx`, `PhotoEditDialog.test.tsx`, `DeleteConfirmDialog.test.tsx`, `MyPhotoCard.test.tsx` — المرحلة 9
+- `setup.ts` — mock لـ getUserMedia و Canvas (getContext, toBlob) لاختبارات الكاميرا
+
+**تحديثات MUI (هجر الـ APIs المُهملة):**
+
+- `PaperProps` → `slotProps.paper` (Dialog في PhotoLightbox)
+- `inputProps` → `slotProps.htmlInput`، `InputProps` → `slotProps.input` (TextField في login, register, PhotoUploadForm, PhotoEditDialog)
 
 **الإيداع:**
 
@@ -997,6 +1011,20 @@ stream.getTracks().forEach((track) => track.stop());
 
 ## 12. Checklist الإيداع الأول
 
+**المراحل المكتملة (1–9):**
+
+- [x] المرحلة 1: البنية الأساسية
+- [x] المرحلة 2: طبقة البيانات والمصادقة
+- [x] المرحلة 3: طبقة التخزين
+- [x] المرحلة 4: نقاط API
+- [x] المرحلة 5: البنية التحتية للعميل
+- [x] المرحلة 6: صفحات المصادقة
+- [x] المرحلة 7: الكاميرا (useCamera + CameraCapture)
+- [x] المرحلة 8: الصفحة الرئيسية (usePhotos + شبكة الصور + lightbox + إعجاب)
+- [x] المرحلة 9: صفحة صوري (useMyPhotos + رفع + تعديل + حذف)
+
+**المراحل المتبقية:** 10 (الملف الشخصي)، 11 (التحسين)، 12 (الاختبارات الشاملة)، 13 (التوثيق والنشر)
+
 - [x] بنية المجلدات كاملة
 - [x] `package.json` مع الاعتماديات والسكريبتات + `engines`
 - [x] `tsconfig.json` (strict mode)
@@ -1013,7 +1041,7 @@ stream.getTracks().forEach((track) => track.stop());
 - [x] `scripts/format.mjs`
 - [x] `scripts/validate-workflow.mjs`
 - [x] `src/app/layout.tsx` (root مع anti-FOUC)
-- [x] `src/app/page.tsx` (placeholder)
+- [x] `src/app/page.tsx` (الصفحة الرئيسية — عرض الصور العامة)
 - [x] `src/app/globals.css`
 - [x] `src/app/api/health/route.ts`
 - [x] `src/app/tests/setup.ts`
@@ -1022,4 +1050,4 @@ stream.getTracks().forEach((track) => track.stop());
 ---
 
 _هذه الخطة قابلة للتحديث مع تقدم التطوير._
-_آخر تحديث: مارس 14, 2026_
+_آخر تحديث: مارس 16, 2026 — إكمال المراحل 7، 8، 9 مع الاختبارات وتحديثات MUI_

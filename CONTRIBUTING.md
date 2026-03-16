@@ -15,22 +15,41 @@ test/topic       ← اختبارات
 
 ## رسائل الإيداع
 
-نتبع معيار **Conventional Commits** — بالإنجليزية فقط:
+نتبع معيار **Conventional Commits** — بالإنجليزية فقط. يجب أن تكون الرسالة **مفصّلة** وواضحة:
 
 ```text
-type(scope): description
+type(scope): short summary (50 chars or less)
 
-Types: feat, fix, docs, chore, refactor, test, style, ci, perf
-Scopes: api, ui, auth, db, storage, docs, ci
+Optional body: explain what changed and why.
 ```
 
-**أمثلة:**
+**Types:** feat, fix, docs, chore, refactor, test, style, ci, perf  
+**Scopes:** api, ui, auth, db, storage, docs, ci
+
+**أمثلة مفصّلة:**
 
 ```text
-feat(api): add photo upload endpoint with storage service
-fix(ui): correct RTL alignment in photo grid
-docs(ai): update architecture reference
-test(hooks): add usePhotos hook tests
+feat(ui): add UserMenu guest/auth states with login and register in dropdown
+
+- Guest: AccountCircle icon opens menu with تسجيل الدخول, إنشاء حساب
+- Authenticated: Avatar icon opens menu with profile and logout
+- Replaces separate login/register buttons in AppBar
+```
+
+```text
+fix(ui): ExpandableText show "عرض المزيد" only when text is truncated
+
+- Add DESCRIPTION_TRUNCATE_MIN_CHARS (100) to skip short text
+- Use scrollHeight/clientHeight + ResizeObserver for detection
+- Fixed-height block for uniform card layout
+```
+
+```text
+fix(db): support MongoDB standalone for account deletion
+
+- deleteUserCascade falls back to sequential ops when transactions
+  fail (code 20: replica set required)
+- Enables local dev with standalone MongoDB
 ```
 
 ## العلامات (Tags)

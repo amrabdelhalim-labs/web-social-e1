@@ -46,7 +46,7 @@ function makeResponse(body: unknown, status = 200): Response {
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe('fetchApi', () => {
-  it('يُرسل طلب JSON بدون توكن عندما لا يوجد توكن', async () => {
+  it('sends JSON request without token when no token exists', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: null }));
 
     await fetchApi('/api/auth/me');
@@ -57,7 +57,7 @@ describe('fetchApi', () => {
     expect(headers['Authorization']).toBeUndefined();
   });
 
-  it('يُضيف Authorization header عندما يوجد توكن في localStorage', async () => {
+  it('adds Authorization header when token exists in localStorage', async () => {
     localStorage.setItem('auth-token', 'my.jwt');
     globalFetch.mockResolvedValueOnce(makeResponse({ data: null }));
 
@@ -68,7 +68,7 @@ describe('fetchApi', () => {
     expect(headers['Authorization']).toBe('Bearer my.jwt');
   });
 
-  it('يرمي خطأ برسالة الخادم العربية عند استجابة غير ناجحة', async () => {
+  it('throws with server message on non-2xx response', async () => {
     globalFetch.mockResolvedValueOnce(
       makeResponse({ error: { message: 'البريد مسجل مسبقاً' } }, 409)
     );
@@ -76,13 +76,13 @@ describe('fetchApi', () => {
     await expect(fetchApi('/api/auth/register')).rejects.toThrow('البريد مسجل مسبقاً');
   });
 
-  it('يرمي رسالة احتياطية عندما لا تحتوي الاستجابة على رسالة خطأ', async () => {
+  it('throws fallback message when response has no error message', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({}, 500));
 
     await expect(fetchApi('/api/health')).rejects.toThrow('خطأ غير متوقع من الخادم.');
   });
 
-  it('يُعيد JSON body عند النجاح', async () => {
+  it('returns JSON body on success', async () => {
     const payload = { data: { id: '1', name: 'صورة' } };
     globalFetch.mockResolvedValueOnce(makeResponse(payload));
 
@@ -92,7 +92,7 @@ describe('fetchApi', () => {
 });
 
 describe('fetchFormApi', () => {
-  it('لا يضع Content-Type header (البراوزر يضعه مع الحدود)', async () => {
+  it('does not set Content-Type header (browser sets with boundary)', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: null }));
     const form = new FormData();
 
@@ -103,7 +103,7 @@ describe('fetchFormApi', () => {
     expect(headers['Content-Type']).toBeUndefined();
   });
 
-  it('يرسل طلب POST افتراضياً', async () => {
+  it('sends POST request by default', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: null }));
 
     await fetchFormApi('/api/photos', new FormData());
@@ -112,7 +112,7 @@ describe('fetchFormApi', () => {
     expect((options as RequestInit)?.method).toBe('POST');
   });
 
-  it('يرسل طلب PUT عند تحديده', async () => {
+  it('sends PUT request when specified', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: null }));
 
     await fetchFormApi('/api/profile/avatar', new FormData(), 'PUT');
@@ -123,7 +123,7 @@ describe('fetchFormApi', () => {
 });
 
 describe('Endpoint helpers', () => {
-  it('loginApi: ترسل POST /api/auth/login', async () => {
+  it('loginApi: sends POST /api/auth/login', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: { token: 'tok', user: {} } }));
 
     await loginApi({ email: 'a@b.com', password: '123456' });
@@ -133,7 +133,7 @@ describe('Endpoint helpers', () => {
     expect((options as RequestInit)?.method).toBe('POST');
   });
 
-  it('registerApi: ترسل POST /api/auth/register', async () => {
+  it('registerApi: sends POST /api/auth/register', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: { token: 'tok', user: {} } }));
 
     await registerApi({
@@ -147,7 +147,7 @@ describe('Endpoint helpers', () => {
     expect(path).toBe('/api/auth/register');
   });
 
-  it('getMeApi: ترسل GET /api/auth/me', async () => {
+  it('getMeApi: sends GET /api/auth/me', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: {} }));
 
     await getMeApi();
@@ -156,7 +156,7 @@ describe('Endpoint helpers', () => {
     expect(path).toBe('/api/auth/me');
   });
 
-  it('uploadPhotoApi: تضع الملف والعنوان في FormData وترسل POST /api/photos', async () => {
+  it('uploadPhotoApi: puts file and title in FormData and sends POST /api/photos', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: {} }));
     const file = new File(['img'], 'photo.png', { type: 'image/png' });
 
@@ -168,7 +168,7 @@ describe('Endpoint helpers', () => {
     expect((options as RequestInit)?.body).toBeInstanceOf(FormData);
   });
 
-  it('toggleLikeApi: ترسل POST /api/photos/:id/like', async () => {
+  it('toggleLikeApi: sends POST /api/photos/:id/like', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: { liked: true, likesCount: 1 } }));
 
     await toggleLikeApi('photo-123');
@@ -177,7 +177,7 @@ describe('Endpoint helpers', () => {
     expect(path).toBe('/api/photos/photo-123/like');
   });
 
-  it('deleteAccountApi: ترسل DELETE /api/profile مع كلمة المرور', async () => {
+  it('deleteAccountApi: sends DELETE /api/profile with password', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: null }));
 
     await deleteAccountApi('mysecretpass');

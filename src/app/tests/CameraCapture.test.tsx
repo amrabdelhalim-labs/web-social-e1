@@ -1,13 +1,13 @@
 /**
  * CameraCapture Component Tests
  *
- * يختبر:
- *  - عرض واجهة fallback عند useFallback
- *  - عرض رسالة عدم دعم عند !isSupported
- *  - عرض خطأ إذن عند hasPermission=denied
- *  - زر تشغيل الكاميرا واستدعاء startCamera
- *  - وضع المعاينة بعد التقاط صورة
- *  - onCapture و onCancel يُستدعيان بشكل صحيح
+ * Tests:
+ *  - Fallback UI when useFallback
+ *  - Unsupported message when !isSupported
+ *  - Permission error when hasPermission=denied
+ *  - Start camera button and startCamera call
+ *  - Preview mode after capture
+ *  - onCapture and onCancel called correctly
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -48,26 +48,32 @@ describe('CameraCapture', () => {
     setupUseCamera();
   });
 
-  it('يعرض واجهة fallback عند useFallback=true', () => {
+  it('displays fallback UI when useFallback is true', () => {
     setupUseCamera({ useFallback: true });
     render(<CameraCapture onCapture={onCapture} onCancel={onCancel} />);
     expect(screen.getByText(/التقط صورة باستخدام الكاميرا/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /فتح الكاميرا/ })).toBeInTheDocument();
   });
 
-  it('يعرض رسالة عدم دعم عند !isSupported', () => {
+  it('displays unsupported message when not supported', () => {
     setupUseCamera({ isSupported: false });
     render(<CameraCapture onCapture={onCapture} onCancel={onCancel} />);
     expect(screen.getByText(/لا يدعم الوصول المباشر/)).toBeInTheDocument();
   });
 
-  it('يعرض خطأ إذن عند hasPermission=denied', () => {
+  it('displays permission error when hasPermission is denied', () => {
     setupUseCamera({ hasPermission: 'denied', error: 'تم رفض إذن الوصول' });
     render(<CameraCapture onCapture={onCapture} onCancel={onCancel} />);
     expect(screen.getByText(/تم رفض إذن الوصول/)).toBeInTheDocument();
   });
 
-  it('يعرض زر تشغيل الكاميرا ويستدعي startCamera عند النقر', async () => {
+  it('does not show cancel button in initial state', () => {
+    render(<CameraCapture onCapture={onCapture} onCancel={onCancel} />);
+    expect(screen.getByRole('button', { name: /تشغيل الكاميرا/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /إلغاء/ })).not.toBeInTheDocument();
+  });
+
+  it('displays start camera button and calls startCamera on click', async () => {
     mockStartCamera.mockResolvedValue(undefined);
     render(<CameraCapture onCapture={onCapture} onCancel={onCancel} />);
 
@@ -79,14 +85,14 @@ describe('CameraCapture', () => {
     });
   });
 
-  it('يستدعي onCancel عند النقر على إلغاء', () => {
+  it('calls onCancel when clicking close in active camera mode', () => {
+    setupUseCamera({ isActive: true, stream: {} as MediaStream });
     render(<CameraCapture onCapture={onCapture} onCancel={onCancel} />);
-    const cancelBtns = screen.getAllByRole('button', { name: /إلغاء/ });
-    fireEvent.click(cancelBtns[0]);
+    fireEvent.click(screen.getByRole('button', { name: /إغلاق/ }));
     expect(onCancel).toHaveBeenCalled();
   });
 
-  it('يعرض وضع المعاينة ويستدعي onCapture عند استخدام الصورة', async () => {
+  it('displays preview mode and calls onCapture when using photo', async () => {
     const file = new File(['x'], 'test.jpg', { type: 'image/jpeg' });
     setupUseCamera({
       isActive: true,

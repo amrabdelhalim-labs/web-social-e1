@@ -55,7 +55,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe('AuthContext', () => {
-  it('ينتهي loading بدون مستخدم عندما لا يوجد توكن محفوظ', async () => {
+  it('ends loading with no user when no token is stored', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     // useEffect runs asynchronously — wait for the loading flag to settle
@@ -64,7 +64,7 @@ describe('AuthContext', () => {
     expect(result.current.token).toBeNull();
   });
 
-  it('يحمّل المستخدم من التوكن المحفوظ عند الإطلاق', async () => {
+  it('loads user from stored token on mount', async () => {
     localStorage.setItem('auth-token', MOCK_TOKEN);
     globalFetch.mockResolvedValueOnce(makeJsonResponse({ data: MOCK_USER }));
 
@@ -82,7 +82,7 @@ describe('AuthContext', () => {
     );
   });
 
-  it('يمسح التوكن عند استجابة 401 من /api/auth/me', async () => {
+  it('clears token on 401 from /api/auth/me', async () => {
     localStorage.setItem('auth-token', MOCK_TOKEN);
     globalFetch.mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401));
 
@@ -95,7 +95,7 @@ describe('AuthContext', () => {
     expect(localStorage.getItem('auth-token')).toBeNull();
   });
 
-  it('يُبقي المستخدم null عند فشل الشبكة (ليس تطبيق PWA)', async () => {
+  it('keeps user null on network failure (not PWA app)', async () => {
     localStorage.setItem('auth-token', MOCK_TOKEN);
     globalFetch.mockRejectedValueOnce(new TypeError('Network error'));
 
@@ -109,7 +109,7 @@ describe('AuthContext', () => {
     expect(result.current.token).toBe(MOCK_TOKEN);
   });
 
-  it('يُخزّن التوكن والمستخدم بعد تسجيل الدخول', async () => {
+  it('stores token and user after login', async () => {
     globalFetch.mockResolvedValueOnce(
       makeJsonResponse({ data: { token: MOCK_TOKEN, user: MOCK_USER } })
     );
@@ -126,7 +126,7 @@ describe('AuthContext', () => {
     expect(localStorage.getItem('auth-token')).toBe(MOCK_TOKEN);
   });
 
-  it('يرمي خطأ عند فشل تسجيل الدخول', async () => {
+  it('throws on login failure', async () => {
     globalFetch.mockResolvedValueOnce(
       makeJsonResponse({ error: { message: 'كلمة المرور خاطئة' } }, 401)
     );
@@ -141,7 +141,7 @@ describe('AuthContext', () => {
     ).rejects.toThrow('كلمة المرور خاطئة');
   });
 
-  it('يُخزّن التوكن والمستخدم بعد إنشاء الحساب', async () => {
+  it('stores token and user after registration', async () => {
     globalFetch.mockResolvedValueOnce(
       makeJsonResponse({ data: { token: MOCK_TOKEN, user: MOCK_USER } })
     );
@@ -163,7 +163,7 @@ describe('AuthContext', () => {
     expect(localStorage.getItem('auth-token')).toBe(MOCK_TOKEN);
   });
 
-  it('يمسح الجلسة بعد تسجيل الخروج', async () => {
+  it('clears session after logout', async () => {
     localStorage.setItem('auth-token', MOCK_TOKEN);
     globalFetch.mockResolvedValueOnce(makeJsonResponse({ data: MOCK_USER }));
 
@@ -179,7 +179,7 @@ describe('AuthContext', () => {
     expect(localStorage.getItem('auth-token')).toBeNull();
   });
 
-  it('يحدّث بيانات المستخدم في الذاكرة', async () => {
+  it('updates user data in memory', async () => {
     localStorage.setItem('auth-token', MOCK_TOKEN);
     globalFetch.mockResolvedValueOnce(makeJsonResponse({ data: MOCK_USER }));
 

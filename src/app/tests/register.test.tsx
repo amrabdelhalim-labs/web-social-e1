@@ -78,48 +78,48 @@ function fillValidForm(container: HTMLElement) {
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe('صفحة إنشاء الحساب', () => {
-  describe('العرض', () => {
+describe('Register Page', () => {
+  describe('Rendering', () => {
     beforeEach(() => setupAuth());
 
-    it('تعرض اسم التطبيق كعنوان', () => {
+    it('displays app name as heading', () => {
       render(<RegisterPage />);
       expect(screen.getByRole('heading', { name: 'صوري' })).toBeInTheDocument();
     });
 
-    it('تعرض حقل الاسم', () => {
+    it('displays name field', () => {
       render(<RegisterPage />);
       expect(screen.getByLabelText(/^الاسم$/i)).toBeInTheDocument();
     });
 
-    it('تعرض حقل البريد الإلكتروني', () => {
+    it('displays email field', () => {
       render(<RegisterPage />);
       expect(screen.getByLabelText(/البريد الإلكتروني/i)).toBeInTheDocument();
     });
 
-    it('تعرض حقلَي كلمة المرور وتأكيدها', () => {
+    it('displays password and confirm password fields', () => {
       render(<RegisterPage />);
       expect(screen.getByLabelText(/^كلمة المرور$/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/تأكيد كلمة المرور/i)).toBeInTheDocument();
     });
 
-    it('تعرض زر إنشاء الحساب', () => {
+    it('displays create account button', () => {
       render(<RegisterPage />);
       expect(screen.getByRole('button', { name: /إنشاء الحساب/i })).toBeInTheDocument();
     });
 
-    it('تعرض رابطاً لصفحة تسجيل الدخول', () => {
+    it('displays link to login page', () => {
       render(<RegisterPage />);
-      // AppBar also shows a "تسجيل الدخول" link for guests, so we check by href
+      // AppBar also shows a login link for guests, so we check by href
       const loginLinks = screen.getAllByRole('link', { name: /تسجيل الدخول/i });
       expect(loginLinks.some((el) => el.getAttribute('href') === '/login')).toBe(true);
     });
   });
 
-  describe('التحقق من المدخلات', () => {
+  describe('Validation', () => {
     beforeEach(() => setupAuth());
 
-    it('تعرض خطأ عند اسم أقل من 3 أحرف', async () => {
+    it('shows error for name shorter than 3 chars', async () => {
       const { container } = render(<RegisterPage />);
       fireEvent.change(screen.getByLabelText(/^الاسم$/i), { target: { value: 'أب' } });
       fireEvent.submit(container.querySelector('form')!);
@@ -130,7 +130,7 @@ describe('صفحة إنشاء الحساب', () => {
       expect(mockRegister).not.toHaveBeenCalled();
     });
 
-    it('تعرض خطأ عند صيغة بريد إلكتروني غير صحيحة', async () => {
+    it('shows error for invalid email format', async () => {
       const { container } = render(<RegisterPage />);
       fireEvent.change(screen.getByLabelText(/^الاسم$/i), { target: { value: 'أحمد محمد' } });
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
@@ -144,7 +144,7 @@ describe('صفحة إنشاء الحساب', () => {
       expect(mockRegister).not.toHaveBeenCalled();
     });
 
-    it('تعرض خطأ عند كلمة مرور أقل من 6 أحرف', async () => {
+    it('shows error for password shorter than 6 chars', async () => {
       const { container } = render(<RegisterPage />);
       fireEvent.change(screen.getByLabelText(/^الاسم$/i), { target: { value: 'أحمد محمد' } });
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
@@ -161,7 +161,7 @@ describe('صفحة إنشاء الحساب', () => {
       expect(mockRegister).not.toHaveBeenCalled();
     });
 
-    it('تعرض خطأ عند عدم تطابق كلمتَي المرور', async () => {
+    it('shows error when passwords do not match', async () => {
       const { container } = render(<RegisterPage />);
       fireEvent.change(screen.getByLabelText(/^الاسم$/i), { target: { value: 'أحمد محمد' } });
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
@@ -182,10 +182,10 @@ describe('صفحة إنشاء الحساب', () => {
     });
   });
 
-  describe('إرسال النموذج', () => {
+  describe('Form submission', () => {
     beforeEach(() => setupAuth());
 
-    it('تستدعي register() بالبيانات الصحيحة بعد تنظيف المسافات', async () => {
+    it('calls register() with trimmed valid data', async () => {
       mockRegister.mockResolvedValue(undefined);
       const { container } = render(<RegisterPage />);
       const form = fillValidForm(container);
@@ -205,7 +205,7 @@ describe('صفحة إنشاء الحساب', () => {
       });
     });
 
-    it('تُعيد التوجيه إلى / بعد إنشاء الحساب بنجاح', async () => {
+    it('redirects to / after successful registration', async () => {
       mockRegister.mockResolvedValue(undefined);
       const { container } = render(<RegisterPage />);
       fireEvent.submit(fillValidForm(container));
@@ -216,10 +216,10 @@ describe('صفحة إنشاء الحساب', () => {
     });
   });
 
-  describe('معالجة أخطاء الخادم', () => {
+  describe('Server error handling', () => {
     beforeEach(() => setupAuth());
 
-    it('تعرض رسالة الخطأ المُعادة من الخادم', async () => {
+    it('displays server error message', async () => {
       mockRegister.mockRejectedValue(new Error('البريد الإلكتروني مستخدم بالفعل'));
       const { container } = render(<RegisterPage />);
       fireEvent.submit(fillValidForm(container));
@@ -229,7 +229,7 @@ describe('صفحة إنشاء الحساب', () => {
       });
     });
 
-    it('تعرض رسالة احتياطية عند أخطاء غير متوقعة', async () => {
+    it('displays fallback message for unexpected errors', async () => {
       mockRegister.mockRejectedValue('network error');
       const { container } = render(<RegisterPage />);
       fireEvent.submit(fillValidForm(container));
@@ -239,7 +239,7 @@ describe('صفحة إنشاء الحساب', () => {
       });
     });
 
-    it('لا تُعيد التوجيه عند فشل إنشاء الحساب', async () => {
+    it('does not redirect on registration failure', async () => {
       mockRegister.mockRejectedValue(new Error('خطأ'));
       const { container } = render(<RegisterPage />);
       fireEvent.submit(fillValidForm(container));
@@ -249,20 +249,20 @@ describe('صفحة إنشاء الحساب', () => {
     });
   });
 
-  describe('حماية الصفحة (Auth Guard)', () => {
-    it('تُعيد null أثناء تحميل حالة المصادقة', () => {
+  describe('Auth guard', () => {
+    it('returns null while auth is loading', () => {
       setupAuth({ loading: true });
       const { container } = render(<RegisterPage />);
       expect(container.firstChild).toBeNull();
     });
 
-    it('تُعيد null عندما يكون المستخدم مسجلاً بالفعل', () => {
+    it('returns null when user is already logged in', () => {
       setupAuth({ user: { _id: 'u1', name: 'أحمد', email: 'a@b.com' } });
       const { container } = render(<RegisterPage />);
       expect(container.firstChild).toBeNull();
     });
 
-    it('تُعيد التوجيه إلى / عندما يكون المستخدم مسجلاً', () => {
+    it('redirects to / when user is already logged in', () => {
       setupAuth({ user: { _id: 'u1', name: 'أحمد', email: 'a@b.com' } });
       render(<RegisterPage />);
       expect(mockReplace).toHaveBeenCalledWith('/');

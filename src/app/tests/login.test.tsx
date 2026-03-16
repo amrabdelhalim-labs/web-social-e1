@@ -64,40 +64,40 @@ function setupAuth(overrides: Record<string, unknown> = {}) {
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe('صفحة تسجيل الدخول', () => {
-  describe('العرض', () => {
+describe('Login Page', () => {
+  describe('Rendering', () => {
     beforeEach(() => setupAuth());
 
-    it('تعرض اسم التطبيق كعنوان', () => {
+    it('displays app name as heading', () => {
       render(<LoginPage />);
       expect(screen.getByRole('heading', { name: 'صوري' })).toBeInTheDocument();
     });
 
-    it('تعرض حقل البريد الإلكتروني', () => {
+    it('displays email field', () => {
       render(<LoginPage />);
       expect(screen.getByLabelText(/البريد الإلكتروني/i)).toBeInTheDocument();
     });
 
-    it('تعرض حقل كلمة المرور', () => {
+    it('displays password field', () => {
       render(<LoginPage />);
       expect(screen.getByLabelText(/^كلمة المرور$/i)).toBeInTheDocument();
     });
 
-    it('تعرض زر تسجيل الدخول', () => {
+    it('displays login button', () => {
       render(<LoginPage />);
       expect(screen.getByRole('button', { name: /تسجيل الدخول/i })).toBeInTheDocument();
     });
 
-    it('تعرض رابطاً لصفحة إنشاء الحساب', () => {
+    it('displays link to register page', () => {
       render(<LoginPage />);
       expect(screen.getByRole('link', { name: /إنشاء حساب جديد/i })).toBeInTheDocument();
     });
   });
 
-  describe('التحقق من المدخلات', () => {
+  describe('Validation', () => {
     beforeEach(() => setupAuth());
 
-    it('تعرض خطأ عند إرسال بريد إلكتروني غير صحيح', async () => {
+    it('shows error for invalid email format', async () => {
       const { container } = render(<LoginPage />);
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
         target: { value: 'not-an-email' },
@@ -110,7 +110,7 @@ describe('صفحة تسجيل الدخول', () => {
       expect(mockLogin).not.toHaveBeenCalled();
     });
 
-    it('تعرض خطأ عند كلمة مرور أقل من 6 أحرف', async () => {
+    it('shows error for password shorter than 6 chars', async () => {
       const { container } = render(<LoginPage />);
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
         target: { value: 'user@example.com' },
@@ -128,7 +128,7 @@ describe('صفحة تسجيل الدخول', () => {
       expect(mockLogin).not.toHaveBeenCalled();
     });
 
-    it('لا تعرض خطأ عند إدخال بيانات صحيحة', async () => {
+    it('does not show error for valid input', async () => {
       mockLogin.mockResolvedValue(undefined);
       const { container } = render(<LoginPage />);
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
@@ -144,10 +144,10 @@ describe('صفحة تسجيل الدخول', () => {
     });
   });
 
-  describe('إرسال النموذج', () => {
+  describe('Form submission', () => {
     beforeEach(() => setupAuth());
 
-    it('تستدعي login() بالبريد والكلمة بعد تنظيف المسافات', async () => {
+    it('calls login() with trimmed email and password', async () => {
       mockLogin.mockResolvedValue(undefined);
       const { container } = render(<LoginPage />);
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
@@ -163,7 +163,7 @@ describe('صفحة تسجيل الدخول', () => {
       });
     });
 
-    it('تُعيد التوجيه إلى / بعد تسجيل الدخول الناجح', async () => {
+    it('redirects to / after successful login', async () => {
       mockLogin.mockResolvedValue(undefined);
       const { container } = render(<LoginPage />);
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
@@ -180,10 +180,10 @@ describe('صفحة تسجيل الدخول', () => {
     });
   });
 
-  describe('معالجة أخطاء الخادم', () => {
+  describe('Server error handling', () => {
     beforeEach(() => setupAuth());
 
-    it('تعرض رسالة الخطأ المُعادة من الخادم', async () => {
+    it('displays server error message', async () => {
       mockLogin.mockRejectedValue(new Error('بيانات الاعتماد غير صحيحة'));
       const { container } = render(<LoginPage />);
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
@@ -199,7 +199,7 @@ describe('صفحة تسجيل الدخول', () => {
       });
     });
 
-    it('تعرض رسالة احتياطية عند أخطاء غير متوقعة', async () => {
+    it('displays fallback message for unexpected errors', async () => {
       mockLogin.mockRejectedValue('unexpected');
       const { container } = render(<LoginPage />);
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
@@ -215,7 +215,7 @@ describe('صفحة تسجيل الدخول', () => {
       });
     });
 
-    it('لا تُعيد التوجيه عند فشل تسجيل الدخول', async () => {
+    it('does not redirect on login failure', async () => {
       mockLogin.mockRejectedValue(new Error('خطأ'));
       const { container } = render(<LoginPage />);
       fireEvent.change(screen.getByLabelText(/البريد الإلكتروني/i), {
@@ -231,20 +231,20 @@ describe('صفحة تسجيل الدخول', () => {
     });
   });
 
-  describe('حماية الصفحة (Auth Guard)', () => {
-    it('تُعيد null أثناء تحميل حالة المصادقة', () => {
+  describe('Auth guard', () => {
+    it('returns null while auth is loading', () => {
       setupAuth({ loading: true });
       const { container } = render(<LoginPage />);
       expect(container.firstChild).toBeNull();
     });
 
-    it('تُعيد null عندما يكون المستخدم مسجلاً بالفعل', () => {
+    it('returns null when user is already logged in', () => {
       setupAuth({ user: { _id: 'u1', name: 'أحمد', email: 'a@b.com' } });
       const { container } = render(<LoginPage />);
       expect(container.firstChild).toBeNull();
     });
 
-    it('تُعيد التوجيه إلى / عندما يكون المستخدم مسجلاً', () => {
+    it('redirects to / when user is already logged in', () => {
       setupAuth({ user: { _id: 'u1', name: 'أحمد', email: 'a@b.com' } });
       render(<LoginPage />);
       expect(mockReplace).toHaveBeenCalledWith('/');

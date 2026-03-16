@@ -28,13 +28,13 @@ function wrapper({ children }: { children: React.ReactNode }) {
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe('ThemeContext', () => {
-  it('يبدأ بالوضع الفاتح افتراضياً (توافق SSR)', () => {
+  it('starts with light mode by default (SSR match)', () => {
     const { result } = renderHook(() => useThemeMode(), { wrapper });
     // Initial render is always 'light' to match server — the useEffect hasn't run yet
     expect(result.current.mode).toBe('light');
   });
 
-  it('يبدّل الوضع من فاتح إلى داكن', () => {
+  it('toggles from light to dark', () => {
     const { result } = renderHook(() => useThemeMode(), { wrapper });
 
     act(() => {
@@ -44,7 +44,7 @@ describe('ThemeContext', () => {
     expect(result.current.mode).toBe('dark');
   });
 
-  it('يبدّل الوضع من داكن إلى فاتح', () => {
+  it('toggles from dark to light', () => {
     const { result } = renderHook(() => useThemeMode(), { wrapper });
 
     act(() => {
@@ -55,7 +55,7 @@ describe('ThemeContext', () => {
     expect(result.current.mode).toBe('light');
   });
 
-  it('يحفظ الوضع في localStorage بعد التبديل', () => {
+  it('persists mode to localStorage after toggle', () => {
     const { result } = renderHook(() => useThemeMode(), { wrapper });
 
     act(() => {
@@ -71,7 +71,7 @@ describe('ThemeContext', () => {
     expect(localStorage.getItem('theme-mode')).toBe('light');
   });
 
-  it('يحدّث data-color-scheme على عنصر html بعد التبديل', () => {
+  it('updates data-color-scheme on html element after toggle', () => {
     const { result } = renderHook(() => useThemeMode(), { wrapper });
 
     act(() => {
@@ -81,7 +81,7 @@ describe('ThemeContext', () => {
     expect(document.documentElement.getAttribute('data-color-scheme')).toBe('dark');
   });
 
-  it('يعيد toggleMode كدالة ثابتة (useCallback)', () => {
+  it('returns toggleMode as stable function (useCallback)', () => {
     const { result, rerender } = renderHook(() => useThemeMode(), { wrapper });
     const first = result.current.toggleMode;
     rerender();

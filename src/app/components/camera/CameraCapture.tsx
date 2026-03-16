@@ -9,14 +9,7 @@
  */
 
 import { useRef, useState, useCallback, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  IconButton,
-  Typography,
-  Alert,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Button, IconButton, Typography, Alert, CircularProgress } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
@@ -87,16 +80,13 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
     onCancel();
   }, [stopCamera, onCancel]);
 
-  const handleFileSelected = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file && file.type.startsWith('image/')) {
-        setPreviewFile(file);
-      }
-      e.target.value = '';
-    },
-    []
-  );
+  const handleFileSelected = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setPreviewFile(file);
+    }
+    e.target.value = '';
+  }, []);
 
   // Fallback: file input for iOS / unsupported
   if (useFallback) {
@@ -226,15 +216,12 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
     );
   }
 
-  // Initial state: need to start camera
+  // Initial state: need to start camera — لا يعرض زر إلغاء قبل الضغط على تشغيل
   if (!isActive && !starting) {
     return (
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Button variant="contained" startIcon={<CameraAltIcon />} onClick={handleStartCamera}>
           تشغيل الكاميرا
-        </Button>
-        <Button variant="text" startIcon={<CloseIcon />} onClick={handleCancel} color="inherit">
-          إلغاء
         </Button>
       </Box>
     );
@@ -252,7 +239,6 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
         position: 'relative',
       }}
     >
-
       <Box sx={{ position: 'relative', width: '100%', maxWidth: 400 }}>
         {starting ? (
           <Box

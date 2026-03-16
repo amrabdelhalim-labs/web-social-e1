@@ -1,8 +1,17 @@
 import '@testing-library/jest-dom/vitest';
+import { vi } from 'vitest';
+import React from 'react';
+
+// ─── next/image mock ──────────────────────────────────────────────────────────
+
+vi.mock('next/image', () => ({
+  default: (props: { src: string; alt: string }) => {
+    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+    return React.createElement('img', { src: props.src, alt: props.alt });
+  },
+}));
 
 // ─── getUserMedia mock for useCamera tests ────────────────────────────────────
-
-import { vi } from 'vitest';
 
 const mockGetUserMedia = vi.fn();
 Object.defineProperty(navigator, 'mediaDevices', {
@@ -19,34 +28,37 @@ const mockDrawImage = vi.fn();
 function mockToBlobImpl(
   this: HTMLCanvasElement,
   callback: BlobCallback,
-  _type?: string,
-  _quality?: number
+  type?: string,
+  quality?: number
 ) {
+  void type;
+  void quality;
   queueMicrotask(() => callback(new Blob([''], { type: 'image/jpeg' })));
 }
 
-(HTMLCanvasElement.prototype as { getContext: (id: string) => RenderingContext | null }).getContext =
-  function (this: HTMLCanvasElement, contextId: string): RenderingContext | null {
-    if (contextId === '2d') {
-      return {
-        drawImage: mockDrawImage,
-        canvas: this,
-        get fillStyle() {
-          return '';
-        },
-        set fillStyle(_: string) {},
-        get strokeStyle() {
-          return '';
-        },
-        set strokeStyle(_: string) {},
-        get lineWidth() {
-          return 0;
-        },
-        set lineWidth(_: number) {},
-      } as unknown as CanvasRenderingContext2D;
-    }
-    return null;
-  };
+(
+  HTMLCanvasElement.prototype as { getContext: (id: string) => RenderingContext | null }
+).getContext = function (this: HTMLCanvasElement, contextId: string): RenderingContext | null {
+  if (contextId === '2d') {
+    return {
+      drawImage: mockDrawImage,
+      canvas: this,
+      get fillStyle() {
+        return '';
+      },
+      set fillStyle(_: string) {},
+      get strokeStyle() {
+        return '';
+      },
+      set strokeStyle(_: string) {},
+      get lineWidth() {
+        return 0;
+      },
+      set lineWidth(_: number) {},
+    } as unknown as CanvasRenderingContext2D;
+  }
+  return null;
+};
 
 HTMLCanvasElement.prototype.toBlob = mockToBlobImpl;
 

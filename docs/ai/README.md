@@ -113,6 +113,7 @@ node scripts/test-api.mjs https://<your-heroku-app>.herokuapp.com
 **السبب:** Turbopack يحتفظ بمرجع قديم لـ `@mui/material-nextjs` بعد إزالته.
 
 **الحل:** المشروع يستخدم **Webpack** بدل Turbopack (`next dev --webpack`) — يتجنب هذا الخطأ. إذا رجعت لـ Turbopack:
+
 1. إيقاف الخادم (Ctrl+C)
 2. تشغيل `npm run dev:clean`
 3. تحديث قسري في المتصفح (Ctrl+Shift+R)

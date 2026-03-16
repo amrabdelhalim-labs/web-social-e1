@@ -17,14 +17,18 @@ for (const f of ['.env.local', '.env']) {
   if (existsSync(p)) {
     for (const line of readFileSync(p, 'utf8').split('\n')) {
       const m = line.match(/^([^#=]+)=(.*)$/);
-      if (m && !process.env[m[1].trim()]) process.env[m[1].trim()] = m[2].trim().replace(/^["']|["']$/g, '');
+      if (m && !process.env[m[1].trim()])
+        process.env[m[1].trim()] = m[2].trim().replace(/^["']|["']$/g, '');
     }
     break;
   }
 }
 
-const DB_URI = (process.env.DATABASE_URL || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/web-social-e1')
-  .replace(/localhost(?=[:\/]|$)/g, '127.0.0.1');
+const DB_URI = (
+  process.env.DATABASE_URL ||
+  process.env.MONGODB_URI ||
+  'mongodb://127.0.0.1:27017/web-social-e1'
+).replace(/localhost(?=[:\/]|$)/g, '127.0.0.1');
 
 async function initDb() {
   console.log('Connecting to MongoDB...');

@@ -19,7 +19,13 @@ export function ThemeToggle() {
 
   return (
     <Tooltip title={mode === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن'}>
-      <IconButton onClick={toggleMode} color="inherit" aria-label="تبديل السمة" size="medium">
+      <IconButton
+        onClick={toggleMode}
+        color="inherit"
+        aria-label="تبديل السمة"
+        size="medium"
+        sx={{ minWidth: 44, minHeight: 44 }}
+      >
         {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
       </IconButton>
     </Tooltip>

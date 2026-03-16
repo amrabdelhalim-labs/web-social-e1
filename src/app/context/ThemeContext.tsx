@@ -183,9 +183,7 @@ function buildTheme(mode: PaletteMode) {
             paper: () => ({
               backgroundColor: isDark ? '#1e1e1e' : '#ffffff',
               backgroundImage: 'none',
-              boxShadow: isDark
-                ? '0 5px 15px rgba(0,0,0,0.7)'
-                : '0 5px 15px rgba(0,0,0,0.2)',
+              boxShadow: isDark ? '0 5px 15px rgba(0,0,0,0.7)' : '0 5px 15px rgba(0,0,0,0.2)',
             }),
           },
         },

@@ -33,14 +33,14 @@ describe('useCamera', () => {
     }
   });
 
-  describe('isSupported و useFallback', () => {
-    it('isSupported = true عندما getUserMedia متوفر', () => {
+  describe('isSupported and useFallback', () => {
+    it('isSupported is true when getUserMedia is available', () => {
       const { result } = renderHook(() => useCamera());
       expect(result.current.isSupported).toBe(true);
       expect(result.current.useFallback).toBe(false);
     });
 
-    it('useFallback = true عندما mediaDevices غير موجود', () => {
+    it('useFallback is true when mediaDevices is absent', () => {
       const backup = navigator.mediaDevices;
       Object.defineProperty(navigator, 'mediaDevices', {
         value: undefined,
@@ -58,7 +58,7 @@ describe('useCamera', () => {
   });
 
   describe('startCamera', () => {
-    it('يفتح الكاميرا بنجاح ويُحدّث الحالة', async () => {
+    it('starts camera successfully and updates state', async () => {
       const stream = createMockStream();
       vi.mocked(navigator.mediaDevices!.getUserMedia).mockResolvedValue(stream);
 
@@ -74,7 +74,7 @@ describe('useCamera', () => {
       expect(result.current.error).toBeNull();
     });
 
-    it('يُظهر خطأ إذن مرفوض عند NotAllowedError', async () => {
+    it('shows permission denied error on NotAllowedError', async () => {
       vi.mocked(navigator.mediaDevices!.getUserMedia).mockRejectedValue(
         new Error('Permission denied')
       );
@@ -90,7 +90,7 @@ describe('useCamera', () => {
       expect(result.current.isActive).toBe(false);
     });
 
-    it('يُظهر خطأ عدم دعم عند غياب getUserMedia', async () => {
+    it('shows unsupported error when getUserMedia is absent', async () => {
       const backup = navigator.mediaDevices;
       Object.defineProperty(navigator, 'mediaDevices', {
         value: undefined,
@@ -114,7 +114,7 @@ describe('useCamera', () => {
   });
 
   describe('stopCamera', () => {
-    it('يوقف الـ stream ويُنظّف الحالة', async () => {
+    it('stops stream and cleans up state', async () => {
       const stream = createMockStream();
       vi.mocked(navigator.mediaDevices!.getUserMedia).mockResolvedValue(stream);
 
@@ -136,7 +136,7 @@ describe('useCamera', () => {
   });
 
   describe('capturePhoto', () => {
-    it('يُرجع null عندما الفيديو غير جاهز', async () => {
+    it('returns null when video is not ready', async () => {
       const { result } = renderHook(() => useCamera());
       const video = document.createElement('video');
       Object.defineProperty(video, 'readyState', { value: 1, configurable: true });
@@ -152,7 +152,7 @@ describe('useCamera', () => {
       expect(file).toBeNull();
     });
 
-    it('يُرجع File عند فيديو صالح', async () => {
+    it('returns File when video is valid', async () => {
       const { result } = renderHook(() => useCamera());
       const video = document.createElement('video');
       Object.defineProperty(video, 'readyState', { value: 2 });

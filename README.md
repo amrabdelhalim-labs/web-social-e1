@@ -55,16 +55,16 @@ npm run dev
 
 ## السكريبتات المتاحة
 
-| السكريبت               | الوصف                   |
-| ---------------------- | ----------------------- |
-| `npm run dev`          | تشغيل خادم التطوير      |
-| `npm run build`        | بناء للإنتاج            |
-| `npm start`            | تشغيل خادم الإنتاج      |
-| `npm run lint`         | فحص الكود بـ ESLint     |
-| `npm test`             | تشغيل الاختبارات        |
-| `npm run format`       | تنسيق الكود بـ Prettier |
-| `npm run format:check` | التحقق من التنسيق       |
-| `npm run validate`     | فحص شامل قبل الدفع      |
+| السكريبت               | الوصف                        |
+| ---------------------- | ---------------------------- |
+| `npm run dev`          | تشغيل خادم التطوير           |
+| `npm run build`        | بناء للإنتاج                 |
+| `npm start`            | تشغيل خادم الإنتاج           |
+| `npm run lint`         | فحص الكود بـ ESLint          |
+| `npm test`             | تشغيل الاختبارات             |
+| `npm run format`       | تنسيق الكود بـ Prettier      |
+| `npm run format:check` | التحقق من التنسيق            |
+| `npm run validate`     | فحص شامل قبل الدفع           |
 | `npm run db:init`      | إنشاء قاعدة البيانات المحلية |
 
 ## بنية المشروع
@@ -85,11 +85,11 @@ src/app/
 
 ## التوثيق
 
-| الملف                                                    | الموضوع             |
-| -------------------------------------------------------- | ------------------- |
-| [docs/plans/project-plan.md](docs/plans/project-plan.md) | خطة المشروع المفصلة |
+| الملف                                                    | الموضوع              |
+| -------------------------------------------------------- | -------------------- |
+| [docs/plans/project-plan.md](docs/plans/project-plan.md) | خطة المشروع المفصلة  |
 | [docs/setup-local.md](docs/setup-local.md)               | إعداد البيئة المحلية |
-| [docs/ai/README.md](docs/ai/README.md)                   | دليل AI للمشروع     |
+| [docs/ai/README.md](docs/ai/README.md)                   | دليل AI للمشروع      |
 
 ## سجل التغييرات
 

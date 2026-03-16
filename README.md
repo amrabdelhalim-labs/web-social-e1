@@ -1,106 +1,207 @@
-# صوري — My Photos
+# صوري — موقع مشاركة الصور 📷
 
-> موقع ويب لمشاركة الصور — ارفع صورك وشاركها مع الجميع
+> ارفع صورك، التقطها من كاميرتك، وشاركها مع الجميع.
 
 ---
 
-## عن المشروع
+## لمحة عامة
 
-**صوري** هو موقع ويب لمشاركة الصور يتيح للمستخدمين:
+**صوري** موقع ويب Full-Stack لمشاركة الصور، مبني بـ Next.js مع دعم Server-Side Rendering.
+يتيح للمستخدمين رفع صور PNG/JPEG أو التقاطها مباشرة من كاميرا الجهاز، وإضافة عنوان ووصف لكل صورة، ومشاهدة صور المجتمع، والتفاعل معها بالإعجاب.
 
-- رفع صور PNG/JPEG مع عناوين وأوصاف
-- استعراض صور المجتمع في الصفحة الرئيسية
-- التفاعل مع الصور عبر الإعجاب
-- إدارة صورهم الخاصة (تعديل، حذف)
+---
 
-## المكدس التقني
+## الميزات الرئيسية
 
-| التقنية                  | الغرض                             |
-| ------------------------ | --------------------------------- |
-| Next.js 16 (App Router)  | إطار العمل (SSR + API Routes)     |
-| TypeScript               | أمان الأنواع                      |
-| MUI 7 + Emotion          | مكتبة المكونات + RTL              |
-| MongoDB + Mongoose       | قاعدة البيانات                    |
-| JWT + bcrypt             | المصادقة                          |
-| Strategy Pattern         | تخزين الصور (Local/Cloudinary/S3) |
-| Vitest + Testing Library | الاختبارات                        |
+| الميزة | التفاصيل |
+|--------|---------|
+| **مشاركة الصور** | رفع PNG/JPEG مع عنوان ووصف |
+| **كاميرا مباشرة** | التقاط صورة من الكاميرا عبر `getUserMedia` |
+| **صفحة المجتمع** | عرض صور جميع المستخدمين مع pagination |
+| **الإعجاب** | إضافة/إزالة إعجاب مع عداد فوري |
+| **الملف الشخصي** | تعديل البيانات، الصورة الشخصية، وكلمة المرور |
+| **المصادقة** | JWT + bcrypt، حماية المسارات، تحديث تلقائي للـ context |
+| **وضع داكن/فاتح** | تبديل السمة مع الحفاظ على WCAG AA |
+| **تخزين مرن** | محلي / Cloudinary / S3 عبر Strategy Pattern |
+| **حذف الحساب** | حذف متسلسل: صور + إعجابات + ملفات التخزين |
 
-## المتطلبات
+---
+
+## الحزمة التقنية
+
+| التقنية | الإصدار | الغرض |
+|---------|---------|-------|
+| Next.js | 16 | إطار العمل (SSR + API Routes + App Router) |
+| TypeScript | 5 | أمان الأنواع عبر المشروع كاملًا |
+| MUI | 7 | مكتبة المكونات + دعم RTL |
+| MongoDB | — | قاعدة البيانات |
+| Mongoose | — | ODM + تعريف النماذج |
+| JWT | — | توكن المصادقة عديم الحالة |
+| bcrypt | — | تشفير كلمات المرور |
+| Vitest | — | إطار الاختبارات |
+| Testing Library | — | اختبارات مكونات React |
+| Cloudinary | اختياري | تخزين الصور في الإنتاج |
+| AWS S3 | اختياري | تخزين الصور البديل |
+
+---
+
+## التثبيت والتشغيل المحلي
+
+### المتطلبات المسبقة
 
 - Node.js >= 20
 - npm >= 10
-- MongoDB (محلي أو Atlas) — راجع [docs/setup-local.md](docs/setup-local.md)
+- MongoDB (محلي أو Atlas)
 
-## التشغيل السريع
+### خطوات التشغيل
 
 ```bash
-# 1. إعداد البيئة وقاعدة البيانات
+# 1. استنساخ المستودع
+git clone https://github.com/<user>/web-social-e1.git
+cd web-social-e1
 
-# خيار أ: MongoDB مثبت محليًا
-npm run db:init
-
-# خيار ب: MongoDB Atlas (سحابي) — راجع docs/setup-local.md
-
-# 2. نسخ المتغيرات البيئية (إذا لم يكن .env.local موجودًا)
-cp .env.example .env.local
-
-# 3. تثبيت الاعتماديات
+# 2. تثبيت الاعتماديات
 npm install
 
-# 4. تشغيل خادم التطوير
+# 3. إعداد المتغيرات البيئية
+cp .env.example .env.local
+# عدّل .env.local وأضف DATABASE_URL و JWT_SECRET
+
+# 4أ. قاعدة بيانات محلية
+npm run db:init
+
+# 4ب. أو استخدم MongoDB Atlas — راجع docs/setup-local.md
+
+# 5. تشغيل خادم التطوير
 npm run dev
 ```
 
-ثم افتح [http://localhost:3000](http://localhost:3000). للتحقق من الاتصال: [http://localhost:3000/api/health](http://localhost:3000/api/health)
+ثم افتح [http://localhost:3000](http://localhost:3000)
 
-## السكريبتات المتاحة
+### المتغيرات البيئية الأساسية
 
-| السكريبت               | الوصف                        |
-| ---------------------- | ---------------------------- |
-| `npm run dev`          | تشغيل خادم التطوير           |
-| `npm run build`        | بناء للإنتاج                 |
-| `npm start`            | تشغيل خادم الإنتاج           |
-| `npm run lint`         | فحص الكود بـ ESLint          |
-| `npm test`             | تشغيل الاختبارات             |
-| `npm run format`       | تنسيق الكود بـ Prettier      |
-| `npm run format:check` | التحقق من التنسيق            |
-| `npm run validate`     | فحص شامل قبل الدفع           |
-| `npm run db:init`      | إنشاء قاعدة البيانات المحلية |
+| المتغير | الوصف | مثال |
+|---------|-------|------|
+| `DATABASE_URL` | رابط اتصال MongoDB | `mongodb://127.0.0.1:27017/web-social-e1` |
+| `JWT_SECRET` | مفتاح توقيع JWT | سلسلة عشوائية طويلة |
+| `STORAGE_TYPE` | نوع التخزين | `local` \| `cloudinary` \| `s3` |
 
-## بنية المشروع
+للتفاصيل الكاملة: [docs/setup-local.md](docs/setup-local.md)
+
+---
+
+## هيكل المجلدات
 
 ```text
-src/app/
-├── api/          ← REST API routes
-├── components/   ← React components
-├── context/      ← Auth + Theme contexts
-├── hooks/        ← Custom hooks
-├── lib/          ← Utilities (api, auth, db, storage)
-├── models/       ← Mongoose schemas
-├── repositories/ ← Data access layer
-├── validators/   ← Input validation
-├── utils/        ← Helper functions
-└── tests/        ← Test suites
+web-social-e1/
+├── src/app/
+│   ├── api/              ← REST API Routes (auth, photos, profile, health)
+│   ├── components/       ← مكونات React (photos, profile, camera, layout, common)
+│   ├── context/          ← AuthContext + ThemeContext
+│   ├── hooks/            ← useAuth, useThemeMode, usePhotos, useMyPhotos, useCamera
+│   ├── lib/              ← auth.ts, mongodb.ts, api.ts, storage/, apiErrors.ts
+│   ├── models/           ← User.ts, Photo.ts, Like.ts
+│   ├── repositories/     ← Repository Pattern (طبقة الوصول للبيانات)
+│   ├── validators/       ← دوال التحقق من المدخلات
+│   ├── utils/            ← دوال مساعدة
+│   └── tests/            ← 27 ملف اختبار
+├── docs/                 ← التوثيق الكامل
+│   ├── plans/            ← خطة المشروع وخطة التوثيق
+│   ├── ai/               ← دليل AI للمشروع
+│   └── tutorials/        ← دروس تعليمية (قيد الإنشاء)
+├── public/uploads/       ← ملفات التخزين المحلي
+└── scripts/              ← سكربتات المساعدة (db:init, test-api)
 ```
+
+---
+
+## الأوامر المتاحة
+
+| الأمر | الوصف |
+|-------|-------|
+| `npm run dev` | خادم التطوير (Webpack) |
+| `npm run build` | بناء للإنتاج |
+| `npm start` | تشغيل خادم الإنتاج |
+| `npm test` | تشغيل الاختبارات (watch mode) |
+| `npm run test -- --run` | تشغيل الاختبارات مرة واحدة |
+| `npm run lint` | فحص الكود بـ ESLint |
+| `npm run format` | تنسيق الكود بـ Prettier |
+| `npm run format:check` | التحقق من التنسيق فقط |
+| `npm run validate` | format:check + lint + test (فحص شامل قبل الدفع) |
+| `npm run db:init` | إنشاء قاعدة البيانات المحلية |
+
+---
+
+## الاختبارات
+
+المشروع يحتوي **27 ملف اختبار** يغطي:
+
+- الوحدات: دوال المصادقة، التحقق من المدخلات، عميل API، استراتيجيات التخزين
+- المكونات: PhotoCard، PhotoGrid، CameraCapture، AvatarUploader، LikeButton، وغيرها
+- الصفحات: login، register، not-found
+- الخطافات: usePhotos، useMyPhotos، useCamera
+
+```bash
+npm test                    # watch mode
+npm run test -- --run       # تشغيل واحد
+```
+
+للتفاصيل: [docs/testing.md](docs/testing.md)
+
+---
+
+## النشر (Heroku)
+
+```bash
+# إعداد المتغيرات
+heroku config:set DATABASE_URL="mongodb+srv://..."
+heroku config:set JWT_SECRET="your-secret"
+heroku config:set STORAGE_TYPE=cloudinary
+heroku config:set CLOUDINARY_URL="cloudinary://..."
+
+# النشر
+git push heroku main
+```
+
+للدليل الكامل: [docs/deployment.md](docs/deployment.md)
+
+---
 
 ## التوثيق
 
-| الملف                                                    | الموضوع              |
-| -------------------------------------------------------- | -------------------- |
-| [docs/plans/project-plan.md](docs/plans/project-plan.md) | خطة المشروع المفصلة  |
-| [docs/setup-local.md](docs/setup-local.md)               | إعداد البيئة المحلية |
-| [docs/ai/README.md](docs/ai/README.md)                   | دليل AI للمشروع      |
+| الملف | الموضوع |
+|-------|---------|
+| [docs/api-endpoints.md](docs/api-endpoints.md) | جميع مسارات API مع أمثلة |
+| [docs/database-abstraction.md](docs/database-abstraction.md) | نمط المستودعات وطبقة البيانات |
+| [docs/repository-quick-reference.md](docs/repository-quick-reference.md) | مرجع سريع لعمليات المستودعات |
+| [docs/storage-strategy.md](docs/storage-strategy.md) | Strategy Pattern للتخزين |
+| [docs/testing.md](docs/testing.md) | استراتيجية الاختبار والتغطية |
+| [docs/deployment.md](docs/deployment.md) | النشر على Heroku |
+| [docs/setup-local.md](docs/setup-local.md) | إعداد البيئة المحلية |
+| [docs/ai/README.md](docs/ai/README.md) | دليل AI للمشروع |
+| [docs/ai/architecture.md](docs/ai/architecture.md) | مخطط الطبقات وتدفق البيانات |
+| [docs/ai/feature-guide.md](docs/ai/feature-guide.md) | خطوات إضافة ميزة جديدة |
+| [docs/plans/project-plan.md](docs/plans/project-plan.md) | خطة المشروع المفصلة |
+| [docs/plans/documentation-plan.md](docs/plans/documentation-plan.md) | خطة التوثيق الشامل |
+
+---
+
+## المساهمة
+
+راجع [CONTRIBUTING.md](CONTRIBUTING.md) لمعايير الكود وإرشادات الإيداع.
+
+---
 
 ## سجل التغييرات
 
-### v0.1.1 — إعداد محلي وتنظيف
+### v0.1.1 — تحسينات الأداء والبيئة
 
-- قاعدة بيانات محلية: سكربت `db:init` لإنشاء MongoDB محلي
-- إصلاح اتصال IPv6: استخدام `127.0.0.1` بدل `localhost`
-- تحسين التباين: إعدادات WCAG AA للقوائم والنصوص (من مشروع الملاحظات)
+- إعداد قاعدة بيانات محلية: سكربت `db:init`
+- إصلاح اتصال IPv6 بقاعدة البيانات
+- تحسين تباين الواجهة وفق WCAG AA
 - AppBar: شريط علوي بعرض كامل مع padding متجاوب
-- إصلاح تحذيرات React 19: استبدال `FormEvent` بـ `SyntheticEvent<SubmitEvent>`
-- إزالة Docker و sw.js: مشروع مستقل بسياق تطوير واضح
+- إصلاح تحذيرات React 19 مع `SyntheticEvent<SubmitEvent>`
+- إزالة Docker والإعداد المعقد لصالح بيئة تطوير مباشرة
 
 ### v0.1.0 — الهيكل الأولي
 

@@ -657,17 +657,37 @@ test: add comprehensive test suite for all layers
 
 **الهدف:** توثيق شامل + ضبط Heroku.
 
+**المرجع:** راجع `docs/plans/documentation-plan.md` للخطة الكاملة.
+
 **المهام:**
 
-1. تحديث `README.md` الكامل
-2. `docs/ai/architecture.md`
-3. `docs/ai/feature-guide.md`
-4. `docs/api-endpoints.md`
-5. `docs/database-abstraction.md`
-6. `docs/testing.md`
-7. توثيق إعداد Heroku + متغيرات بيئة الإنتاج
-8. ربط تطبيق Heroku بمستودع GitHub (auto-deploy من `main`)
-9. تنفيذ اختبار حقيقي بعد النشر عبر `scripts/test-api.mjs`
+**مرحلة أ — التوثيقات الانتاجية ✅**
+
+- [x] تحديث `README.md` الكامل (ميزات، هيكل، أوامر، روابط)
+- [x] `docs/api-endpoints.md` — جميع مسارات API مع أمثلة
+- [x] `docs/database-abstraction.md` — نمط المستودعات والنماذج
+- [x] `docs/repository-quick-reference.md` — مرجع سريع لعمليات المستودعات
+- [x] `docs/storage-strategy.md` — Strategy Pattern للتخزين
+- [x] `docs/testing.md` — استراتيجية الاختبار وفهرس ملفات الاختبار
+- [x] `docs/deployment.md` — خطوات النشر على Heroku
+
+**مرحلة ب — توثيقات AI ✅**
+
+- [x] `docs/ai/README.md` — تحديث عدد الاختبارات (27 ملف) + روابط
+- [x] `docs/ai/architecture.md` — مخطط الطبقات + 4 تدفقات بيانات
+- [x] `docs/ai/feature-guide.md` — دليل إضافة ميزة جديدة خطوة بخطوة
+
+**مرحلة ج — التوثيقات التعليمية (قيد التنفيذ)**
+
+- [ ] `docs/tutorials/README.md` — فهرس الدروس ومسارات التعلم
+- [ ] `docs/tutorials/concepts-guide.md` — شرح المفاهيم التقنية
+- [ ] `docs/tutorials/quick-reference.md` — مرجع سريع
+- [ ] `docs/tutorials/lessons/01-11` — ١١ درسًا تعليميًا
+
+**مرحلة د — النشر والتحقق**
+
+- [ ] ربط تطبيق Heroku بمستودع GitHub (auto-deploy من `main`)
+- [ ] تنفيذ اختبار حقيقي بعد النشر عبر `scripts/test-api.mjs`
 
 **ملاحظة على النشر:**
 
@@ -818,15 +838,25 @@ web-social-e1/
 │
 └── docs/
     ├── plans/
-    │   └── project-plan.md
+    │   ├── project-plan.md
+    │   └── documentation-plan.md
     ├── ai/
     │   ├── README.md
     │   ├── architecture.md
     │   └── feature-guide.md
     ├── api-endpoints.md
     ├── database-abstraction.md
+    ├── repository-quick-reference.md
+    ├── storage-strategy.md
     ├── testing.md
-    └── deployment.md
+    ├── deployment.md
+    ├── setup-local.md
+    └── tutorials/
+        ├── README.md
+        ├── concepts-guide.md
+        ├── quick-reference.md
+        └── lessons/
+            └── 01-*.md … 11-*.md
 ```
 
 ---
@@ -910,7 +940,7 @@ STORAGE_TYPE=local
 | Config/Types | Unit        | ثوابت، type guards                                     |
 
 - Vitest + jsdom + @testing-library/react
-- أسماء الاختبارات بالعربية: `'يجب أن يرفض البريد المكرر'`
+- أسماء الاختبارات بالإنجليزية: `'should reject duplicate email'`
 - Mock لـ: localStorage, matchMedia, fetch, getUserMedia
 
 ---
@@ -1048,7 +1078,7 @@ stream.getTracks().forEach((track) => track.stop());
 - [x] المرحلة 8: الصفحة الرئيسية (usePhotos + شبكة الصور + lightbox + إعجاب)
 - [x] المرحلة 9: صفحة صوري (useMyPhotos + رفع + تعديل + حذف)
 
-**المراحل المتبقية:** 10 (الملف الشخصي)، 11 (التحسين)، 12 (الاختبارات الشاملة)، 13 (التوثيق والنشر)
+**المراحل المتبقية:** 13-ج (التوثيق التعليمي)، 13-د (النشر والتحقق)
 
 - [x] بنية المجلدات كاملة
 - [x] `package.json` مع الاعتماديات والسكريبتات + `engines`
@@ -1075,4 +1105,4 @@ stream.getTracks().forEach((track) => track.stop());
 ---
 
 _هذه الخطة قابلة للتحديث مع تقدم التطوير._
-_آخر تحديث: مارس 16, 2026 — ExpandableText: "عرض المزيد" عند الاقتطاع فقط، عرض الناشر، LCP priority، fallback حذف الحساب لـ MongoDB standalone_
+_آخر تحديث: مارس 2026 — اكتمال مرحلة التوثيق أ (التوثيقات الانتاجية) وب (توثيقات AI)_

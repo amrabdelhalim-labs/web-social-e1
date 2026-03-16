@@ -20,7 +20,7 @@
 | النوع      | Full-Stack SSR (Next.js App Router)                  |
 | المكدس     | Next.js 16 + TypeScript + MongoDB + Mongoose + MUI 7 |
 | الإصدار    | v0.1.0                                               |
-| الاختبارات | قيد الإنشاء                                          |
+| الاختبارات | 27 ملف اختبار (Vitest + Testing Library)             |
 | النشر      | Heroku (auto-deploy من GitHub `main`)                |
 | Node       | >= 20.x, npm >= 10.x                                 |
 
@@ -120,4 +120,5 @@ node scripts/test-api.mjs https://<your-heroku-app>.herokuapp.com
 
 ## إضافة ميزة جديدة
 
-راجع `docs/ai/architecture.md` للمعمارية التفصيلية و `docs/ai/feature-guide.md` للخطوات.
+- [`docs/ai/architecture.md`](architecture.md) — مخطط الطبقات، الأنماط، تدفق البيانات
+- [`docs/ai/feature-guide.md`](feature-guide.md) — خطوات إضافة كيان/ميزة جديدة خطوة بخطوة

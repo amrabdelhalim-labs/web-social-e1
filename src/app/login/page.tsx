@@ -131,7 +131,7 @@ export default function LoginPage() {
               required
               margin="normal"
               autoComplete="email"
-              inputProps={{ 'aria-label': 'البريد الإلكتروني' }}
+              slotProps={{ htmlInput: { 'aria-label': 'البريد الإلكتروني' } }}
             />
 
             <TextField
@@ -143,20 +143,22 @@ export default function LoginPage() {
               required
               margin="normal"
               autoComplete="current-password"
-              inputProps={{ 'aria-label': 'كلمة المرور' }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      edge="end"
-                      aria-label={showPassword ? 'إخفاء كلمة المرور' : 'عرض كلمة المرور'}
-                      size="small"
-                    >
-                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                htmlInput: { 'aria-label': 'كلمة المرور' },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        edge="end"
+                        aria-label={showPassword ? 'إخفاء كلمة المرور' : 'عرض كلمة المرور'}
+                        size="small"
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
 

@@ -139,7 +139,7 @@ export default function RegisterPage() {
               required
               margin="normal"
               autoComplete="name"
-              inputProps={{ 'aria-label': 'الاسم' }}
+              slotProps={{ htmlInput: { 'aria-label': 'الاسم' } }}
             />
 
             <TextField
@@ -151,7 +151,7 @@ export default function RegisterPage() {
               required
               margin="normal"
               autoComplete="email"
-              inputProps={{ 'aria-label': 'البريد الإلكتروني' }}
+              slotProps={{ htmlInput: { 'aria-label': 'البريد الإلكتروني' } }}
             />
 
             <TextField
@@ -163,9 +163,10 @@ export default function RegisterPage() {
               required
               margin="normal"
               autoComplete="new-password"
-              inputProps={{ 'aria-label': 'كلمة المرور' }}
-              InputProps={{
-                endAdornment: (
+              slotProps={{
+                htmlInput: { 'aria-label': 'كلمة المرور' },
+                input: {
+                  endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() => setShowPassword((prev) => !prev)}
@@ -177,6 +178,7 @@ export default function RegisterPage() {
                     </IconButton>
                   </InputAdornment>
                 ),
+                },
               }}
             />
 
@@ -189,7 +191,7 @@ export default function RegisterPage() {
               required
               margin="normal"
               autoComplete="new-password"
-              inputProps={{ 'aria-label': 'تأكيد كلمة المرور' }}
+              slotProps={{ htmlInput: { 'aria-label': 'تأكيد كلمة المرور' } }}
             />
 
             <Button

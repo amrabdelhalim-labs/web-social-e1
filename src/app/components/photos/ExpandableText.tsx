@@ -4,14 +4,13 @@
  * ExpandableText — Truncated Text with "عرض المزيد"
  *
  * Shows truncated description. "عرض المزيد" appears only when text exceeds
- * the line limit. Uses char threshold + scrollHeight check. Fixed-height block keeps card heights uniform.
+ * the line limit. Uses char threshold + scrollHeight check.
  */
 
 import { useRef, useState, useEffect } from 'react';
 import { Box, Typography, Link } from '@mui/material';
 import {
   DESCRIPTION_PREVIEW_LINES,
-  DESCRIPTION_BLOCK_MIN_HEIGHT,
   DESCRIPTION_TRUNCATE_MIN_CHARS,
 } from '@/app/config';
 
@@ -65,7 +64,6 @@ export function ExpandableText({
   return (
     <Box
       sx={{
-        minHeight: DESCRIPTION_BLOCK_MIN_HEIGHT,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -88,7 +86,6 @@ export function ExpandableText({
       </Box>
       <Box
         sx={{
-          minHeight: '1.5rem',
           flexShrink: 0,
           display: 'flex',
           alignItems: 'flex-start',

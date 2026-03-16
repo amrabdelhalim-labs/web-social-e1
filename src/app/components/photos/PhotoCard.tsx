@@ -28,7 +28,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import type { Photo } from '@/app/types';
 import { ExpandableText } from './ExpandableText';
-import { DESCRIPTION_BLOCK_MIN_HEIGHT } from '@/app/config';
 import { PhotoLightbox } from './PhotoLightbox';
 import { PhotoDetailModal } from './PhotoDetailModal';
 import { LikeButton } from './LikeButton';
@@ -223,7 +222,6 @@ export function PhotoCard({
           <Box
             sx={{
               flexGrow: 1,
-              minHeight: DESCRIPTION_BLOCK_MIN_HEIGHT,
               minWidth: 0,
               overflow: 'hidden',
             }}

@@ -27,8 +27,6 @@ export const MAX_DESCRIPTION_LENGTH = 2000;
 
 /** Lines visible in collapsed description before "Show More" */
 export const DESCRIPTION_PREVIEW_LINES = 3;
-/** Min height for description block (3 lines + "عرض المزيد" row) — keeps cards uniform */
-export const DESCRIPTION_BLOCK_MIN_HEIGHT = '5.5rem';
 /** Min chars to consider truncation (short text never shows "عرض المزيد") */
 export const DESCRIPTION_TRUNCATE_MIN_CHARS = 100;
 

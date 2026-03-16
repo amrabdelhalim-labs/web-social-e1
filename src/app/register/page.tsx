@@ -14,25 +14,15 @@
  */
 
 import { useState, useEffect } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  IconButton,
-  InputAdornment,
-  Link as MuiLink,
-  Paper,
-  TextField,
-  Typography,
-} from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { Box, TextField } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/hooks/useAuth';
 import { validateRegisterInput } from '@/app/validators';
 import { MainLayout } from '@/app/components/layout/MainLayout';
+import { AuthFormLayout } from '@/app/components/auth/AuthFormLayout';
+import { PasswordField } from '@/app/components/common/PasswordField';
+import { SubmitButton } from '@/app/components/common/SubmitButton';
 import { APP_NAME } from '@/app/config';
 
 export default function RegisterPage() {
@@ -91,44 +81,11 @@ export default function RegisterPage() {
 
   return (
     <MainLayout>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          py: { xs: 4, sm: 8 },
-          px: 2,
-        }}
-      >
-        <Paper
-          elevation={2}
-          sx={{
-            p: { xs: 3, sm: 4 },
-            width: '100%',
-            maxWidth: 420,
-            borderRadius: 2,
-          }}
-        >
-          {/* Header */}
-          <Typography variant="h5" component="h1" fontWeight={700} mb={0.5} textAlign="center">
-            {APP_NAME}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" mb={3} textAlign="center">
-            أنشئ حسابك وابدأ مشاركة صورك
-          </Typography>
-
-          {/* Validation / server errors */}
-          {displayErrors.length > 0 && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {displayErrors.map((err, i) => (
-                <span key={i} style={{ display: 'block' }}>
-                  {err}
-                </span>
-              ))}
-            </Alert>
-          )}
-
-          {/* Form */}
+      <AuthFormLayout
+        title={APP_NAME}
+        subtitle="أنشئ حسابك وابدأ مشاركة صورك"
+        errors={displayErrors}
+        form={
           <Box component="form" onSubmit={handleSubmit} noValidate>
             <TextField
               label="الاسم"
@@ -141,7 +98,6 @@ export default function RegisterPage() {
               autoComplete="name"
               slotProps={{ htmlInput: { 'aria-label': 'الاسم' } }}
             />
-
             <TextField
               label="البريد الإلكتروني"
               type="email"
@@ -153,35 +109,14 @@ export default function RegisterPage() {
               autoComplete="email"
               slotProps={{ htmlInput: { 'aria-label': 'البريد الإلكتروني' } }}
             />
-
-            <TextField
+            <PasswordField
               label="كلمة المرور"
-              type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              required
-              margin="normal"
+              onChange={setPassword}
+              showPassword={showPassword}
+              onToggleShow={() => setShowPassword((p) => !p)}
               autoComplete="new-password"
-              slotProps={{
-                htmlInput: { 'aria-label': 'كلمة المرور' },
-                input: {
-                  endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      edge="end"
-                      aria-label={showPassword ? 'إخفاء كلمة المرور' : 'عرض كلمة المرور'}
-                      size="small"
-                    >
-                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-                },
-              }}
             />
-
             <TextField
               label="تأكيد كلمة المرور"
               type={showPassword ? 'text' : 'password'}
@@ -193,27 +128,18 @@ export default function RegisterPage() {
               autoComplete="new-password"
               slotProps={{ htmlInput: { 'aria-label': 'تأكيد كلمة المرور' } }}
             />
-
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              disabled={submitting}
-              sx={{ mt: 2.5, py: 1.25, fontSize: '1rem' }}
-            >
-              {submitting ? <CircularProgress size={22} color="inherit" /> : 'إنشاء الحساب'}
-            </Button>
+            <SubmitButton loading={submitting}>إنشاء الحساب</SubmitButton>
           </Box>
-
-          {/* Switch to login */}
-          <Typography variant="body2" color="text.secondary" textAlign="center" mt={2.5}>
+        }
+        footer={
+          <>
             لديك حساب بالفعل؟{' '}
-            <MuiLink component={Link} href="/login" fontWeight={600}>
+            <Link href="/login" style={{ fontWeight: 600 }}>
               تسجيل الدخول
-            </MuiLink>
-          </Typography>
-        </Paper>
-      </Box>
+            </Link>
+          </>
+        }
+      />
     </MainLayout>
   );
 }

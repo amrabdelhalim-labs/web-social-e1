@@ -14,25 +14,15 @@
  */
 
 import { useState, useEffect } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  IconButton,
-  InputAdornment,
-  Link as MuiLink,
-  Paper,
-  TextField,
-  Typography,
-} from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { Box, TextField } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/hooks/useAuth';
 import { validateLoginInput } from '@/app/validators';
 import { MainLayout } from '@/app/components/layout/MainLayout';
+import { AuthFormLayout } from '@/app/components/auth/AuthFormLayout';
+import { PasswordField } from '@/app/components/common/PasswordField';
+import { SubmitButton } from '@/app/components/common/SubmitButton';
 import { APP_NAME } from '@/app/config';
 
 export default function LoginPage() {
@@ -83,44 +73,11 @@ export default function LoginPage() {
 
   return (
     <MainLayout>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          py: { xs: 4, sm: 8 },
-          px: 2,
-        }}
-      >
-        <Paper
-          elevation={2}
-          sx={{
-            p: { xs: 3, sm: 4 },
-            width: '100%',
-            maxWidth: 420,
-            borderRadius: 2,
-          }}
-        >
-          {/* Header */}
-          <Typography variant="h5" component="h1" fontWeight={700} mb={0.5} textAlign="center">
-            {APP_NAME}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" mb={3} textAlign="center">
-            أهلاً بك، سجّل دخولك للمتابعة
-          </Typography>
-
-          {/* Validation / server errors */}
-          {displayErrors.length > 0 && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {displayErrors.map((err, i) => (
-                <span key={i} style={{ display: 'block' }}>
-                  {err}
-                </span>
-              ))}
-            </Alert>
-          )}
-
-          {/* Form */}
+      <AuthFormLayout
+        title={APP_NAME}
+        subtitle="أهلاً بك، سجّل دخولك للمتابعة"
+        errors={displayErrors}
+        form={
           <Box component="form" onSubmit={handleSubmit} noValidate>
             <TextField
               label="البريد الإلكتروني"
@@ -133,55 +90,26 @@ export default function LoginPage() {
               autoComplete="email"
               slotProps={{ htmlInput: { 'aria-label': 'البريد الإلكتروني' } }}
             />
-
-            <TextField
+            <PasswordField
               label="كلمة المرور"
-              type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              required
-              margin="normal"
+              onChange={setPassword}
+              showPassword={showPassword}
+              onToggleShow={() => setShowPassword((p) => !p)}
               autoComplete="current-password"
-              slotProps={{
-                htmlInput: { 'aria-label': 'كلمة المرور' },
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        edge="end"
-                        aria-label={showPassword ? 'إخفاء كلمة المرور' : 'عرض كلمة المرور'}
-                        size="small"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
             />
-
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              disabled={submitting}
-              sx={{ mt: 2.5, py: 1.25, fontSize: '1rem' }}
-            >
-              {submitting ? <CircularProgress size={22} color="inherit" /> : 'تسجيل الدخول'}
-            </Button>
+            <SubmitButton loading={submitting}>تسجيل الدخول</SubmitButton>
           </Box>
-
-          {/* Switch to register */}
-          <Typography variant="body2" color="text.secondary" textAlign="center" mt={2.5}>
+        }
+        footer={
+          <>
             ليس لديك حساب؟{' '}
-            <MuiLink component={Link} href="/register" fontWeight={600}>
+            <Link href="/register" style={{ fontWeight: 600 }}>
               إنشاء حساب جديد
-            </MuiLink>
-          </Typography>
-        </Paper>
-      </Box>
+            </Link>
+          </>
+        }
+      />
     </MainLayout>
   );
 }

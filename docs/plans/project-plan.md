@@ -265,8 +265,8 @@ components/
 ├── camera/
 │   └── CameraCapture.tsx       ← مكوّن الكاميرا المباشرة (stream → capture → Blob)
 ├── photos/
-│   ├── PhotoCard.tsx           ← بطاقة صورة: مصغرة + عنوان + وصف + إعجاب
-│   ├── PhotoGrid.tsx           ← شبكة بطاقات الصور (responsive grid)
+│   ├── PhotoCard.tsx           ← بطاقة موحدة: variant=public (إعجاب) | owner (تعديل/حذف)
+│   ├── PhotoGrid.tsx           ← شبكة صور (variant + onEdit/onDelete لصفحة صوري)
 │   ├── PhotoUploadForm.tsx     ← نموذج رفع صورة (ملف أو كاميرا)
 │   ├── PhotoEditDialog.tsx     ← حوار تعديل العنوان والوصف
 │   ├── DeleteConfirmDialog.tsx ← حوار تأكيد الحذف
@@ -557,14 +557,14 @@ feat(home): add public photo feed with grid, lightbox, likes, and pagination
    - تبويب "التقاط بالكاميرا": يفتح `<CameraCapture>` → صورة ملتقطة → معاينة → رفع
 3. `PhotoEditDialog.tsx` — Dialog لتعديل العنوان والوصف
 4. `DeleteConfirmDialog.tsx` — Dialog تأكيد الحذف
-5. `MyPhotoCard.tsx` — بطاقة صورة المستخدم مع قائمة تعديل/حذف
-6. `my-photos/page.tsx` — صفحة محمية مع FAB وشبكة الصور (ProtectedRoute)
+5. `PhotoCard` مع `variant="owner"` — بطاقة صورة المستخدم (قائمة تعديل/حذف في نفس موضع الإعجاب)
+6. `my-photos/page.tsx` — صفحة محمية مع FAB و PhotoGrid (ProtectedRoute)
 
 **الاختبارات المضافة (المراحل 7–9):**
 
 - `useCamera.test.ts`, `CameraCapture.test.tsx` — المرحلة 7
 - `usePhotos.test.ts`, `ExpandableText.test.tsx`, `LikeButton.test.tsx`, `PhotoCard.test.tsx`, `PhotoGrid.test.tsx`, `PhotoLightbox.test.tsx` — المرحلة 8
-- `useMyPhotos.test.ts`, `PhotoUploadForm.test.tsx`, `PhotoEditDialog.test.tsx`, `DeleteConfirmDialog.test.tsx`, `MyPhotoCard.test.tsx` — المرحلة 9
+- `useMyPhotos.test.ts`, `PhotoUploadForm.test.tsx`, `PhotoEditDialog.test.tsx`, `DeleteConfirmDialog.test.tsx`, `PhotoCard.test.tsx` (variant=owner) — المرحلة 9
 - `setup.ts` — mock لـ getUserMedia و Canvas (getContext, toBlob) لاختبارات الكاميرا
 
 **تحديثات MUI (هجر الـ APIs المُهملة):**
@@ -891,7 +891,7 @@ STORAGE_TYPE=local
 - جميع الألوان المخصصة: WCAG AA كحد أدنى (4.5:1)
 - خط عربي: Cairo (Google Fonts)
 - اتجاه RTL مع `@mui/stylis-plugin-rtl`
-- منع FOUC عبر blocking script في `<head>`
+- منع FOUC عبر blocking script في `<head>` + خلفية فورية في `globals.css` حسب `data-color-scheme` (يمنع الوميض الأبيض في الوضع الداكن)
 
 ---
 
@@ -1050,4 +1050,4 @@ stream.getTracks().forEach((track) => track.stop());
 ---
 
 _هذه الخطة قابلة للتحديث مع تقدم التطوير._
-_آخر تحديث: مارس 16, 2026 — إكمال المراحل 7، 8، 9 مع الاختبارات وتحديثات MUI_
+_آخر تحديث: مارس 16, 2026 — دمج PhotoCard/MyPhotoCard، إصلاح وميض الوضع الداكن، نقل خيارات المالك لنفس موضع الإعجاب_

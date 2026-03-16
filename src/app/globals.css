@@ -1,6 +1,23 @@
-/* ─── Anti-FOUC: hide until theme is resolved ───────────────────────── */
+/* ─── Anti-FOUC: theme + background before paint ─────────────────────── */
 html:not([data-color-scheme]) body {
   visibility: hidden;
+}
+
+/* Apply background + color-scheme immediately — prevents white flash in dark mode */
+html[data-color-scheme='dark'],
+html[data-color-scheme='dark'] body {
+  background-color: #121212;
+}
+html[data-color-scheme='dark'] {
+  color-scheme: dark;
+}
+
+html[data-color-scheme='light'],
+html[data-color-scheme='light'] body {
+  background-color: #f0f4f8;
+}
+html[data-color-scheme='light'] {
+  color-scheme: light;
 }
 
 /* ─── Base Reset ─────────────────────────────────────────────────────── */

@@ -29,8 +29,14 @@ export function MainLayout({ children, fullWidth = false }: MainLayoutProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <SiteAppBar />
-      <Box component="main" sx={{ flexGrow: 1, py: 3 }}>
-        {fullWidth ? children : <Container maxWidth="lg">{children}</Container>}
+      <Box component="main" sx={{ flexGrow: 1, py: { xs: 2, sm: 3 } }}>
+        {fullWidth ? (
+          children
+        ) : (
+          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
+            {children}
+          </Container>
+        )}
       </Box>
     </Box>
   );

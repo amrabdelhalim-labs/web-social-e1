@@ -1,14 +1,11 @@
 'use client';
 
 /**
- * UserMenu — Authenticated User Dropdown
+ * UserMenu — Account Dropdown (Guest + Authenticated)
  *
- * Shows the user's avatar in the AppBar. On click, opens a Menu with:
- *  - User name + email (informational, not clickable)
- *  - Navigation: "صوري" → /my-photos  |  "ملفي" → /profile
- *  - "تسجيل الخروج" → calls logout() then navigates to /
- *
- * Uses MUI Avatar with initials fallback when avatarUrl is null.
+ * Two states:
+ * - Guest: PersonOutline icon → Menu: تسجيل الدخول, إنشاء حساب
+ * - Authenticated: Avatar icon → Menu: user info, ملفي الشخصي, تسجيل الخروج
  */
 
 import { useState } from 'react';
@@ -23,13 +20,13 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LoginIcon from '@mui/icons-material/Login';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/hooks/useAuth';
 
-/** Returns the first letter of a name (for avatar initials) */
 function getInitial(name: string): string {
   return name.trim().charAt(0).toUpperCase();
 }
@@ -39,9 +36,8 @@ export function UserMenu() {
   const router = useRouter();
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
 
-  if (!user) return null;
-
   const open = Boolean(anchor);
+  const isGuest = !user;
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchor(e.currentTarget);
   const handleClose = () => setAnchor(null);
@@ -59,22 +55,27 @@ export function UserMenu() {
 
   return (
     <>
-      <Tooltip title="حسابي">
+      <Tooltip title={isGuest ? 'حساب الضيف' : 'حسابي'}>
         <IconButton
           onClick={handleOpen}
           size="small"
           aria-controls={open ? 'user-menu' : undefined}
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}
-          aria-label="قائمة المستخدم"
+          aria-label={isGuest ? 'قائمة الضيف' : 'قائمة المستخدم'}
+          sx={{ minWidth: 44, minHeight: 44 }}
         >
-          <Avatar
-            src={user.avatarUrl ?? undefined}
-            alt={user.name}
-            sx={{ width: 34, height: 34, fontSize: '0.9rem', fontWeight: 700 }}
-          >
-            {getInitial(user.name)}
-          </Avatar>
+          {isGuest ? (
+            <AccountCircleIcon sx={{ fontSize: 32 }} />
+          ) : (
+            <Avatar
+              src={user.avatarUrl ?? undefined}
+              alt={user.name}
+              sx={{ width: 34, height: 34, fontSize: '0.9rem', fontWeight: 700 }}
+            >
+              {getInitial(user.name)}
+            </Avatar>
+          )}
         </IconButton>
       </Tooltip>
 
@@ -87,42 +88,47 @@ export function UserMenu() {
         anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
         slotProps={{ paper: { elevation: 3, sx: { minWidth: 200, mt: 0.5 } } }}
       >
-        {/* User info (non-interactive) */}
-        <MenuItem disabled disableRipple>
-          <Box sx={{ py: 0.5 }}>
-            <Typography variant="body2" fontWeight={700} noWrap>
-              {user.name}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {user.email}
-            </Typography>
-          </Box>
-        </MenuItem>
-
-        <Divider />
-
-        <MenuItem onClick={() => navigate('/my-photos')}>
-          <ListItemIcon>
-            <PhotoLibraryIcon fontSize="small" />
-          </ListItemIcon>
-          صوري
-        </MenuItem>
-
-        <MenuItem onClick={() => navigate('/profile')}>
-          <ListItemIcon>
-            <AccountCircleIcon fontSize="small" />
-          </ListItemIcon>
-          ملفي الشخصي
-        </MenuItem>
-
-        <Divider />
-
-        <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-          <ListItemIcon>
-            <LogoutIcon fontSize="small" color="error" />
-          </ListItemIcon>
-          تسجيل الخروج
-        </MenuItem>
+        {isGuest
+          ? [
+              <MenuItem key="login" onClick={() => navigate('/login')}>
+                <ListItemIcon>
+                  <LoginIcon fontSize="small" />
+                </ListItemIcon>
+                تسجيل الدخول
+              </MenuItem>,
+              <MenuItem key="register" onClick={() => navigate('/register')}>
+                <ListItemIcon>
+                  <PersonAddIcon fontSize="small" />
+                </ListItemIcon>
+                إنشاء حساب
+              </MenuItem>,
+            ]
+          : [
+              <MenuItem key="info" disabled disableRipple>
+                <Box sx={{ py: 0.5 }}>
+                  <Typography variant="body2" fontWeight={700} noWrap>
+                    {user.name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" noWrap>
+                    {user.email}
+                  </Typography>
+                </Box>
+              </MenuItem>,
+              <Divider key="d1" />,
+              <MenuItem key="profile" onClick={() => navigate('/profile')}>
+                <ListItemIcon>
+                  <AccountCircleIcon fontSize="small" />
+                </ListItemIcon>
+                ملفي الشخصي
+              </MenuItem>,
+              <Divider key="d2" />,
+              <MenuItem key="logout" onClick={handleLogout} sx={{ color: 'error.main' }}>
+                <ListItemIcon>
+                  <LogoutIcon fontSize="small" color="error" />
+                </ListItemIcon>
+                تسجيل الخروج
+              </MenuItem>,
+            ]}
       </Menu>
     </>
   );

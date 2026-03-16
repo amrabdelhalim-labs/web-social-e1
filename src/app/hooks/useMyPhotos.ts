@@ -7,12 +7,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import {
-  getMyPhotosApi,
-  uploadPhotoApi,
-  updatePhotoApi,
-  deletePhotoApi,
-} from '@/app/lib/api';
+import { getMyPhotosApi, uploadPhotoApi, updatePhotoApi, deletePhotoApi } from '@/app/lib/api';
 import { DEFAULT_PAGE_SIZE } from '@/app/config';
 import type { Photo, UpdatePhotoInput } from '@/app/types';
 
@@ -84,9 +79,7 @@ export function useMyPhotos(): UseMyPhotosReturn {
   const update = useCallback(async (id: string, input: UpdatePhotoInput) => {
     const res = await updatePhotoApi(id, input);
     if (res.data) {
-      setPhotos((prev) =>
-        prev.map((p) => (p._id === id ? { ...p, ...res.data! } : p))
-      );
+      setPhotos((prev) => prev.map((p) => (p._id === id ? { ...p, ...res.data! } : p)));
     }
   }, []);
 

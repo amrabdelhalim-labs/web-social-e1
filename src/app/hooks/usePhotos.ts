@@ -66,44 +66,47 @@ export function usePhotos(): UsePhotosReturn {
     fetchPhotos(1, false);
   }, [fetchPhotos]);
 
-  const toggleLike = useCallback(async (photoId: string) => {
-    const photo = photos.find((p) => p._id === photoId);
-    if (!photo) return;
+  const toggleLike = useCallback(
+    async (photoId: string) => {
+      const photo = photos.find((p) => p._id === photoId);
+      if (!photo) return;
 
-    const prevLiked = photo.isLiked ?? false;
-    const prevCount = photo.likesCount;
+      const prevLiked = photo.isLiked ?? false;
+      const prevCount = photo.likesCount;
 
-    setPhotos((prev) =>
-      prev.map((p) =>
-        p._id === photoId
-          ? {
-              ...p,
-              isLiked: !prevLiked,
-              likesCount: prevLiked ? p.likesCount - 1 : p.likesCount + 1,
-            }
-          : p
-      )
-    );
+      setPhotos((prev) =>
+        prev.map((p) =>
+          p._id === photoId
+            ? {
+                ...p,
+                isLiked: !prevLiked,
+                likesCount: prevLiked ? p.likesCount - 1 : p.likesCount + 1,
+              }
+            : p
+        )
+      );
 
-    try {
-      const res = await toggleLikeApi(photoId);
-      if (res.data) {
+      try {
+        const res = await toggleLikeApi(photoId);
+        if (res.data) {
+          setPhotos((prev) =>
+            prev.map((p) =>
+              p._id === photoId
+                ? { ...p, isLiked: res.data!.liked, likesCount: res.data!.likesCount }
+                : p
+            )
+          );
+        }
+      } catch {
         setPhotos((prev) =>
           prev.map((p) =>
-            p._id === photoId
-              ? { ...p, isLiked: res.data!.liked, likesCount: res.data!.likesCount }
-              : p
+            p._id === photoId ? { ...p, isLiked: prevLiked, likesCount: prevCount } : p
           )
         );
       }
-    } catch {
-      setPhotos((prev) =>
-        prev.map((p) =>
-          p._id === photoId ? { ...p, isLiked: prevLiked, likesCount: prevCount } : p
-        )
-      );
-    }
-  }, [photos]);
+    },
+    [photos]
+  );
 
   return {
     photos,

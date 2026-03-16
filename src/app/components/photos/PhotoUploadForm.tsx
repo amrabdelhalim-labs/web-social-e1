@@ -23,7 +23,9 @@ import {
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { CameraCapture } from '@/app/components/camera/CameraCapture';
-import { MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES } from '@/app/config';
+import { MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES } from '@/app/config';
+import { validatePhotoInput } from '@/app/validators';
+import { PhotoTitleDescriptionFields } from './PhotoTitleDescriptionFields';
 
 export interface PhotoUploadFormProps {
   open: boolean;
@@ -87,19 +89,21 @@ export function PhotoUploadForm({ open, onClose, onUpload }: PhotoUploadFormProp
     }
 
     const trimmedTitle = title.trim();
-    if (!trimmedTitle) {
-      setError('عنوان الصورة مطلوب.');
-      return;
-    }
-    if (trimmedTitle.length > MAX_TITLE_LENGTH) {
-      setError(`العنوان يجب ألا يتجاوز ${MAX_TITLE_LENGTH} حرفًا.`);
+    const trimmedDesc = description.trim();
+
+    const errors = validatePhotoInput({
+      title: trimmedTitle,
+      description: trimmedDesc || undefined,
+    });
+    if (errors.length > 0) {
+      setError(errors[0]);
       return;
     }
 
     setSubmitting(true);
     setError('');
     try {
-      await onUpload(file, trimmedTitle, description.trim() || undefined);
+      await onUpload(file, trimmedTitle, trimmedDesc || undefined);
       handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'فشل في رفع الصورة.');
@@ -112,9 +116,21 @@ export function PhotoUploadForm({ open, onClose, onUpload }: PhotoUploadFormProp
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>رفع صورة جديدة</DialogTitle>
       <Box component="form" onSubmit={handleSubmit}>
-        <Tabs value={tab} onChange={(_, v: TabValue) => { setTab(v); setFile(null); setError(''); }}>
+        <Tabs
+          value={tab}
+          onChange={(_, v: TabValue) => {
+            setTab(v);
+            setFile(null);
+            setError('');
+          }}
+        >
           <Tab value="file" label="رفع من الجهاز" icon={<UploadFileIcon />} iconPosition="start" />
-          <Tab value="camera" label="التقاط بالكاميرا" icon={<CameraAltIcon />} iconPosition="start" />
+          <Tab
+            value="camera"
+            label="التقاط بالكاميرا"
+            icon={<CameraAltIcon />}
+            iconPosition="start"
+          />
         </Tabs>
 
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, minHeight: 200 }}>
@@ -149,22 +165,12 @@ export function PhotoUploadForm({ open, onClose, onUpload }: PhotoUploadFormProp
               <Typography variant="body2" color="text.secondary">
                 {file.name}
               </Typography>
-              <TextField
-                label="العنوان"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                fullWidth
-                required
-                slotProps={{ htmlInput: { maxLength: MAX_TITLE_LENGTH } }}
-              />
-              <TextField
-                label="الوصف"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                fullWidth
-                multiline
-                rows={2}
-                slotProps={{ htmlInput: { maxLength: MAX_DESCRIPTION_LENGTH } }}
+              <PhotoTitleDescriptionFields
+                title={title}
+                description={description}
+                onTitleChange={setTitle}
+                onDescriptionChange={setDescription}
+                descriptionRows={2}
               />
               <Button variant="text" size="small" onClick={() => setFile(null)}>
                 تغيير الصورة

@@ -7,34 +7,18 @@
  */
 
 import { useState } from 'react';
-import {
-  Box,
-  Button,
-  Typography,
-  Alert,
-  CircularProgress,
-  Fab,
-  Grid,
-} from '@mui/material';
+import { Box, Button, Typography, Alert, Fab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { MainLayout } from '@/app/components/layout/MainLayout';
 import { ProtectedRoute } from '@/app/components/auth/ProtectedRoute';
 import { PhotoUploadForm } from '@/app/components/photos/PhotoUploadForm';
-import { MyPhotoCard } from '@/app/components/photos/MyPhotoCard';
+import { PhotoGrid } from '@/app/components/photos/PhotoGrid';
+import { PhotoGridSkeleton } from '@/app/components/photos/PhotoGridSkeleton';
 import { useMyPhotos } from '@/app/hooks/useMyPhotos';
 
 function MyPhotosContent() {
   const [uploadOpen, setUploadOpen] = useState(false);
-  const {
-    photos,
-    loading,
-    error,
-    pagination,
-    loadMore,
-    upload,
-    update,
-    remove,
-  } = useMyPhotos();
+  const { photos, loading, error, pagination, loadMore, upload, update, remove } = useMyPhotos();
 
   const hasMore = pagination.page < pagination.totalPages;
 
@@ -44,41 +28,34 @@ function MyPhotosContent() {
 
   return (
     <MainLayout>
-      <Box sx={{ py: 2, pb: 10 }}>
-        <Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
-          صوري
-        </Typography>
-
+      <Box sx={{ py: { xs: 1, sm: 2 }, pb: { xs: 10, sm: 12 } }}>
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }} role="alert">
             {error}
           </Alert>
         )}
 
         {loading && photos.length === 0 ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress size={40} />
-          </Box>
+          <PhotoGridSkeleton />
         ) : photos.length === 0 ? (
-          <Typography variant="body1" color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
-            لا توجد صور لديك بعد. ارفع صورة جديدة!
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ py: { xs: 6, sm: 8 }, textAlign: 'center' }}
+          >
+            لا توجد صور لديك. ارفع صورة جديدة.
           </Typography>
         ) : (
           <>
-            <Grid container spacing={2}>
-              {photos.map((photo) => (
-                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={photo._id}>
-                  <MyPhotoCard photo={photo} onEdit={update} onDelete={remove} />
-                </Grid>
-              ))}
-            </Grid>
+            <PhotoGrid photos={photos} variant="owner" onEdit={update} onDelete={remove} />
             {hasMore && (
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Button
                   variant="outlined"
                   onClick={loadMore}
                   disabled={loading}
-                  startIcon={loading ? <CircularProgress size={20} /> : null}
+                  aria-busy={loading}
+                  aria-label={loading ? 'جاري التحميل' : 'تحميل المزيد'}
                 >
                   {loading ? 'جاري التحميل...' : 'تحميل المزيد'}
                 </Button>
@@ -90,7 +67,13 @@ function MyPhotosContent() {
         <Fab
           color="primary"
           aria-label="رفع صورة"
-          sx={{ position: 'fixed', bottom: 24, right: 24 }}
+          sx={{
+            position: 'fixed',
+            bottom: { xs: 16, sm: 24 },
+            right: { xs: 16, sm: 24 },
+            width: 56,
+            height: 56,
+          }}
           onClick={() => setUploadOpen(true)}
         >
           <AddIcon />

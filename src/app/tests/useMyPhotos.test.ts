@@ -25,6 +25,7 @@ const mockPhoto = {
   likesCount: 0,
   isLiked: false,
   createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 };
 
 describe('useMyPhotos', () => {
@@ -35,7 +36,7 @@ describe('useMyPhotos', () => {
     });
   });
 
-  it('يجلب صور المستخدم عند التحميل', async () => {
+  it('fetches user photos on load', async () => {
     const { result } = renderHook(() => useMyPhotos());
 
     await waitFor(() => {

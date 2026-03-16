@@ -23,18 +23,18 @@ describe('LikeButton', () => {
     });
   });
 
-  it('يعرض عدد الإعجابات', () => {
+  it('displays likes count', () => {
     render(<LikeButton photoId="p1" liked={false} likesCount={5} />);
     expect(screen.getByText('5')).toBeInTheDocument();
   });
 
-  it('يعطّل الزر عند عدم وجود مستخدم', () => {
+  it('disables button when no user', () => {
     (useAuth as ReturnType<typeof vi.fn>).mockReturnValue({ user: null });
     render(<LikeButton photoId="p1" liked={false} likesCount={0} />);
     expect(screen.getByRole('button', { name: /إعجاب/ })).toBeDisabled();
   });
 
-  it('يستدعي toggleLikeApi عند النقر', async () => {
+  it('calls toggleLikeApi when clicking', async () => {
     vi.mocked(api.toggleLikeApi).mockResolvedValue({
       data: { liked: true, likesCount: 1 },
     });

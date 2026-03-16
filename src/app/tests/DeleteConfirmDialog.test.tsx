@@ -7,15 +7,13 @@ import { render, screen, fireEvent } from './utils';
 import { DeleteConfirmDialog } from '@/app/components/photos/DeleteConfirmDialog';
 
 describe('DeleteConfirmDialog', () => {
-  it('يعرض العنوان والرسالة الافتراضية', () => {
-    render(
-      <DeleteConfirmDialog open={true} onConfirm={() => {}} onCancel={() => {}} />
-    );
+  it('displays title and default message', () => {
+    render(<DeleteConfirmDialog open={true} onConfirm={() => {}} onCancel={() => {}} />);
     expect(screen.getByText('تأكيد الحذف')).toBeInTheDocument();
     expect(screen.getByText('هل أنت متأكد من حذف هذا العنصر؟')).toBeInTheDocument();
   });
 
-  it('يعرض العنوان والرسالة المخصصة', () => {
+  it('displays custom title and message', () => {
     render(
       <DeleteConfirmDialog
         open={true}
@@ -29,7 +27,7 @@ describe('DeleteConfirmDialog', () => {
     expect(screen.getByText('هل أنت متأكد؟')).toBeInTheDocument();
   });
 
-  it('يستدعي onConfirm عند النقر على حذف', () => {
+  it('calls onConfirm when clicking delete', () => {
     const onConfirm = vi.fn();
     render(
       <DeleteConfirmDialog
@@ -43,11 +41,9 @@ describe('DeleteConfirmDialog', () => {
     expect(onConfirm).toHaveBeenCalled();
   });
 
-  it('يستدعي onCancel عند النقر على إلغاء', () => {
+  it('calls onCancel when clicking cancel', () => {
     const onCancel = vi.fn();
-    render(
-      <DeleteConfirmDialog open={true} onConfirm={() => {}} onCancel={onCancel} />
-    );
+    render(<DeleteConfirmDialog open={true} onConfirm={() => {}} onCancel={onCancel} />);
     fireEvent.click(screen.getByRole('button', { name: /إلغاء/ }));
     expect(onCancel).toHaveBeenCalled();
   });

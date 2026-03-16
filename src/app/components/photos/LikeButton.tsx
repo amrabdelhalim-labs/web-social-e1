@@ -66,7 +66,7 @@ export function LikeButton({
         disabled={!user || loading}
         size="small"
         aria-label={liked ? 'إلغاء الإعجاب' : 'إعجاب'}
-        sx={{ color: liked ? 'error.main' : 'text.secondary' }}
+        sx={{ color: liked ? 'error.main' : 'text.secondary', minWidth: 40, minHeight: 40 }}
       >
         {liked ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
       </IconButton>

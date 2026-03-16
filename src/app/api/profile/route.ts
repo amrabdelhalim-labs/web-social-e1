@@ -69,8 +69,13 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     const auth = authenticateRequest(request);
     if (auth.error) return auth.error;
 
-    const body = await request.json();
-    if (!body.password) {
+    let body: { password?: string };
+    try {
+      body = await request.json();
+    } catch {
+      return validationError(['صيغة الطلب غير صحيحة.']);
+    }
+    if (!body || typeof body.password !== 'string' || !body.password.trim()) {
       return validationError(['كلمة المرور مطلوبة لتأكيد حذف الحساب.']);
     }
 
@@ -81,7 +86,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     const foundUser = await userRepo.findById(auth.userId);
     if (!foundUser) return notFoundError('المستخدم غير موجود.');
 
-    const isMatch = await comparePassword(body.password, foundUser.password);
+    const isMatch = await comparePassword(body.password.trim(), foundUser.password);
     if (!isMatch) return unauthorizedError('كلمة المرور غير صحيحة.');
 
     const storage = getStorageService();

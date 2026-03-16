@@ -32,7 +32,10 @@ class UserRepository extends BaseRepository<IUser> {
   }
 
   /**
-   * Atomically deletes the user and all related data in a MongoDB transaction.
+   * Deletes the user and all related data.
+   *
+   * Uses a MongoDB transaction when available (replica set). Falls back to
+   * sequential operations when running on standalone (e.g. local dev).
    *
    * Deletion order (preserves referential consistency):
    *   1. Likes on the user's photos (must go before photos)
@@ -44,30 +47,51 @@ class UserRepository extends BaseRepository<IUser> {
    * after this method returns successfully — file deletion is not transactional.
    */
   async deleteUserCascade(userId: string): Promise<IUser | null> {
-    const session = await mongoose.startSession();
-
-    try {
-      session.startTransaction();
-
-      const photos = await Photo.find({ user: userId }, '_id imageUrl', { session });
+    const runWithoutSession = async () => {
+      const photos = await Photo.find({ user: userId }, '_id imageUrl');
       const photoIds = photos.map((photo) => photo._id);
 
       if (photoIds.length > 0) {
-        await Like.deleteMany({ photo: { $in: photoIds } }, { session });
+        await Like.deleteMany({ photo: { $in: photoIds } });
       }
 
-      await Like.deleteMany({ user: userId }, { session });
-      await Photo.deleteMany({ user: userId }, { session });
+      await Like.deleteMany({ user: userId });
+      await Photo.deleteMany({ user: userId });
 
-      const deletedUser = await User.findByIdAndDelete(userId, { session });
+      return User.findByIdAndDelete(userId);
+    };
 
-      await session.commitTransaction();
-      return deletedUser;
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
+    try {
+      const session = await mongoose.startSession();
+      try {
+        session.startTransaction();
+
+        const photos = await Photo.find({ user: userId }, '_id imageUrl', { session });
+        const photoIds = photos.map((photo) => photo._id);
+
+        if (photoIds.length > 0) {
+          await Like.deleteMany({ photo: { $in: photoIds } }, { session });
+        }
+
+        await Like.deleteMany({ user: userId }, { session });
+        await Photo.deleteMany({ user: userId }, { session });
+
+        const deletedUser = await User.findByIdAndDelete(userId, { session });
+
+        await session.commitTransaction();
+        return deletedUser;
+      } catch (txErr) {
+        await session.abortTransaction().catch(() => {});
+        throw txErr;
+      } finally {
+        session.endSession();
+      }
+    } catch (err: unknown) {
+      const code = (err as { code?: number })?.code;
+      if (code === 20 /* IllegalOperation: transactions require replica set */) {
+        return runWithoutSession();
+      }
+      throw err;
     }
   }
 }

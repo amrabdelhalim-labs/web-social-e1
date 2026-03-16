@@ -265,20 +265,23 @@ components/
 ├── camera/
 │   └── CameraCapture.tsx       ← مكوّن الكاميرا المباشرة (stream → capture → Blob)
 ├── photos/
-│   ├── PhotoCard.tsx           ← بطاقة موحدة: variant=public (إعجاب) | owner (تعديل/حذف)
+│   ├── PhotoCard.tsx           ← بطاقة موحدة: variant=public (إعجاب) | owner (تعديل/حذف)، عرض الناشر
 │   ├── PhotoGrid.tsx           ← شبكة صور (variant + onEdit/onDelete لصفحة صوري)
 │   ├── PhotoUploadForm.tsx     ← نموذج رفع صورة (ملف أو كاميرا)
 │   ├── PhotoEditDialog.tsx     ← حوار تعديل العنوان والوصف
+│   ├── PhotoDetailModal.tsx    ← نافذة التفاصيل الكاملة (عنوان + ناشر + وصف)
 │   ├── DeleteConfirmDialog.tsx ← حوار تأكيد الحذف
 │   ├── PhotoLightbox.tsx       ← عرض الصورة بحجمها الكامل (overlay)
 │   ├── LikeButton.tsx          ← زر الإعجاب مع العدد (optimistic update)
-│   └── ExpandableText.tsx      ← نص قابل للتمديد ("عرض المزيد" / "عرض أقل")
+│   ├── ExpandableText.tsx      ← نص مقتطع مع "عرض المزيد" (فقط عند الاقتطاع)
+│   ├── OptimizedPhotoImage.tsx ← next/image مع priority للـ LCP
+│   └── PhotoGridSkeleton.tsx   ← هيكل تحميل للشبكة
 └── profile/
     ├── AvatarUploader.tsx      ← صورة المستخدم + أيقونة كاميرا + اختيار رفع/كاميرا
     ├── ProfileEditor.tsx       ← محرر البيانات الشخصية (inline editing)
     ├── ChangePasswordForm.tsx  ← نموذج تغيير كلمة المرور (3 حقول)
     ├── DeleteAccountDialog.tsx ← حوار حذف الحساب (password-protected)
-    └── UserMenu.tsx            ← قائمة المستخدم في AppBar (ملفي، صوري، خروج)
+    └── UserMenu.tsx            ← قائمة حساب: ضيف (تسجيل الدخول، إنشاء حساب) | مسجّل (ملفي، خروج)
 ```
 
 ### 5.3 التخطيط العام
@@ -459,7 +462,7 @@ feat(api): add auth, profile management, photos CRUD, and likes API routes
 4. `useAuth.ts`, `useThemeMode.ts` — custom hooks
 5. `lib/api.ts` — طبقة HTTP المركزية (fetchApi + typed helpers لجميع endpoints)
 6. `AppBar.tsx` — شريط علوي مع avatar المستخدم + UserMenu
-7. `UserMenu.tsx` — قائمة dropdown: ملفي + صوري + تسجيل خروج
+7. `UserMenu.tsx` — قائمة dropdown: ضيف (تسجيل الدخول، إنشاء حساب) | مسجّل (ملفي، تسجيل خروج)
 8. `MainLayout.tsx` — غلاف الصفحة
 9. `ThemeToggle.tsx` — زر تبديل الوضع
 10. `GuestRoute.tsx` — حماية صفحات الضيوف
@@ -580,7 +583,7 @@ feat(my-photos): add user gallery with photo upload, camera capture, edit, and d
 
 ---
 
-### المرحلة 10: صفحة الملف الشخصي
+### المرحلة 10: صفحة الملف الشخصي ✅
 
 **الهدف:** إدارة الحساب الكاملة (صورة، بيانات، كلمة مرور، حذف).
 
@@ -629,7 +632,7 @@ fix(ux): add loading states, error handling, 404 page, and accessibility improve
 
 ---
 
-### المرحلة 12: الاختبارات
+### المرحلة 12: الاختبارات ✅
 
 **الهدف:** تغطية اختبارية شاملة.
 
@@ -973,6 +976,11 @@ stream.getTracks().forEach((track) => track.stop());
 - `/my-photos` و `/profile` → يعيدان توجيه غير المسجلين إلى `/login`
 - API routes → `authenticateRequest()` تُرجع 401 مع رسالة عربية
 
+### 11.4.1 قائمة المستخدم (UserMenu) — حالتان
+
+- **ضيف:** أيقونة AccountCircle → قائمة: تسجيل الدخول، إنشاء حساب
+- **مسجّل:** أيقونة Avatar → قائمة: الاسم والبريد، ملفي الشخصي، تسجيل الخروج
+
 ### 11.5 الإعجاب التفاؤلي
 
 1. تحديث العدد + حالة الزر فورًا في الواجهة
@@ -995,7 +1003,24 @@ stream.getTracks().forEach((track) => track.stop());
 4. حذف جميع ملفات التخزين bulk
 5. تسجيل خروج العميل + إعادة توجيه
 
-### 11.7 النشر على Heroku
+**ملاحظة — MongoDB Standalone:**
+
+- `deleteUserCascade` يستخدم transactions عند توفر Replica Set
+- عند تشغيل MongoDB standalone (مثل التطوير المحلي): fallback تلقائي لعمليات متسلسلة بدون transaction (كود 20: IllegalOperation)
+- يضمن عمل حذف الحساب في بيئة التطوير والإنتاج
+
+### 11.7 ExpandableText وارتفاع البطاقات
+
+- **"عرض المزيد":** يظهر فقط عند اقتطاع النص فعلياً (scrollHeight > clientHeight)
+- **حد أدنى للنص:** `DESCRIPTION_TRUNCATE_MIN_CHARS = 100` — النصوص الأقصر لا تعرض الزر
+- **ارتفاع موحد:** `DESCRIPTION_BLOCK_MIN_HEIGHT` يحجز مساحة ثابتة لضمان توحيد ارتفاع البطاقات
+
+### 11.8 عرض الناشر و LCP
+
+- **الناشر:** PhotoCard و PhotoDetailModal يعرضان Avatar + "نشرها {الاسم}" من `photo.user`
+- **LCP:** OptimizedPhotoImage يدعم `priority` — الصورة الأولى في الشبكة تُحمّل بـ `loading="eager"` لتحسين Largest Contentful Paint
+
+### 11.9 النشر على Heroku
 
 - لا يوجد GitHub Actions — Heroku متصل مباشرةً بفرع `main` على GitHub
 - كل push إلى `main` → نشر إنتاجي تلقائي
@@ -1050,4 +1075,4 @@ stream.getTracks().forEach((track) => track.stop());
 ---
 
 _هذه الخطة قابلة للتحديث مع تقدم التطوير._
-_آخر تحديث: مارس 16, 2026 — دمج PhotoCard/MyPhotoCard، إصلاح وميض الوضع الداكن، نقل خيارات المالك لنفس موضع الإعجاب_
+_آخر تحديث: مارس 16, 2026 — ExpandableText: "عرض المزيد" عند الاقتطاع فقط، عرض الناشر، LCP priority، fallback حذف الحساب لـ MongoDB standalone_

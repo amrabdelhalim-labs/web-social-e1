@@ -17,6 +17,7 @@ const repos = getRepositoryManager();
 ## 2. UserRepository
 
 ```typescript
+// UserRepository: findByEmail, emailExists, create, update, deleteUserCascade
 // البحث بالبريد
 const user = await repos.user.findByEmail('ahmed@example.com');
 
@@ -42,6 +43,7 @@ await repos.user.deleteUserCascade(userId);
 ## 3. PhotoRepository
 
 ```typescript
+// PhotoRepository: findPublicFeed, findPaginated, create, update, delete
 // الصفحة الرئيسية — أحدث الصور مع pagination
 const result = await repos.photo.findPublicFeed(page, limit);
 // result: { rows, count, page, totalPages }
@@ -69,6 +71,7 @@ await repos.photo.delete(photoId);
 ## 4. LikeRepository
 
 ```typescript
+// LikeRepository: toggleLike, findAll
 // تبديل الإعجاب (like/unlike)
 const { liked, likesCount } = await repos.like.toggleLike(userId, photoId);
 

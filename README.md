@@ -13,35 +13,35 @@
 
 ## الميزات الرئيسية
 
-| الميزة | التفاصيل |
-|--------|---------|
-| **مشاركة الصور** | رفع PNG/JPEG مع عنوان ووصف |
-| **كاميرا مباشرة** | التقاط صورة من الكاميرا عبر `getUserMedia` |
-| **صفحة المجتمع** | عرض صور جميع المستخدمين مع pagination |
-| **الإعجاب** | إضافة/إزالة إعجاب مع عداد فوري |
-| **الملف الشخصي** | تعديل البيانات، الصورة الشخصية، وكلمة المرور |
-| **المصادقة** | JWT + bcrypt، حماية المسارات، تحديث تلقائي للـ context |
-| **وضع داكن/فاتح** | تبديل السمة مع الحفاظ على WCAG AA |
-| **تخزين مرن** | محلي / Cloudinary / S3 عبر Strategy Pattern |
-| **حذف الحساب** | حذف متسلسل: صور + إعجابات + ملفات التخزين |
+| الميزة            | التفاصيل                                               |
+| ----------------- | ------------------------------------------------------ |
+| **مشاركة الصور**  | رفع PNG/JPEG مع عنوان ووصف                             |
+| **كاميرا مباشرة** | التقاط صورة من الكاميرا عبر `getUserMedia`             |
+| **صفحة المجتمع**  | عرض صور جميع المستخدمين مع pagination                  |
+| **الإعجاب**       | إضافة/إزالة إعجاب مع عداد فوري                         |
+| **الملف الشخصي**  | تعديل البيانات، الصورة الشخصية، وكلمة المرور           |
+| **المصادقة**      | JWT + bcrypt، حماية المسارات، تحديث تلقائي للـ context |
+| **وضع داكن/فاتح** | تبديل السمة مع الحفاظ على WCAG AA                      |
+| **تخزين مرن**     | محلي / Cloudinary / S3 عبر Strategy Pattern            |
+| **حذف الحساب**    | حذف متسلسل: صور + إعجابات + ملفات التخزين              |
 
 ---
 
 ## الحزمة التقنية
 
-| التقنية | الإصدار | الغرض |
-|---------|---------|-------|
-| Next.js | 16 | إطار العمل (SSR + API Routes + App Router) |
-| TypeScript | 5 | أمان الأنواع عبر المشروع كاملًا |
-| MUI | 7 | مكتبة المكونات + دعم RTL |
-| MongoDB | — | قاعدة البيانات |
-| Mongoose | — | ODM + تعريف النماذج |
-| JWT | — | توكن المصادقة عديم الحالة |
-| bcrypt | — | تشفير كلمات المرور |
-| Vitest | — | إطار الاختبارات |
-| Testing Library | — | اختبارات مكونات React |
-| Cloudinary | اختياري | تخزين الصور في الإنتاج |
-| AWS S3 | اختياري | تخزين الصور البديل |
+| التقنية         | الإصدار | الغرض                                      |
+| --------------- | ------- | ------------------------------------------ |
+| Next.js         | 16      | إطار العمل (SSR + API Routes + App Router) |
+| TypeScript      | 5       | أمان الأنواع عبر المشروع كاملًا            |
+| MUI             | 7       | مكتبة المكونات + دعم RTL                   |
+| MongoDB         | —       | قاعدة البيانات                             |
+| Mongoose        | —       | ODM + تعريف النماذج                        |
+| JWT             | —       | توكن المصادقة عديم الحالة                  |
+| bcrypt          | —       | تشفير كلمات المرور                         |
+| Vitest          | —       | إطار الاختبارات                            |
+| Testing Library | —       | اختبارات مكونات React                      |
+| Cloudinary      | اختياري | تخزين الصور في الإنتاج                     |
+| AWS S3          | اختياري | تخزين الصور البديل                         |
 
 ---
 
@@ -80,11 +80,11 @@ npm run dev
 
 ### المتغيرات البيئية الأساسية
 
-| المتغير | الوصف | مثال |
-|---------|-------|------|
+| المتغير        | الوصف              | مثال                                      |
+| -------------- | ------------------ | ----------------------------------------- |
 | `DATABASE_URL` | رابط اتصال MongoDB | `mongodb://127.0.0.1:27017/web-social-e1` |
-| `JWT_SECRET` | مفتاح توقيع JWT | سلسلة عشوائية طويلة |
-| `STORAGE_TYPE` | نوع التخزين | `local` \| `cloudinary` \| `s3` |
+| `JWT_SECRET`   | مفتاح توقيع JWT    | سلسلة عشوائية طويلة                       |
+| `STORAGE_TYPE` | نوع التخزين        | `local` \| `cloudinary` \| `s3`           |
 
 للتفاصيل الكاملة: [docs/setup-local.md](docs/setup-local.md)
 
@@ -117,18 +117,19 @@ web-social-e1/
 
 ## الأوامر المتاحة
 
-| الأمر | الوصف |
-|-------|-------|
-| `npm run dev` | خادم التطوير (Webpack) |
-| `npm run build` | بناء للإنتاج |
-| `npm start` | تشغيل خادم الإنتاج |
-| `npm test` | تشغيل الاختبارات (watch mode) |
-| `npm run test -- --run` | تشغيل الاختبارات مرة واحدة |
-| `npm run lint` | فحص الكود بـ ESLint |
-| `npm run format` | تنسيق الكود بـ Prettier |
-| `npm run format:check` | التحقق من التنسيق فقط |
-| `npm run validate` | format:check + lint + test (فحص شامل قبل الدفع) |
-| `npm run db:init` | إنشاء قاعدة البيانات المحلية |
+| الأمر                   | الوصف                                           |
+| ----------------------- | ----------------------------------------------- |
+| `npm run dev`           | خادم التطوير (Webpack)                          |
+| `npm run build`         | بناء للإنتاج                                    |
+| `npm start`             | تشغيل خادم الإنتاج                              |
+| `npm test`              | تشغيل الاختبارات مرة واحدة                      |
+| `npm run test:watch`    | تشغيل الاختبارات في وضع المراقبة                |
+| `npm run test:coverage` | تشغيل الاختبارات مع تقرير التغطية               |
+| `npm run lint`          | فحص الكود بـ ESLint                             |
+| `npm run format`        | تنسيق الكود بـ Prettier                         |
+| `npm run format:check`  | التحقق من التنسيق فقط                           |
+| `npm run validate`      | format:check + lint + test (فحص شامل قبل الدفع) |
+| `npm run db:init`       | إنشاء قاعدة البيانات المحلية                    |
 
 ---
 
@@ -142,8 +143,8 @@ web-social-e1/
 - الخطافات: usePhotos، useMyPhotos، useCamera
 
 ```bash
-npm test                    # watch mode
-npm run test -- --run       # تشغيل واحد
+npm test                    # تشغيل واحد
+npm run test:watch          # watch mode
 ```
 
 للتفاصيل: [docs/testing.md](docs/testing.md)
@@ -169,20 +170,20 @@ git push heroku main
 
 ## التوثيق
 
-| الملف | الموضوع |
-|-------|---------|
-| [docs/api-endpoints.md](docs/api-endpoints.md) | جميع مسارات API مع أمثلة |
-| [docs/database-abstraction.md](docs/database-abstraction.md) | نمط المستودعات وطبقة البيانات |
-| [docs/repository-quick-reference.md](docs/repository-quick-reference.md) | مرجع سريع لعمليات المستودعات |
-| [docs/storage-strategy.md](docs/storage-strategy.md) | Strategy Pattern للتخزين |
-| [docs/testing.md](docs/testing.md) | استراتيجية الاختبار والتغطية |
-| [docs/deployment.md](docs/deployment.md) | النشر على Heroku |
-| [docs/setup-local.md](docs/setup-local.md) | إعداد البيئة المحلية |
-| [docs/ai/README.md](docs/ai/README.md) | دليل AI للمشروع |
-| [docs/ai/architecture.md](docs/ai/architecture.md) | مخطط الطبقات وتدفق البيانات |
-| [docs/ai/feature-guide.md](docs/ai/feature-guide.md) | خطوات إضافة ميزة جديدة |
-| [docs/plans/project-plan.md](docs/plans/project-plan.md) | خطة المشروع المفصلة |
-| [docs/plans/documentation-plan.md](docs/plans/documentation-plan.md) | خطة التوثيق الشامل |
+| الملف                                                                    | الموضوع                       |
+| ------------------------------------------------------------------------ | ----------------------------- |
+| [docs/api-endpoints.md](docs/api-endpoints.md)                           | جميع مسارات API مع أمثلة      |
+| [docs/database-abstraction.md](docs/database-abstraction.md)             | نمط المستودعات وطبقة البيانات |
+| [docs/repository-quick-reference.md](docs/repository-quick-reference.md) | مرجع سريع لعمليات المستودعات  |
+| [docs/storage-strategy.md](docs/storage-strategy.md)                     | Strategy Pattern للتخزين      |
+| [docs/testing.md](docs/testing.md)                                       | استراتيجية الاختبار والتغطية  |
+| [docs/deployment.md](docs/deployment.md)                                 | النشر على Heroku              |
+| [docs/setup-local.md](docs/setup-local.md)                               | إعداد البيئة المحلية          |
+| [docs/ai/README.md](docs/ai/README.md)                                   | دليل AI للمشروع               |
+| [docs/ai/architecture.md](docs/ai/architecture.md)                       | مخطط الطبقات وتدفق البيانات   |
+| [docs/ai/feature-guide.md](docs/ai/feature-guide.md)                     | خطوات إضافة ميزة جديدة        |
+| [docs/plans/project-plan.md](docs/plans/project-plan.md)                 | خطة المشروع المفصلة           |
+| [docs/plans/documentation-plan.md](docs/plans/documentation-plan.md)     | خطة التوثيق الشامل            |
 
 ---
 

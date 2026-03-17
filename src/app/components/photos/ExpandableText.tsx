@@ -9,10 +9,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { Box, Typography, Link } from '@mui/material';
-import {
-  DESCRIPTION_PREVIEW_LINES,
-  DESCRIPTION_TRUNCATE_MIN_CHARS,
-} from '@/app/config';
+import { DESCRIPTION_PREVIEW_LINES, DESCRIPTION_TRUNCATE_MIN_CHARS } from '@/app/config';
 
 export interface ExpandableTextProps {
   text?: string;
@@ -34,16 +31,22 @@ export function ExpandableText({
 
   useEffect(() => {
     const el = containerRef.current;
-    if (!el || !text) {
-      setIsTruncated(false);
-      return;
+    if (!el || !text || text.length < DESCRIPTION_TRUNCATE_MIN_CHARS) {
+      const resetId = requestAnimationFrame(() => {
+        setIsTruncated(false);
+      });
+      return () => cancelAnimationFrame(resetId);
     }
-    if (text.length < DESCRIPTION_TRUNCATE_MIN_CHARS) {
-      setIsTruncated(false);
-      return;
+
+    if (typeof ResizeObserver === 'undefined') {
+      const fallbackId = requestAnimationFrame(() => {
+        setIsTruncated(checkTruncated(el));
+      });
+      return () => cancelAnimationFrame(fallbackId);
     }
+
     const update = () => {
-      if (el) setIsTruncated(checkTruncated(el));
+      setIsTruncated(checkTruncated(el));
     };
     const rafId = requestAnimationFrame(() => requestAnimationFrame(update));
     const ro = new ResizeObserver(update);

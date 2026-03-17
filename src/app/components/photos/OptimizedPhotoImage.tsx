@@ -46,7 +46,7 @@ export function OptimizedPhotoImage({
       <Image
         src={src}
         alt={alt}
-        fill
+        fill={fill}
         priority={priority}
         sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, (max-width: 1200px) 33vw, 25vw"
         style={{ objectFit: 'cover' }}

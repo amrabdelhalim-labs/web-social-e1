@@ -110,7 +110,7 @@ function NavContent({ isActive, onDrawerClose, inDrawer = false }: NavContentPro
 }
 
 export function SiteAppBar() {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
 

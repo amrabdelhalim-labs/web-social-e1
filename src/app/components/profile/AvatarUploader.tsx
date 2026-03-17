@@ -20,7 +20,6 @@ import {
   Dialog,
   DialogContent,
   Typography,
-  Button,
   CircularProgress,
 } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';

@@ -6,7 +6,6 @@ import React from 'react';
 
 vi.mock('next/image', () => ({
   default: (props: { src: string; alt: string }) => {
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
     return React.createElement('img', { src: props.src, alt: props.alt });
   },
 }));
@@ -76,6 +75,24 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: () => {},
     dispatchEvent: () => false,
   }),
+});
+
+// ─── ResizeObserver mock (required by ExpandableText) ─────────────────────────
+
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+Object.defineProperty(window, 'ResizeObserver', {
+  writable: true,
+  value: ResizeObserverMock,
+});
+
+Object.defineProperty(globalThis, 'ResizeObserver', {
+  writable: true,
+  value: ResizeObserverMock,
 });
 
 const localStorageMock = (() => {

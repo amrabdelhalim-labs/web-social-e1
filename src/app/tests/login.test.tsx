@@ -13,7 +13,7 @@
  *   Validation      — client-side errors fire before login() is called
  *   Submission      — valid input calls login() and redirects to /
  *   Error handling  — API errors are surfaced in an Alert
- *   Auth guard      — page returns null when user is already logged in
+ *   Auth guard      — GuestRoute renders loader and redirects authenticated users
  */
 
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
@@ -232,16 +232,16 @@ describe('Login Page', () => {
   });
 
   describe('Auth guard', () => {
-    it('returns null while auth is loading', () => {
+    it('shows loading indicator while auth is loading', () => {
       setupAuth({ loading: true });
-      const { container } = render(<LoginPage />);
-      expect(container.firstChild).toBeNull();
+      render(<LoginPage />);
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
-    it('returns null when user is already logged in', () => {
+    it('shows loading indicator when user is already logged in', () => {
       setupAuth({ user: { _id: 'u1', name: 'أحمد', email: 'a@b.com' } });
-      const { container } = render(<LoginPage />);
-      expect(container.firstChild).toBeNull();
+      render(<LoginPage />);
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
     it('redirects to / when user is already logged in', () => {

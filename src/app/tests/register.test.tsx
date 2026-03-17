@@ -10,7 +10,7 @@
  *   Validation      — each client-side rule fires before register() is called
  *   Submission      — valid input calls register() and redirects to /
  *   Error handling  — server errors are surfaced in an Alert
- *   Auth guard      — page returns null when the user is already authenticated
+ *   Auth guard      — GuestRoute renders loader and redirects authenticated users
  */
 
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
@@ -250,16 +250,16 @@ describe('Register Page', () => {
   });
 
   describe('Auth guard', () => {
-    it('returns null while auth is loading', () => {
+    it('shows loading indicator while auth is loading', () => {
       setupAuth({ loading: true });
-      const { container } = render(<RegisterPage />);
-      expect(container.firstChild).toBeNull();
+      render(<RegisterPage />);
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
-    it('returns null when user is already logged in', () => {
+    it('shows loading indicator when user is already logged in', () => {
       setupAuth({ user: { _id: 'u1', name: 'أحمد', email: 'a@b.com' } });
-      const { container } = render(<RegisterPage />);
-      expect(container.firstChild).toBeNull();
+      render(<RegisterPage />);
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
     it('redirects to / when user is already logged in', () => {

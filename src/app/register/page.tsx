@@ -3,8 +3,7 @@
 /**
  * Register Page
  *
- * Renders the account creation form. Auth guard: if the user is already
- * authenticated, redirects to the home page and returns null.
+ * Renders the account creation form for guests only.
  *
  * Flow:
  *   1. Client-side validation via validateRegisterInput (Arabic error messages)
@@ -13,20 +12,21 @@
  *   4. On failure → display the server error in an Alert
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Box, TextField } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/hooks/useAuth';
 import { validateRegisterInput } from '@/app/validators';
+import { GuestRoute } from '@/app/components/auth/GuestRoute';
 import { MainLayout } from '@/app/components/layout/MainLayout';
 import { AuthFormLayout } from '@/app/components/auth/AuthFormLayout';
 import { PasswordField } from '@/app/components/common/PasswordField';
 import { SubmitButton } from '@/app/components/common/SubmitButton';
 import { APP_NAME } from '@/app/config';
 
-export default function RegisterPage() {
-  const { user, loading, register } = useAuth();
+function RegisterPageContent() {
+  const { register } = useAuth();
   const router = useRouter();
 
   const [name, setName] = useState('');
@@ -37,16 +37,6 @@ export default function RegisterPage() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [serverError, setServerError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-
-  // Redirect authenticated users away from this page
-  useEffect(() => {
-    if (!loading && user) {
-      router.replace('/');
-    }
-  }, [loading, user, router]);
-
-  // Return null during redirect to avoid a flash of the form
-  if (loading || user) return null;
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     e.preventDefault();
@@ -141,5 +131,13 @@ export default function RegisterPage() {
         }
       />
     </MainLayout>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <GuestRoute>
+      <RegisterPageContent />
+    </GuestRoute>
   );
 }

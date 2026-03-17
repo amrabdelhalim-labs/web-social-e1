@@ -19,7 +19,7 @@ const mockPhoto = {
   title: 'صورة',
   description: 'وصف',
   imageUrl: '/img.jpg',
-  user: { _id: 'u1', name: 'علي' },
+  user: { _id: 'u1', name: 'علي', avatarUrl: null },
   likesCount: 0,
   isLiked: false,
   createdAt: new Date().toISOString(),

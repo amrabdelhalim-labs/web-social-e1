@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from './utils';
+import { render, screen, fireEvent, waitFor } from './utils';
 import { PhotoCard } from '@/app/components/photos/PhotoCard';
 
 vi.mock('@/app/hooks/useAuth', () => ({
@@ -15,7 +15,7 @@ const mockPhoto = {
   title: 'صورة جميلة',
   description: 'وصف',
   imageUrl: '/test.jpg',
-  user: { _id: 'u1', name: 'علي' },
+  user: { _id: 'u1', name: 'علي', avatarUrl: null },
   likesCount: 3,
   isLiked: false,
   createdAt: new Date().toISOString(),
@@ -55,14 +55,16 @@ describe('PhotoCard', () => {
     expect(screen.getByRole('button', { name: /إغلاق/ })).toBeInTheDocument();
   });
 
-  it('opens detail modal when clicking show more for truncated text', () => {
+  it('opens detail modal when clicking show more for truncated text', async () => {
     const longDesc =
       'هذا وصف طويل جداً يتجاوز الحد المسموح به. عندما يكون النص أطول من المساحة المتاحة فإن زر عرض المزيد يظهر للمستخدم لقراءة المحتوى الكامل في نافذة التفاصيل.';
     render(<PhotoCard photo={{ ...mockPhoto, description: longDesc }} />);
-    const moreLink = screen.queryByText(/عرض المزيد/);
+    const moreLink = screen.queryByRole('button', { name: /عرض المزيد/ });
     if (moreLink) {
       fireEvent.click(moreLink);
-      expect(screen.getByRole('button', { name: /إغلاق/ })).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
     }
   });
 

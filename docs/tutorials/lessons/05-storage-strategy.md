@@ -20,14 +20,14 @@
 
 ### ٢.٢ العمليات
 
-| الدالة | الوصف |
-|--------|-------|
-| uploadFile | رفع ملف واحد → `{ url, filename }` |
-| uploadFiles | رفع عدة ملفات |
-| deleteFile | حذف ملف بالاسم/المفتاح/URL |
-| deleteFiles | حذف جماعي → `{ success, failed }` |
-| getFileUrl | تحويل الاسم إلى URL كامل |
-| healthCheck | فحص الاتصال بالمزود |
+| الدالة      | الوصف                              |
+| ----------- | ---------------------------------- |
+| uploadFile  | رفع ملف واحد → `{ url, filename }` |
+| uploadFiles | رفع عدة ملفات                      |
+| deleteFile  | حذف ملف بالاسم/المفتاح/URL         |
+| deleteFiles | حذف جماعي → `{ success, failed }`  |
+| getFileUrl  | تحويل الاسم إلى URL كامل           |
+| healthCheck | فحص الاتصال بالمزود                |
 
 ### ٢.٣ الكود
 
@@ -114,9 +114,9 @@ async uploadFile(file: StorageFile): Promise<UploadResult> {
 
 ### ٥.٢ الاعتمادات
 
-| المصدر | الأولوية |
-|--------|----------|
-| CLOUDINARY_URL | صيغة كاملة `cloudinary://api_key:api_secret@cloud_name` |
+| المصدر          | الأولوية                                                         |
+| --------------- | ---------------------------------------------------------------- |
+| CLOUDINARY_URL  | صيغة كاملة `cloudinary://api_key:api_secret@cloud_name`          |
 | الحقول المنفصلة | CLOUDINARY_CLOUD_NAME، CLOUDINARY_API_KEY، CLOUDINARY_API_SECRET |
 
 ### ٥.٣ upload_stream و extractPublicId
@@ -145,12 +145,12 @@ stream.end(file.buffer);
 
 ### ٦.٢ المتغيرات المطلوبة
 
-| المتغير | الوصف |
-|---------|-------|
-| AWS_S3_BUCKET | اسم الحاوية |
-| AWS_ACCESS_KEY_ID | مفتاح IAM |
-| AWS_SECRET_ACCESS_KEY | السر |
-| AWS_REGION | المنطقة (افتراضي us-east-1) |
+| المتغير               | الوصف                       |
+| --------------------- | --------------------------- |
+| AWS_S3_BUCKET         | اسم الحاوية                 |
+| AWS_ACCESS_KEY_ID     | مفتاح IAM                   |
+| AWS_SECRET_ACCESS_KEY | السر                        |
+| AWS_REGION            | المنطقة (افتراضي us-east-1) |
 
 ### ٦.٣ PutObjectCommand و extractKey
 
@@ -176,13 +176,13 @@ return { url: `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`, f
 
 ### ٧.١ أين تُستخدم الاستراتيجية
 
-| المسار | الاستخدام |
-|--------|-----------|
-| POST /api/photos | رفع صورة منشور |
-| DELETE /api/photos/[id] | حذف ملف الصورة |
-| PUT /api/profile/avatar | رفع صورة شخصية |
-| DELETE /api/profile/avatar | حذف صورة شخصية |
-| DELETE /api/profile | حذف جميع ملفات المستخدم (cascade) |
+| المسار                     | الاستخدام                         |
+| -------------------------- | --------------------------------- |
+| POST /api/photos           | رفع صورة منشور                    |
+| DELETE /api/photos/[id]    | حذف ملف الصورة                    |
+| PUT /api/profile/avatar    | رفع صورة شخصية                    |
+| DELETE /api/profile/avatar | حذف صورة شخصية                    |
+| DELETE /api/profile        | حذف جميع ملفات المستخدم (cascade) |
 
 ### ٧.٢ Cleanup عند الفشل
 
@@ -192,18 +192,18 @@ return { url: `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`, f
 
 ## 8. ملخص
 
-| ما تعلمناه | الملف المسؤول |
-|------------|---------------|
-| الواجهة IStorageStrategy | `storage.interface.ts` |
-| المصنع و getStorageService | `storage.service.ts` |
-| التخزين المحلي | `local.strategy.ts` |
+| ما تعلمناه                   | الملف المسؤول            |
+| ---------------------------- | ------------------------ |
+| الواجهة IStorageStrategy     | `storage.interface.ts`   |
+| المصنع و getStorageService   | `storage.service.ts`     |
+| التخزين المحلي               | `local.strategy.ts`      |
 | التخزين السحابي (Cloudinary) | `cloudinary.strategy.ts` |
-| التخزين السحابي (S3) | `s3.strategy.ts` |
+| التخزين السحابي (S3)         | `s3.strategy.ts`         |
 
 للدليل التقني ← [storage-strategy.md](../../storage-strategy.md)
 
 ---
 
-*الدرس السابق ← [04 — المصادقة والحماية](04-authentication.md)*  
-*العودة إلى [فهرس الدروس](../README.md)*  
-*الدرس التالي → [06 — مسارات API](06-api-routes.md)*
+_الدرس السابق ← [04 — المصادقة والحماية](04-authentication.md)_  
+_العودة إلى [فهرس الدروس](../README.md)_  
+_الدرس التالي → [06 — مسارات API](06-api-routes.md)_

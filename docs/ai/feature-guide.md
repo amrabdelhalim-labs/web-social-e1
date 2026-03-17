@@ -21,7 +21,7 @@ Add the shared interface that all layers will use.
 export interface Comment {
   _id: string;
   body: string;
-  photo: string;       // photo._id
+  photo: string; // photo._id
   user: {
     _id: string;
     name: string;
@@ -262,7 +262,14 @@ vi.mock('../lib/api');
 describe('useComments', () => {
   it('loads comments on mount', async () => {
     vi.mocked(api.getComments).mockResolvedValue([
-      { _id: '1', body: 'great photo', photo: 'p1', user: { _id: 'u1', name: 'Ali', avatarUrl: null }, createdAt: '', updatedAt: '' },
+      {
+        _id: '1',
+        body: 'great photo',
+        photo: 'p1',
+        user: { _id: 'u1', name: 'Ali', avatarUrl: null },
+        createdAt: '',
+        updatedAt: '',
+      },
     ]);
     const { result } = renderHook(() => useComments('p1'));
     await act(async () => {});
@@ -301,4 +308,4 @@ If the feature doesn't require a new DB collection:
 
 ---
 
-*See [architecture.md](architecture.md) for the full layer diagram and data flow examples.*
+_See [architecture.md](architecture.md) for the full layer diagram and data flow examples._

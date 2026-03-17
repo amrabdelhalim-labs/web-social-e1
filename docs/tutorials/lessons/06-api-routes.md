@@ -36,14 +36,14 @@
 
 ### ٢.٣ رموز الأخطاء
 
-| الرمز | الحالة | الوصف |
-|-------|--------|-------|
-| VALIDATION_ERROR | 400 | فشل التحقق من المدخلات |
-| UNAUTHORIZED | 401 | توكن مفقود أو غير صالح |
-| FORBIDDEN | 403 | غير مصرح بتنفيذ الإجراء |
-| NOT_FOUND | 404 | المورد غير موجود |
-| CONFLICT | 409 | تعارض (مثل بريد مُسجّل مسبقاً) |
-| SERVER_ERROR | 500 | خطأ غير متوقع في الخادم |
+| الرمز            | الحالة | الوصف                          |
+| ---------------- | ------ | ------------------------------ |
+| VALIDATION_ERROR | 400    | فشل التحقق من المدخلات         |
+| UNAUTHORIZED     | 401    | توكن مفقود أو غير صالح         |
+| FORBIDDEN        | 403    | غير مصرح بتنفيذ الإجراء        |
+| NOT_FOUND        | 404    | المورد غير موجود               |
+| CONFLICT         | 409    | تعارض (مثل بريد مُسجّل مسبقاً) |
+| SERVER_ERROR     | 500    | خطأ غير متوقع في الخادم        |
 
 ---
 
@@ -156,13 +156,13 @@ return NextResponse.json({ data: { token, user }, message: '...' }, { status: 20
 
 ### ٦.١ جدول المسارات
 
-| Method | المسار | الوصف |
-|--------|--------|-------|
-| PUT | /api/profile | تحديث الاسم و/أو البريد |
-| DELETE | /api/profile | حذف الحساب (يتطلب كلمة المرور، cascade) |
-| PUT | /api/profile/password | تغيير كلمة المرور |
-| PUT | /api/profile/avatar | رفع صورة شخصية (multipart) |
-| DELETE | /api/profile/avatar | حذف الصورة الشخصية |
+| Method | المسار                | الوصف                                   |
+| ------ | --------------------- | --------------------------------------- |
+| PUT    | /api/profile          | تحديث الاسم و/أو البريد                 |
+| DELETE | /api/profile          | حذف الحساب (يتطلب كلمة المرور، cascade) |
+| PUT    | /api/profile/password | تغيير كلمة المرور                       |
+| PUT    | /api/profile/avatar   | رفع صورة شخصية (multipart)              |
+| DELETE | /api/profile/avatar   | حذف الصورة الشخصية                      |
 
 ### ٦.٢ حذف الحساب — Cascade
 
@@ -184,14 +184,14 @@ if (filesToDelete.length > 0) await storage.deleteFiles(filesToDelete);
 
 ### ٧.١ جدول المسارات
 
-| Method | المسار | Auth | الوصف |
-|--------|--------|------|-------|
-| GET | /api/photos | اختياري | قائمة الصور العامة (pagination، isLiked عند وجود JWT) |
-| POST | /api/photos | مطلوب | رفع صورة (multipart: photo، title، description) |
-| GET | /api/photos/mine | مطلوب | صور المستخدم الحالي |
-| PUT | /api/photos/[id] | مطلوب | تعديل عنوان/وصف (المالك فقط) |
-| DELETE | /api/photos/[id] | مطلوب | حذف صورة (المالك فقط) |
-| POST | /api/photos/[id]/like | مطلوب | تبديل الإعجاب |
+| Method | المسار                | Auth    | الوصف                                                 |
+| ------ | --------------------- | ------- | ----------------------------------------------------- |
+| GET    | /api/photos           | اختياري | قائمة الصور العامة (pagination، isLiked عند وجود JWT) |
+| POST   | /api/photos           | مطلوب   | رفع صورة (multipart: photo، title، description)       |
+| GET    | /api/photos/mine      | مطلوب   | صور المستخدم الحالي                                   |
+| PUT    | /api/photos/[id]      | مطلوب   | تعديل عنوان/وصف (المالك فقط)                          |
+| DELETE | /api/photos/[id]      | مطلوب   | حذف صورة (المالك فقط)                                 |
+| POST   | /api/photos/[id]/like | مطلوب   | تبديل الإعجاب                                         |
 
 ### ٧.٢ رفع الصورة — Cleanup عند الفشل
 
@@ -233,9 +233,9 @@ return NextResponse.json({ data: { liked: result.liked, likesCount } }, { status
 
 ### ٨.٢ الدوال الأساسية
 
-| الدالة | الاستخدام |
-|--------|-----------|
-| fetchApi | JSON (يضبط Content-Type تلقائياً) |
+| الدالة       | الاستخدام                                   |
+| ------------ | ------------------------------------------- |
+| fetchApi     | JSON (يضبط Content-Type تلقائياً)           |
 | fetchFormApi | multipart/form-data (المتصفح يضبط boundary) |
 
 ### ٨.٣ دوال المسارات
@@ -269,20 +269,20 @@ export function toggleLikeApi(photoId: string) {
 
 ## 9. ملخص
 
-| ما تعلمناه | الملف المسؤول |
-|------------|---------------|
-| شكل الاستجابة ورموز الأخطاء | `api-endpoints.md` |
-| مساعدات الأخطاء | `lib/apiErrors.ts` |
-| مسار الصحة | `api/health/route.ts` |
-| مسارات المصادقة | `api/auth/login`, `register`, `me` |
-| مسارات الملف الشخصي | `api/profile`, `profile/avatar`, `profile/password` |
-| مسارات الصور | `api/photos`, `photos/mine`, `photos/[id]`, `photos/[id]/like` |
-| طبقة العميل | `lib/api.ts` |
+| ما تعلمناه                  | الملف المسؤول                                                  |
+| --------------------------- | -------------------------------------------------------------- |
+| شكل الاستجابة ورموز الأخطاء | `api-endpoints.md`                                             |
+| مساعدات الأخطاء             | `lib/apiErrors.ts`                                             |
+| مسار الصحة                  | `api/health/route.ts`                                          |
+| مسارات المصادقة             | `api/auth/login`, `register`, `me`                             |
+| مسارات الملف الشخصي         | `api/profile`, `profile/avatar`, `profile/password`            |
+| مسارات الصور                | `api/photos`, `photos/mine`, `photos/[id]`, `photos/[id]/like` |
+| طبقة العميل                 | `lib/api.ts`                                                   |
 
 للمرجع الكامل ← [api-endpoints.md](../../api-endpoints.md)
 
 ---
 
-*الدرس السابق ← [05 — استراتيجية التخزين](05-storage-strategy.md)*  
-*العودة إلى [فهرس الدروس](../README.md)*  
-*الدرس التالي → [07 — نظام السمات والتخطيط](07-theme-and-layout.md)*
+_الدرس السابق ← [05 — استراتيجية التخزين](05-storage-strategy.md)_  
+_العودة إلى [فهرس الدروس](../README.md)_  
+_الدرس التالي → [07 — نظام السمات والتخطيط](07-theme-and-layout.md)_

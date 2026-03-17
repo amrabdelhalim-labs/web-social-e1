@@ -20,13 +20,13 @@
 
 ### ٢.٢ التنفيذ في صوري
 
-| القسم | الدور |
-|-------|-------|
-| `engines` | Node ≥ 20، npm ≥ 10 |
-| `scripts` | dev، build، start، lint، test، format، validate، db:init |
-| `dependencies` | Next.js، React، MUI، Emotion، Mongoose، JWT، bcrypt |
-| `devDependencies` | TypeScript، ESLint، Vitest، Testing Library، Prettier |
-| `optionalDependencies` | Cloudinary، AWS S3 (للتخزين السحابي) |
+| القسم                  | الدور                                                    |
+| ---------------------- | -------------------------------------------------------- |
+| `engines`              | Node ≥ 20، npm ≥ 10                                      |
+| `scripts`              | dev، build، start، lint، test، format، validate، db:init |
+| `dependencies`         | Next.js، React، MUI، Emotion، Mongoose، JWT، bcrypt      |
+| `devDependencies`      | TypeScript، ESLint، Vitest، Testing Library، Prettier    |
+| `optionalDependencies` | Cloudinary، AWS S3 (للتخزين السحابي)                     |
 
 ### ٢.٣ شرح السكريبتات
 
@@ -59,12 +59,12 @@
 
 يحدد كيف يترجم [TypeScript](../concepts-guide.md#2-typescript) الكود. الإعدادات الحرجة:
 
-| الخيار | القيمة | المعنى |
-|--------|--------|--------|
-| `strict` | true | تفعيل الفحص الصارم للأنواع |
-| `paths` | `"@/*": ["./src/*"]` | استيراد مثل `@/app/...` بدل المسارات النسبية |
-| `jsx` | react-jsx | تحويل JSX تلقائياً |
-| `noEmit` | true | Next.js يبني؛ TypeScript يفحص فقط |
+| الخيار   | القيمة               | المعنى                                       |
+| -------- | -------------------- | -------------------------------------------- |
+| `strict` | true                 | تفعيل الفحص الصارم للأنواع                   |
+| `paths`  | `"@/*": ["./src/*"]` | استيراد مثل `@/app/...` بدل المسارات النسبية |
+| `jsx`    | react-jsx            | تحويل JSX تلقائياً                           |
+| `noEmit` | true                 | Next.js يبني؛ TypeScript يفحص فقط            |
 
 ```json
 // tsconfig.json — paths و strict
@@ -233,13 +233,13 @@ export const CAMERA_MAX_DIMENSION = 1920;
 
 ### ٦.٢ globals.css
 
-| القسم | الدور |
-|-------|-------|
-| Anti-FOUC | إخفاء `body` حتى يُطبَّق `data-color-scheme`؛ خلفية فورية حسب السمة |
-| Base Reset | `box-sizing`، إزالة الهوامش الافتراضية |
-| Scrollbar | تخصيص شريط التمرير |
-| Focus | `outline` للعناصر عند التركيز (إمكانية الوصول) |
-| Selection | لون تمييز النص |
+| القسم      | الدور                                                               |
+| ---------- | ------------------------------------------------------------------- |
+| Anti-FOUC  | إخفاء `body` حتى يُطبَّق `data-color-scheme`؛ خلفية فورية حسب السمة |
+| Base Reset | `box-sizing`، إزالة الهوامش الافتراضية                              |
+| Scrollbar  | تخصيص شريط التمرير                                                  |
+| Focus      | `outline` للعناصر عند التركيز (إمكانية الوصول)                      |
+| Selection  | لون تمييز النص                                                      |
 
 ```css
 /* globals.css — Anti-FOUC (أول سطر لاتيني) */
@@ -260,19 +260,19 @@ html[data-color-scheme='light'] body {
 
 ## 7. ملخص
 
-| ما تعلمناه | الملف المسؤول |
-|------------|---------------|
-| الاعتماديات والأوامر | `package.json` |
-| إعداد TypeScript ومسار `@/` | `tsconfig.json` |
-| إعداد Next.js والصور البعيدة | `next.config.mjs` |
-| قواعد ESLint | `eslint.config.mjs` |
-| إعداد Vitest وملف الإعداد | `vitest.config.ts` |
-| التخطيط الجذري، اللغة، الخط، Anti-FOUC | `layout.tsx` |
-| شجرة السياقات (Theme → Auth) | `providers.tsx` |
-| الثوابت المركزية | `config.ts` |
-| الأنماط العامة و Anti-FOUC | `globals.css` |
+| ما تعلمناه                             | الملف المسؤول       |
+| -------------------------------------- | ------------------- |
+| الاعتماديات والأوامر                   | `package.json`      |
+| إعداد TypeScript ومسار `@/`            | `tsconfig.json`     |
+| إعداد Next.js والصور البعيدة           | `next.config.mjs`   |
+| قواعد ESLint                           | `eslint.config.mjs` |
+| إعداد Vitest وملف الإعداد              | `vitest.config.ts`  |
+| التخطيط الجذري، اللغة، الخط، Anti-FOUC | `layout.tsx`        |
+| شجرة السياقات (Theme → Auth)           | `providers.tsx`     |
+| الثوابت المركزية                       | `config.ts`         |
+| الأنماط العامة و Anti-FOUC             | `globals.css`       |
 
 ---
 
-*العودة إلى [فهرس الدروس](../README.md)*  
-*الدرس التالي → [02 — نماذج قاعدة البيانات](02-database-models.md)*
+_العودة إلى [فهرس الدروس](../README.md)_  
+_الدرس التالي → [02 — نماذج قاعدة البيانات](02-database-models.md)_

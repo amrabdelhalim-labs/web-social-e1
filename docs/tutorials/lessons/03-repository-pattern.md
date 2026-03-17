@@ -20,15 +20,15 @@
 
 ### ٢.٢ العمليات في العقد
 
-| العملية | الوصف |
-|---------|-------|
-| findAll | قائمة بفلتر واختيارات |
-| findOne، findById | مستند واحد |
-| findPaginated | قائمة مع pagination وعدد الصفحات |
-| create | إنشاء مستند |
-| update، updateWhere | تحديث |
-| delete، deleteWhere | حذف |
-| exists، count | تحقق خفيف |
+| العملية             | الوصف                            |
+| ------------------- | -------------------------------- |
+| findAll             | قائمة بفلتر واختيارات            |
+| findOne، findById   | مستند واحد                       |
+| findPaginated       | قائمة مع pagination وعدد الصفحات |
+| create              | إنشاء مستند                      |
+| update، updateWhere | تحديث                            |
+| delete، deleteWhere | حذف                              |
+| exists، count       | تحقق خفيف                        |
 
 ### ٢.٣ الكود
 
@@ -38,7 +38,12 @@ export interface IRepository<T extends Document> {
   findAll(filter?: QueryFilter<T>, options?: QueryOptions<T>): Promise<T[]>;
   findOne(filter: QueryFilter<T>, options?: QueryOptions<T>): Promise<T | null>;
   findById(id: string, options?: QueryOptions<T>): Promise<T | null>;
-  findPaginated(page: number, limit: number, filter?: QueryFilter<T>, options?: QueryOptions<T>): Promise<PaginatedResult<T>>;
+  findPaginated(
+    page: number,
+    limit: number,
+    filter?: QueryFilter<T>,
+    options?: QueryOptions<T>
+  ): Promise<PaginatedResult<T>>;
   create(data: Partial<T>): Promise<T>;
   update(id: string, data: UpdateQuery<T>): Promise<T | null>;
   delete(id: string): Promise<T | null>;
@@ -57,11 +62,11 @@ export interface IRepository<T extends Document> {
 
 ### ٣.٢ قرارات التصميم
 
-| القرار | السبب |
-|--------|-------|
-| `findPaginated` يحدّد limit بـ MAX_PAGE_SIZE | منع استعلامات غير محدودة |
-| `update` مع `returnDocument: 'after'` | إرجاع المستند المحدّث مباشرة |
-| `exists` بدل `findOne` | تحقق خفيف بدون تحميل المستند كاملاً |
+| القرار                                       | السبب                               |
+| -------------------------------------------- | ----------------------------------- |
+| `findPaginated` يحدّد limit بـ MAX_PAGE_SIZE | منع استعلامات غير محدودة            |
+| `update` مع `returnDocument: 'after'`        | إرجاع المستند المحدّث مباشرة        |
+| `exists` بدل `findOne`                       | تحقق خفيف بدون تحميل المستند كاملاً |
 
 ### ٣.٣ findPaginated — تنفيذ متوازي
 
@@ -94,10 +99,10 @@ async findPaginated(
 
 ### ٤.١ العمليات المخصّصة
 
-| العملية | الوصف |
-|---------|-------|
-| findByEmail | البحث بالبريد (lowercase، trim) |
-| emailExists | تحقق خفيف من وجود البريد |
+| العملية           | الوصف                           |
+| ----------------- | ------------------------------- |
+| findByEmail       | البحث بالبريد (lowercase، trim) |
+| emailExists       | تحقق خفيف من وجود البريد        |
 | deleteUserCascade | حذف المستخدم وكل صوره وإعجاباته |
 
 ### ٤.٢ deleteUserCascade — ترتيب الحذف
@@ -119,11 +124,11 @@ async findPaginated(
 
 ### ٥.١ العمليات المخصّصة
 
-| العملية | الوصف |
-|---------|-------|
-| findByUser | صور مستخدم معيّن مع pagination |
-| findPublicFeed | الصفحة الرئيسية — أحدث الصور مع populate للمستخدم |
-| updateLikesCount | تحديث `likesCount` بـ $inc |
+| العملية          | الوصف                                             |
+| ---------------- | ------------------------------------------------- |
+| findByUser       | صور مستخدم معيّن مع pagination                    |
+| findPublicFeed   | الصفحة الرئيسية — أحدث الصور مع populate للمستخدم |
+| updateLikesCount | تحديث `likesCount` بـ $inc                        |
 
 ### ٥.٢ findPublicFeed
 
@@ -156,11 +161,11 @@ async updateLikesCount(photoId: string, delta: 1 | -1): Promise<IPhoto | null> {
 
 ### ٦.١ العمليات المخصّصة
 
-| العملية | الوصف |
-|---------|-------|
+| العملية            | الوصف                        |
+| ------------------ | ---------------------------- |
 | findByUserAndPhoto | إعجاب مستخدم على صورة معيّنة |
-| isLiked | تحقق خفيف من حالة الإعجاب |
-| toggleLike | إضافة أو إزالة الإعجاب |
+| isLiked            | تحقق خفيف من حالة الإعجاب    |
+| toggleLike         | إضافة أو إزالة الإعجاب       |
 
 ### ٦.٢ toggleLike
 
@@ -224,19 +229,19 @@ async healthCheck(): Promise<{
 
 ## 8. ملخص
 
-| ما تعلمناه | الملف المسؤول |
-|------------|---------------|
-| العقد العام IRepository | `repository.interface.ts` |
-| التنفيذ الأساسي BaseRepository | `base.repository.ts` |
-| findByEmail، emailExists، deleteUserCascade | `user.repository.ts` |
-| findPublicFeed، findByUser، updateLikesCount | `photo.repository.ts` |
-| toggleLike، findByUserAndPhoto، isLiked | `like.repository.ts` |
-| getRepositoryManager، healthCheck | `index.ts` |
+| ما تعلمناه                                   | الملف المسؤول             |
+| -------------------------------------------- | ------------------------- |
+| العقد العام IRepository                      | `repository.interface.ts` |
+| التنفيذ الأساسي BaseRepository               | `base.repository.ts`      |
+| findByEmail، emailExists، deleteUserCascade  | `user.repository.ts`      |
+| findPublicFeed، findByUser، updateLikesCount | `photo.repository.ts`     |
+| toggleLike، findByUserAndPhoto، isLiked      | `like.repository.ts`      |
+| getRepositoryManager، healthCheck            | `index.ts`                |
 
 للمرجع التقني ← [database-abstraction.md](../../database-abstraction.md) | [repository-quick-reference.md](../../repository-quick-reference.md)
 
 ---
 
-*الدرس السابق ← [02 — نماذج قاعدة البيانات](02-database-models.md)*  
-*العودة إلى [فهرس الدروس](../README.md)*  
-*الدرس التالي → [04 — المصادقة والحماية](04-authentication.md)*
+_الدرس السابق ← [02 — نماذج قاعدة البيانات](02-database-models.md)_  
+_العودة إلى [فهرس الدروس](../README.md)_  
+_الدرس التالي → [04 — المصادقة والحماية](04-authentication.md)_

@@ -99,4 +99,4 @@ const total = await repos.photo.count({ user: userId });
 
 ---
 
-*للشرح المعماري الكامل، راجع [database-abstraction.md](database-abstraction.md).*
+_للشرح المعماري الكامل، راجع [database-abstraction.md](database-abstraction.md)._

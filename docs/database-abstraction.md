@@ -14,30 +14,30 @@
 
 ### 2.1 User
 
-| الحقل | النوع | القيود |
-|-------|-------|--------|
-| name | String | مطلوب، 3–50 حرف |
-| email | String | مطلوب، فريد، lowercase |
-| password | String | مطلوب، 6 أحرف (مُخزّن كـ bcrypt hash) |
+| الحقل     | النوع  | القيود                                         |
+| --------- | ------ | ---------------------------------------------- |
+| name      | String | مطلوب، 3–50 حرف                                |
+| email     | String | مطلوب، فريد، lowercase                         |
+| password  | String | مطلوب، 6 أحرف (مُخزّن كـ bcrypt hash)          |
 | avatarUrl | String | اختياري، null = صورة افتراضية من الأحرف الأولى |
 
 ### 2.2 Photo
 
-| الحقل | النوع | القيود |
-|-------|-------|--------|
-| title | String | مطلوب، 1–200 حرف |
-| description | String | اختياري، حتى 2000 حرف |
-| imageUrl | String | مطلوب (من Storage Service) |
-| user | ObjectId | مرجع لـ User |
-| likesCount | Number | افتراضي 0، مُحدّث بـ $inc عند كل إعجاب |
+| الحقل       | النوع    | القيود                                 |
+| ----------- | -------- | -------------------------------------- |
+| title       | String   | مطلوب، 1–200 حرف                       |
+| description | String   | اختياري، حتى 2000 حرف                  |
+| imageUrl    | String   | مطلوب (من Storage Service)             |
+| user        | ObjectId | مرجع لـ User                           |
+| likesCount  | Number   | افتراضي 0، مُحدّث بـ $inc عند كل إعجاب |
 
 **الفهارس:** `user:1`، `createdAt:-1`
 
 ### 2.3 Like
 
-| الحقل | النوع | القيود |
-|-------|-------|--------|
-| user | ObjectId | مرجع لـ User |
+| الحقل | النوع    | القيود        |
+| ----- | -------- | ------------- |
+| user  | ObjectId | مرجع لـ User  |
 | photo | ObjectId | مرجع لـ Photo |
 
 **الفهرس المركب:** `{ user: 1, photo: 1 }` unique — يمنع تكرار الإعجاب.
@@ -72,11 +72,11 @@ Photo ──< Like   (صورة تملك عدة إعجابات)
 
 ### 4.3 المستودعات الخاصة
 
-| المستودع | العمليات الإضافية |
-|----------|-------------------|
-| UserRepository | `findByEmail`، `emailExists`، `deleteUserCascade` |
-| PhotoRepository | `findPublicFeed`، `findByUser` |
-| LikeRepository | `toggleLike`، `getLikeStatus` |
+| المستودع        | العمليات الإضافية                                 |
+| --------------- | ------------------------------------------------- |
+| UserRepository  | `findByEmail`، `emailExists`، `deleteUserCascade` |
+| PhotoRepository | `findPublicFeed`، `findByUser`                    |
+| LikeRepository  | `toggleLike`، `getLikeStatus`                     |
 
 ### 4.4 RepositoryManager
 
@@ -119,4 +119,4 @@ API Route
 
 ---
 
-*للمرجع السريع لعمليات المستودعات، راجع [repository-quick-reference.md](repository-quick-reference.md).*
+_للمرجع السريع لعمليات المستودعات، راجع [repository-quick-reference.md](repository-quick-reference.md)._

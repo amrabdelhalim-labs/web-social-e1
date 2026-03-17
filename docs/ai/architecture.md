@@ -49,14 +49,14 @@ API Route
               └─► mongoose.Model      ← only touched inside repository
 ```
 
-| File | Role |
-|------|------|
-| `repositories/repository.interface.ts` | `IRepository<T>` contract |
-| `repositories/base.repository.ts` | Generic Mongoose implementation |
-| `repositories/user.repository.ts` | `findByEmail`, `emailExists`, `deleteUserCascade` |
-| `repositories/photo.repository.ts` | `findPublicFeed`, `updateLikesCount` |
-| `repositories/like.repository.ts` | `toggleLike`, `getLikeStatus` |
-| `repositories/index.ts` | `getRepositoryManager()` singleton |
+| File                                   | Role                                              |
+| -------------------------------------- | ------------------------------------------------- |
+| `repositories/repository.interface.ts` | `IRepository<T>` contract                         |
+| `repositories/base.repository.ts`      | Generic Mongoose implementation                   |
+| `repositories/user.repository.ts`      | `findByEmail`, `emailExists`, `deleteUserCascade` |
+| `repositories/photo.repository.ts`     | `findPublicFeed`, `updateLikesCount`              |
+| `repositories/like.repository.ts`      | `toggleLike`, `getLikeStatus`                     |
+| `repositories/index.ts`                | `getRepositoryManager()` singleton                |
 
 ### 2.2 Storage Strategy Pattern
 
@@ -194,17 +194,17 @@ ProtectedRoute redirects to /
 
 ## 4. File Naming & Location Rules
 
-| Layer | Location | Rule |
-|-------|----------|------|
-| Models | `src/app/models/` | PascalCase, one model per file |
-| Repositories | `src/app/repositories/` | `*.repository.ts` |
-| Storage | `src/app/lib/storage/` | `*.strategy.ts` + `storage.service.ts` |
-| API Routes | `src/app/api/**/route.ts` | Next.js App Router convention |
-| Components | `src/app/components/<category>/` | PascalCase |
-| Hooks | `src/app/hooks/` | `use*.ts` |
-| Contexts | `src/app/context/` | `*Context.tsx` |
-| Types | `src/app/types.ts` | single file for all shared types |
-| Config | `src/app/config.ts` | single file for all constants |
+| Layer        | Location                         | Rule                                   |
+| ------------ | -------------------------------- | -------------------------------------- |
+| Models       | `src/app/models/`                | PascalCase, one model per file         |
+| Repositories | `src/app/repositories/`          | `*.repository.ts`                      |
+| Storage      | `src/app/lib/storage/`           | `*.strategy.ts` + `storage.service.ts` |
+| API Routes   | `src/app/api/**/route.ts`        | Next.js App Router convention          |
+| Components   | `src/app/components/<category>/` | PascalCase                             |
+| Hooks        | `src/app/hooks/`                 | `use*.ts`                              |
+| Contexts     | `src/app/context/`               | `*Context.tsx`                         |
+| Types        | `src/app/types.ts`               | single file for all shared types       |
+| Config       | `src/app/config.ts`              | single file for all constants          |
 
 ---
 
@@ -221,4 +221,4 @@ ProtectedRoute redirects to /
 
 ---
 
-*See [feature-guide.md](feature-guide.md) for step-by-step instructions to add a new feature.*
+_See [feature-guide.md](feature-guide.md) for step-by-step instructions to add a new feature._

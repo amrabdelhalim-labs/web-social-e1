@@ -42,44 +42,44 @@ Heroku يشغّل `npm start` الذي ينفّذ `next start`.
 
 ### 3.1 إلزامية
 
-| المتغير | الوصف | مثال |
-|---------|-------|------|
-| `DATABASE_URL` | رابط اتصال MongoDB | `mongodb+srv://user:pass@cluster.mongodb.net/myphotos` |
-| `JWT_SECRET` | مفتاح توقيع JWT (يُولّد عشوائيًا في الإنتاج) | سلسلة طويلة عشوائية |
+| المتغير        | الوصف                                        | مثال                                                   |
+| -------------- | -------------------------------------------- | ------------------------------------------------------ |
+| `DATABASE_URL` | رابط اتصال MongoDB                           | `mongodb+srv://user:pass@cluster.mongodb.net/myphotos` |
+| `JWT_SECRET`   | مفتاح توقيع JWT (يُولّد عشوائيًا في الإنتاج) | سلسلة طويلة عشوائية                                    |
 
 ### 3.2 التخزين
 
-| المتغير | الوصف | القيم |
-|---------|-------|-------|
+| المتغير        | الوصف       | القيم                       |
+| -------------- | ----------- | --------------------------- |
 | `STORAGE_TYPE` | نوع التخزين | `local`، `cloudinary`، `s3` |
 
 **ملاحظة:** `local` غير مناسب للإنتاج — الملفات تُفقد عند إعادة النشر. يُوصى بـ `cloudinary`.
 
 #### Cloudinary (`STORAGE_TYPE=cloudinary`)
 
-| المتغير | الوصف |
-|---------|-------|
-| `CLOUDINARY_URL` | صيغة كاملة: `cloudinary://API_KEY:API_SECRET@CLOUD_NAME` |
-| أو الحقول المنفصلة: | |
-| `CLOUDINARY_CLOUD_NAME` | اسم السحابة |
-| `CLOUDINARY_API_KEY` | مفتاح API |
-| `CLOUDINARY_API_SECRET` | السر |
-| `CLOUDINARY_FOLDER` | مجلد اختياري (مثل `my-photos`) |
+| المتغير                 | الوصف                                                    |
+| ----------------------- | -------------------------------------------------------- |
+| `CLOUDINARY_URL`        | صيغة كاملة: `cloudinary://API_KEY:API_SECRET@CLOUD_NAME` |
+| أو الحقول المنفصلة:     |                                                          |
+| `CLOUDINARY_CLOUD_NAME` | اسم السحابة                                              |
+| `CLOUDINARY_API_KEY`    | مفتاح API                                                |
+| `CLOUDINARY_API_SECRET` | السر                                                     |
+| `CLOUDINARY_FOLDER`     | مجلد اختياري (مثل `my-photos`)                           |
 
 #### S3 (`STORAGE_TYPE=s3`)
 
-| المتغير | الوصف |
-|---------|-------|
-| `AWS_S3_BUCKET` | اسم الحاوية |
-| `AWS_REGION` | المنطقة |
-| `AWS_ACCESS_KEY_ID` | مفتاح الوصول |
-| `AWS_SECRET_ACCESS_KEY` | السر |
+| المتغير                 | الوصف        |
+| ----------------------- | ------------ |
+| `AWS_S3_BUCKET`         | اسم الحاوية  |
+| `AWS_REGION`            | المنطقة      |
+| `AWS_ACCESS_KEY_ID`     | مفتاح الوصول |
+| `AWS_SECRET_ACCESS_KEY` | السر         |
 
 ### 3.3 اختيارية
 
-| المتغير | الوصف | الافتراضي |
-|---------|-------|-----------|
-| `PORT` | منفذ التطبيق | Heroku يحدده تلقائيًا |
+| المتغير    | الوصف        | الافتراضي               |
+| ---------- | ------------ | ----------------------- |
+| `PORT`     | منفذ التطبيق | Heroku يحدده تلقائيًا   |
 | `NODE_ENV` | بيئة التشغيل | `production` على Heroku |
 
 ---
@@ -136,4 +136,4 @@ node scripts/test-api.mjs https://myphotos-app.herokuapp.com
 
 ---
 
-*لتفاصيل استراتيجية التخزين، راجع [storage-strategy.md](storage-strategy.md).*
+_لتفاصيل استراتيجية التخزين، راجع [storage-strategy.md](storage-strategy.md)._

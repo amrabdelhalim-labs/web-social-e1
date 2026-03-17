@@ -195,6 +195,16 @@ git push heroku main
 
 ## سجل التغييرات
 
+### v0.1.0 — جودة وتوثيق (220 اختبار)
+
+- **auth:** اشتراط JWT_SECRET في الإنتاج مع fallback للتطوير فقط
+- **refactor:** استخراج usePaginatedPhotos وتقليل التكرار في usePhotos و useMyPhotos
+- **ui:** إصلاح ExpandableText و ResizeObserver mock وتنظيف تحذيرات lint
+- **ui:** لف صفحات تسجيل الدخول والتسجيل بـ GuestRoute
+- **test:** استقرار الاختبارات (مهلة، fixtures، PhotoCard)
+- **docs:** توحيد أوامر الاختبار وإضافة test:coverage ودروس 07–11
+- **style:** تطبيق Prettier على التوثيق والدروس
+
 ### v0.1.1 — تحسينات الأداء والبيئة
 
 - إعداد قاعدة بيانات محلية: سكربت `db:init`

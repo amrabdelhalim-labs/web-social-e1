@@ -20,12 +20,12 @@
 
 ### ٢.٢ الدوال
 
-| الدالة | الوصف |
-|--------|-------|
-| generateToken | توقيع JWT يحتوي `{ id: userId }`، صلاحية 7 أيام |
-| verifyToken | التحقق من التوقيع والصلاحية، يُرجع `{ id }` أو يرمي خطأ |
-| hashPassword | تشفير bcrypt (12 جولة) |
-| comparePassword | مقارنة النص مع الـ hash |
+| الدالة          | الوصف                                                   |
+| --------------- | ------------------------------------------------------- |
+| generateToken   | توقيع JWT يحتوي `{ id: userId }`، صلاحية 7 أيام         |
+| verifyToken     | التحقق من التوقيع والصلاحية، يُرجع `{ id }` أو يرمي خطأ |
+| hashPassword    | تشفير bcrypt (12 جولة)                                  |
+| comparePassword | مقارنة النص مع الـ hash                                 |
 
 ### ٢.٣ الكود
 
@@ -57,12 +57,12 @@ export function verifyToken(token: string): JwtPayload {
 
 ### ٣.٢ دوال المصادقة
 
-| الدالة | المدخلات | القيود |
-|--------|----------|--------|
-| validateRegisterInput | name, email, password, confirmPassword | اسم 3–50، بريد صحيح، كلمة مرور 6+، تطابق التأكيد |
-| validateLoginInput | email, password | بريد صحيح، كلمة مرور 6+ |
-| validateUpdateUserInput | name?, email? | واحد على الأقل، نفس قيود الاسم والبريد |
-| validateChangePasswordInput | currentPassword, newPassword, confirmPassword | الجديدة 6+، تطابق، مختلفة عن الحالية |
+| الدالة                      | المدخلات                                      | القيود                                           |
+| --------------------------- | --------------------------------------------- | ------------------------------------------------ |
+| validateRegisterInput       | name, email, password, confirmPassword        | اسم 3–50، بريد صحيح، كلمة مرور 6+، تطابق التأكيد |
+| validateLoginInput          | email, password                               | بريد صحيح، كلمة مرور 6+                          |
+| validateUpdateUserInput     | name?, email?                                 | واحد على الأقل، نفس قيود الاسم والبريد           |
+| validateChangePasswordInput | currentPassword, newPassword, confirmPassword | الجديدة 6+، تطابق، مختلفة عن الحالية             |
 
 ### ٣.٣ مثال
 
@@ -93,14 +93,14 @@ export function validateLoginInput(input: LoginInput): string[] {
 
 ### ٤.٢ الدوال المساعدة
 
-| الدالة | الحالة | الاستخدام |
-|--------|--------|-----------|
-| validationError | 400 | فشل التحقق من المدخلات |
-| unauthorizedError | 401 | توكن مفقود أو غير صالح |
-| forbiddenError | 403 | غير مصرح بتنفيذ الإجراء |
-| notFoundError | 404 | المورد غير موجود |
-| conflictError | 409 | تعارض (بريد مُسجّل) |
-| serverError | 500 | خطأ غير متوقع |
+| الدالة            | الحالة | الاستخدام               |
+| ----------------- | ------ | ----------------------- |
+| validationError   | 400    | فشل التحقق من المدخلات  |
+| unauthorizedError | 401    | توكن مفقود أو غير صالح  |
+| forbiddenError    | 403    | غير مصرح بتنفيذ الإجراء |
+| notFoundError     | 404    | المورد غير موجود        |
+| conflictError     | 409    | تعارض (بريد مُسجّل)     |
+| serverError       | 500    | خطأ غير متوقع           |
 
 ```typescript
 // apiErrors — استخدام في المسار
@@ -184,14 +184,14 @@ GET /api/auth/me + Authorization: Bearer <token>
 
 يدير حالة المصادقة في العميل: التوكن في localStorage، المستخدم في الذاكرة. عند التحميل يقرأ التوكن ويستدعي `/api/auth/me`؛ عند 401 يمسح الجلسة.
 
-| القيمة | الوصف |
-|--------|-------|
-| user | المستخدم الحالي أو null |
-| token | التوكن (للإرسال مع الطلبات) |
-| loading | أثناء التحقق الأولي |
-| login | تسجيل الدخول وحفظ التوكن |
-| register | إنشاء حساب وتسجيل الدخول |
-| logout | مسح التوكن والمستخدم |
+| القيمة     | الوصف                                              |
+| ---------- | -------------------------------------------------- |
+| user       | المستخدم الحالي أو null                            |
+| token      | التوكن (للإرسال مع الطلبات)                        |
+| loading    | أثناء التحقق الأولي                                |
+| login      | تسجيل الدخول وحفظ التوكن                           |
+| register   | إنشاء حساب وتسجيل الدخول                           |
+| logout     | مسح التوكن والمستخدم                               |
 | updateUser | تحديث المستخدم في الذاكرة (بعد تعديل الملف الشخصي) |
 
 ### ٧.٢ useAuth
@@ -237,20 +237,20 @@ export function useAuth(): AuthContextValue {
 
 ## 9. ملخص
 
-| ما تعلمناه | الملف المسؤول |
-|------------|---------------|
-| JWT و bcrypt | `auth.ts` |
-| التحقق من المدخلات | `validators/index.ts` |
-| رسائل الخطأ الموحدة | `apiErrors.ts` |
-| استخراج التوكن من الرأس | `auth.middleware.ts` |
-| مسارات login، register، me | `api/auth/*` |
-| حالة المصادقة في العميل | `AuthContext.tsx` |
-| خطاف useAuth | `useAuth.ts` |
-| حماية صفحات الضيوف | `GuestRoute.tsx` |
-| حماية الصفحات المسجّلة | `ProtectedRoute.tsx` |
+| ما تعلمناه                 | الملف المسؤول         |
+| -------------------------- | --------------------- |
+| JWT و bcrypt               | `auth.ts`             |
+| التحقق من المدخلات         | `validators/index.ts` |
+| رسائل الخطأ الموحدة        | `apiErrors.ts`        |
+| استخراج التوكن من الرأس    | `auth.middleware.ts`  |
+| مسارات login، register، me | `api/auth/*`          |
+| حالة المصادقة في العميل    | `AuthContext.tsx`     |
+| خطاف useAuth               | `useAuth.ts`          |
+| حماية صفحات الضيوف         | `GuestRoute.tsx`      |
+| حماية الصفحات المسجّلة     | `ProtectedRoute.tsx`  |
 
 ---
 
-*الدرس السابق ← [03 — نمط المستودعات](03-repository-pattern.md)*  
-*العودة إلى [فهرس الدروس](../README.md)*  
-*الدرس التالي → [05 — استراتيجية التخزين](05-storage-strategy.md)*
+_الدرس السابق ← [03 — نمط المستودعات](03-repository-pattern.md)_  
+_العودة إلى [فهرس الدروس](../README.md)_  
+_الدرس التالي → [05 — استراتيجية التخزين](05-storage-strategy.md)_

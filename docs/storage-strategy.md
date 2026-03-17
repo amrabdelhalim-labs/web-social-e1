@@ -8,24 +8,24 @@
 
 جميع الاستراتيجيات تُنفّذ:
 
-| الدالة | الوصف |
-|--------|-------|
-| `uploadFile(file)` | رفع ملف واحد، يُرجع `{ url, filename }` |
-| `uploadFiles(files)` | رفع عدة ملفات |
-| `deleteFile(filename)` | حذف ملف بالاسم/المفتاح |
-| `deleteFiles(filenames)` | حذف جماعي، يُرجع `{ success, failed }` |
-| `getFileUrl(filename)` | تحويل الاسم إلى URL كامل |
-| `healthCheck()` | فحص الاتصال بالمزود |
+| الدالة                   | الوصف                                   |
+| ------------------------ | --------------------------------------- |
+| `uploadFile(file)`       | رفع ملف واحد، يُرجع `{ url, filename }` |
+| `uploadFiles(files)`     | رفع عدة ملفات                           |
+| `deleteFile(filename)`   | حذف ملف بالاسم/المفتاح                  |
+| `deleteFiles(filenames)` | حذف جماعي، يُرجع `{ success, failed }`  |
+| `getFileUrl(filename)`   | تحويل الاسم إلى URL كامل                |
+| `healthCheck()`          | فحص الاتصال بالمزود                     |
 
 ---
 
 ## 2. الأنواع المدعومة
 
-| STORAGE_TYPE | الوصف | المتغيرات البيئية |
-|--------------|-------|-------------------|
-| `local` | تخزين في `public/uploads/` | `LOCAL_BASE_URL` (افتراضي `/uploads`) |
-| `cloudinary` | Cloudinary CDN | `CLOUDINARY_URL` أو الحقول المنفصلة |
-| `s3` | AWS S3 | `AWS_ACCESS_KEY_ID`، `AWS_SECRET_ACCESS_KEY`، `AWS_REGION`، `AWS_S3_BUCKET` |
+| STORAGE_TYPE | الوصف                      | المتغيرات البيئية                                                           |
+| ------------ | -------------------------- | --------------------------------------------------------------------------- |
+| `local`      | تخزين في `public/uploads/` | `LOCAL_BASE_URL` (افتراضي `/uploads`)                                       |
+| `cloudinary` | Cloudinary CDN             | `CLOUDINARY_URL` أو الحقول المنفصلة                                         |
+| `s3`         | AWS S3                     | `AWS_ACCESS_KEY_ID`، `AWS_SECRET_ACCESS_KEY`، `AWS_REGION`، `AWS_S3_BUCKET` |
 
 ---
 
@@ -69,4 +69,4 @@ const ok = await storage.healthCheck();
 
 ---
 
-*للمتغيرات البيئية الكاملة، راجع [deployment.md](deployment.md).*
+_للمتغيرات البيئية الكاملة، راجع [deployment.md](deployment.md)._

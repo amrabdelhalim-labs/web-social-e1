@@ -5,9 +5,9 @@
  *
  * - Avatar display (initials fallback when no avatarUrl)
  * - Camera overlay on hover
- * - Menu on click: "رفع من الجهاز" | "التقاط بالكاميرا"
+ * - Menu on click: upload from device | capture with camera (Arabic labels in UI)
  * - Optimistic preview before server save
- * - "حذف الصورة الحالية" when avatar exists
+ * - Remove current avatar when one exists
  */
 
 import { useState, useRef } from 'react';

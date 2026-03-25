@@ -1,5 +1,5 @@
 /**
- * Integration Test Script — صوري API
+ * Integration Test Script — My Photos HTTP API
  *
  * Tests all deployed API endpoints against a live server using real HTTP requests
  * and real image uploads. Detects storage type from the /api/health endpoint and

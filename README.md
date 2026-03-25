@@ -88,12 +88,27 @@ npm run dev
 
 للتفاصيل الكاملة: [docs/setup-local.md](docs/setup-local.md)
 
+### Docker (تشغيل سريع مع MongoDB)
+
+1. أنشئ ملف `.env` في جذر المشروع يحتوي على `JWT_SECRET` (انظر [`.env.docker.example`](.env.docker.example)).
+2. نفّذ:
+
+```bash
+docker compose up --build
+```
+
+3. افتح [http://localhost:3000](http://localhost:3000) وتحقق من `/api/health`.
+
+لبناء الصورة يدويًا أو النشر على **GitHub Container Registry**، راجع [docs/deployment.md](docs/deployment.md).
+
 ---
 
 ## هيكل المجلدات
 
 ```text
 web-social-e1/
+├── Dockerfile
+├── docker-compose.yml
 ├── src/app/
 │   ├── api/              ← REST API Routes (auth, photos, profile, health)
 │   ├── components/       ← مكونات React (photos, profile, camera, layout, common)
@@ -151,39 +166,40 @@ npm run test:watch          # watch mode
 
 ---
 
-## النشر (Heroku)
+## النشر
+
+**Docker:** `docker build -t web-social-e1:local .` ثم تمرير `DATABASE_URL` و`JWT_SECRET` وإعدادات التخزين عند `docker run` — التفاصيل في [docs/deployment.md](docs/deployment.md).
+
+**Heroku:**
 
 ```bash
-# إعداد المتغيرات
 heroku config:set DATABASE_URL="mongodb+srv://..."
 heroku config:set JWT_SECRET="your-secret"
 heroku config:set STORAGE_TYPE=cloudinary
 heroku config:set CLOUDINARY_URL="cloudinary://..."
-
-# النشر
 git push heroku main
 ```
 
-للدليل الكامل: [docs/deployment.md](docs/deployment.md)
+للدليل الكامل (Docker + Heroku + ghcr.io): [docs/deployment.md](docs/deployment.md)
 
 ---
 
 ## التوثيق
 
-| الملف                                                                    | الموضوع                       |
-| ------------------------------------------------------------------------ | ----------------------------- |
-| [docs/api-endpoints.md](docs/api-endpoints.md)                           | جميع مسارات API مع أمثلة      |
-| [docs/database-abstraction.md](docs/database-abstraction.md)             | نمط المستودعات وطبقة البيانات |
-| [docs/repository-quick-reference.md](docs/repository-quick-reference.md) | مرجع سريع لعمليات المستودعات  |
-| [docs/storage-strategy.md](docs/storage-strategy.md)                     | Strategy Pattern للتخزين      |
-| [docs/testing.md](docs/testing.md)                                       | استراتيجية الاختبار والتغطية  |
-| [docs/deployment.md](docs/deployment.md)                                 | النشر على Heroku              |
-| [docs/setup-local.md](docs/setup-local.md)                               | إعداد البيئة المحلية          |
-| [docs/ai/README.md](docs/ai/README.md)                                   | دليل AI للمشروع               |
-| [docs/ai/architecture.md](docs/ai/architecture.md)                       | مخطط الطبقات وتدفق البيانات   |
-| [docs/ai/feature-guide.md](docs/ai/feature-guide.md)                     | خطوات إضافة ميزة جديدة        |
-| [docs/plans/project-plan.md](docs/plans/project-plan.md)                 | خطة المشروع المفصلة           |
-| [docs/plans/documentation-plan.md](docs/plans/documentation-plan.md)     | خطة التوثيق الشامل            |
+| الملف                                                                    | الموضوع                          |
+| ------------------------------------------------------------------------ | -------------------------------- |
+| [docs/api-endpoints.md](docs/api-endpoints.md)                           | جميع مسارات API مع أمثلة         |
+| [docs/database-abstraction.md](docs/database-abstraction.md)             | نمط المستودعات وطبقة البيانات    |
+| [docs/repository-quick-reference.md](docs/repository-quick-reference.md) | مرجع سريع لعمليات المستودعات     |
+| [docs/storage-strategy.md](docs/storage-strategy.md)                     | Strategy Pattern للتخزين         |
+| [docs/testing.md](docs/testing.md)                                       | استراتيجية الاختبار والتغطية     |
+| [docs/deployment.md](docs/deployment.md)                                 | النشر: Docker و Heroku و ghcr.io |
+| [docs/setup-local.md](docs/setup-local.md)                               | إعداد البيئة المحلية             |
+| [docs/ai/README.md](docs/ai/README.md)                                   | دليل AI للمشروع                  |
+| [docs/ai/architecture.md](docs/ai/architecture.md)                       | مخطط الطبقات وتدفق البيانات      |
+| [docs/ai/feature-guide.md](docs/ai/feature-guide.md)                     | خطوات إضافة ميزة جديدة           |
+| [docs/plans/project-plan.md](docs/plans/project-plan.md)                 | خطة المشروع المفصلة              |
+| [docs/plans/documentation-plan.md](docs/plans/documentation-plan.md)     | خطة التوثيق الشامل               |
 
 ---
 
@@ -194,6 +210,13 @@ git push heroku main
 ---
 
 ## سجل التغييرات
+
+### v0.1.2 — Docker والنشر عبر الحاويات
+
+- **docker:** `Dockerfile` متعدد المراحل مع Next.js `standalone`، مستخدم غير جذر، وفحص صحة (healthcheck).
+- **compose:** `docker-compose.yml` للتطبيق + MongoDB 7 مع مجلد حجم للرفوعات المحلية.
+- **ci:** سير عمل GitHub Actions لبناء الصورة ودفعها إلى `ghcr.io`.
+- **docs:** تحديث [docs/deployment.md](docs/deployment.md) وملف مثال [`.env.docker.example`](.env.docker.example).
 
 ### v0.1.0 — جودة وتوثيق (220 اختبار)
 

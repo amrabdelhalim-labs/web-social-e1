@@ -4,8 +4,8 @@
  * UserMenu — Account Dropdown (Guest + Authenticated)
  *
  * Two states:
- * - Guest: PersonOutline icon → Menu: تسجيل الدخول, إنشاء حساب
- * - Authenticated: Avatar icon → Menu: user info, ملفي الشخصي, تسجيل الخروج
+ * - Guest: PersonOutline icon → Menu: login, sign up
+ * - Authenticated: Avatar icon → Menu: user info, profile, log out (Arabic labels in UI)
  */
 
 import { useState } from 'react';

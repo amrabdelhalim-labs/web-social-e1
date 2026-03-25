@@ -1,7 +1,7 @@
 /**
  * usePhotos Hook Tests
  *
- * يختبر جلب الصور، التصفح، والإعجاب.
+ * Tests community photos: fetch, pagination, and like toggle.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

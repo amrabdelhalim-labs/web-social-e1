@@ -8,6 +8,12 @@
 
 صوري تطبيق ويب Full-Stack مبني بـ **Next.js 16** (App Router) و **TypeScript** و **MongoDB**. الواجهة عربية (RTL) باستخدام **MUI 7**. المصادقة عبر **JWT** و **bcrypt**، وطبقة البيانات تعتمد **نمط المستودعات** (Repository Pattern). رفع الصور يعتمد **استراتيجية قابلة للتبديل** (محلي / Cloudinary / S3). الاختبارات بـ **Vitest** و **Testing Library**.
 
+في الإصدار الحالي، التوثيق يشمل أيضًا مسار نشر بالحاويات عبر **Docker**:
+
+- صورة إنتاج `standalone` لـ Next.js
+- تكديس محلي عبر `docker compose` (تطبيق + MongoDB)
+- خط أنابيب نشر صورة إلى `ghcr.io` عبر GitHub Actions
+
 | الطبقة   | التقنية                                    |
 | -------- | ------------------------------------------ |
 | الواجهة  | React، MUI، Emotion، RTL                   |

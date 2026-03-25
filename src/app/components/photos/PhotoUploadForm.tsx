@@ -3,7 +3,7 @@
 /**
  * PhotoUploadForm — Upload Photo (File or Camera)
  *
- * Tabs: "رفع من الجهاز" (file picker) | "التقاط بالكاميرا" (CameraCapture)
+ * Tabs: upload from device (file picker) | capture with camera (CameraCapture); labels are Arabic in UI
  */
 
 import { useState, useRef } from 'react';

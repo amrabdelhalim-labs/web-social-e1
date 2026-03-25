@@ -1,12 +1,12 @@
 /**
  * useCamera Hook Tests
  *
- * يختبر:
- *  - isSupported حسب توفر getUserMedia
- *  - useFallback عندما لا يدعم المتصفح
- *  - startCamera: نجاح، رفض إذن، خطأ عام
- *  - stopCamera: إيقاف الـ stream
- *  - capturePhoto: إرجاع File من فيديو صالح، null عند فيديو غير جاهز
+ * Tests:
+ *  - isSupported based on getUserMedia availability
+ *  - useFallback when the browser does not support the camera path
+ *  - startCamera: success, permission denied, generic error
+ *  - stopCamera: stops the MediaStream
+ *  - capturePhoto: returns File from a valid video track, null when video is not ready
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

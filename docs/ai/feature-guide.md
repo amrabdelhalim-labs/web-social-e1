@@ -1,4 +1,4 @@
-# Feature Guide — صوري
+# Feature Guide — My Photos
 
 > Step-by-step instructions for adding a new entity or feature to the project.
 > Follow this guide in order — skipping layers causes bugs.
@@ -305,6 +305,7 @@ If the feature doesn't require a new DB collection:
 - [ ] Component uses `sx` prop, RTL-safe, WCAG AA contrast
 - [ ] Tests written and passing
 - [ ] Commit follows Conventional Commits format
+- [ ] Commit command does not use trailer flags (for example: `--trailer "Made-with: Cursor"`)
 
 ---
 

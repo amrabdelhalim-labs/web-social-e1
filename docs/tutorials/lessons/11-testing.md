@@ -216,6 +216,7 @@ it('shows error for invalid email format', async () => {
 | `storage.test.ts`              | `getStorageService`، `resetStorageService`، LocalStorageStrategy            |
 | `auth-middleware.test.ts`      | `authenticateRequest`: توكن صحيح، غير صحيح، مفقود                           |
 | `profile-delete-route.test.ts` | منطق مسار `DELETE /api/profile` (cascade، تأكيد كلمة المرور)                |
+| `docker-config.test.ts`        | ثوابت Docker الحرجة: `standalone`، healthcheck، وربط compose                |
 
 ### ٤.٢ اختبارات السياقات والخطافات
 
@@ -264,6 +265,7 @@ it('shows error for invalid email format', async () => {
 | `npm run test:coverage`                      | تشغيل الاختبارات مع تقرير التغطية                 |
 | `npm run test -- --reporter=verbose`         | تشغيل مع تفاصيل كل حالة                           |
 | `npm run test -- src/app/tests/auth.test.ts` | تشغيل ملف محدد                                    |
+| `npm run docker:check`                       | فحص سكربتي لملفات Docker وworkflow                |
 | `npm run validate`                           | فحص شامل: format + lint + test                    |
 
 ---
@@ -280,13 +282,28 @@ it('shows error for invalid email format', async () => {
 
 ---
 
-## 7. الربط مع التوثيق
+## 7. اختبارات ما قبل نشر الصورة (CI)
+
+في خط أنابيب GitHub Actions الخاص بـ Docker يتم تنفيذ خطوات الجودة قبل بناء/دفع الصورة:
+
+1. `npm run format:check`
+2. `npm run lint`
+3. `npm run typecheck`
+4. `npm test`
+5. `npm run docker:check`
+6. `npm run build` (مع `JWT_SECRET` مخصص للـ CI build step)
+
+بهذا، فشل أي خطوة جودة يمنع نشر صورة غير موثوقة.
+
+---
+
+## 8. الربط مع التوثيق
 
 لاستراتيجية الاختبار الكاملة وأوامر التشغيل وفهرس الملفات التفصيلي، راجع [docs/testing.md](../../testing.md).
 
 ---
 
-## 8. الربط مع الدروس الأخرى
+## 9. الربط مع الدروس الأخرى
 
 | الملف                                                        | الدرس المرتبط                                       |
 | ------------------------------------------------------------ | --------------------------------------------------- |
@@ -300,7 +317,7 @@ it('shows error for invalid email format', async () => {
 
 ---
 
-## 9. ملخص
+## 10. ملخص
 
 | ما تعلمناه                                                     | الملف المسؤول                                                               |
 | -------------------------------------------------------------- | --------------------------------------------------------------------------- |

@@ -8,7 +8,7 @@
  * Messages are in Arabic for end-user display.
  *
  * Usage in route handlers:
- *   if (!user) return notFoundError('المستخدم غير موجود.');
+ *   if (!user) return notFoundError('User not found.');
  *   if (errors.length) return validationError(errors);
  */
 

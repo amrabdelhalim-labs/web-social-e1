@@ -35,6 +35,8 @@
 | `npm run lint`          | ESLint                       |
 | `npm run format`        | Prettier                     |
 | `npm run format:check`  | التحقق من التنسيق            |
+| `npm run typecheck`     | فحص TypeScript بدون إخراج    |
+| `npm run docker:check`  | فحص إعدادات Docker الأساسية  |
 | `npm run validate`      | format:check + lint + test   |
 | `npm run db:init`       | إنشاء قاعدة البيانات المحلية |
 
@@ -64,7 +66,20 @@
 
 ---
 
-## 4. روابط الدروس
+## 4. أوامر Docker السريعة
+
+| الأمر                                   | الوصف                                                  |
+| --------------------------------------- | ------------------------------------------------------ |
+| `docker build -t web-social-e1:local .` | بناء صورة التطبيق محليًا                               |
+| `docker compose up --build`             | تشغيل التطبيق + MongoDB محليًا                         |
+| `docker compose down`                   | إيقاف الخدمات مع الحفاظ على الأحجام                    |
+| `docker compose down -v`                | إيقاف الخدمات وحذف الأحجام (يشمل بيانات Mongo المحلية) |
+
+قبل `docker compose up` أنشئ ملف `.env` من `.env.docker.example` وضع قيمة قوية لـ `JWT_SECRET`.
+
+---
+
+## 5. روابط الدروس
 
 | #   | الدرس                          | الرابط                                                       |
 | --- | ------------------------------ | ------------------------------------------------------------ |

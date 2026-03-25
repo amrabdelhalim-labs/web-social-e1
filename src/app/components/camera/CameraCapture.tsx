@@ -4,7 +4,7 @@
  * CameraCapture — Camera Stream + Capture + Preview
  *
  * Displays video stream from getUserMedia, capture button, and preview with
- * "استخدام" / "إعادة التقاط". On iOS when getUserMedia is unavailable,
+ * Use / Retake actions (Arabic UI labels). On iOS when getUserMedia is unavailable,
  * falls back to input[type=file][capture="environment"].
  */
 
@@ -216,7 +216,7 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
     );
   }
 
-  // Initial state: need to start camera — لا يعرض زر إلغاء قبل الضغط على تشغيل
+  // Initial state: start camera first — no cancel button until the user starts the flow
   if (!isActive && !starting) {
     return (
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>

@@ -41,6 +41,8 @@
   "test:watch": "vitest",
   "format": "node scripts/format.mjs",
   "format:check": "node scripts/format.mjs --check",
+  "typecheck": "tsc --noEmit",
+  "docker:check": "node scripts/check-docker-config.mjs",
   "validate": "node scripts/validate-workflow.mjs",
   "db:init": "node scripts/init-db.mjs"
 }
@@ -49,7 +51,8 @@
 - `dev`: خادم التطوير مع Webpack (تجنباً لمشاكل Turbopack مع MUI).
 - `build` و `start`: بناء وتشغيل الإنتاج.
 - `test`: تشغيل الاختبارات مرة واحدة؛ `test:watch` لوضع المراقبة.
-- `validate`: فحص شامل (تنسيق + lint + اختبارات) قبل الإيداع.
+- `docker:check`: فحص سريع لسلامة ملفات Docker المهمة.
+- `validate`: فحص شامل (تنسيق + lint + typecheck + اختبارات + Docker checks) قبل الإيداع.
 
 ---
 
@@ -85,6 +88,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' }],
   },
@@ -93,7 +97,20 @@ export default nextConfig;
 ```
 
 - `reactStrictMode`: كشف ممارسات React غير موصى بها.
+- `output: 'standalone'`: توليد مخرجات تشغيل مضغوطة مناسبة لصورة Docker الإنتاجية.
 - `images.remotePatterns`: السماح بتحميل صور من Cloudinary عند استخدام التخزين السحابي.
+
+### ٣.٣ Docker baseline files
+
+في جذر المشروع توجد ملفات تضبط التشغيل بالحاويات:
+
+| الملف                                  | الدور                                       |
+| -------------------------------------- | ------------------------------------------- |
+| `Dockerfile`                           | بناء متعدد المراحل لصورة Next.js standalone |
+| `.dockerignore`                        | تقليل سياق البناء وتسريع `docker build`     |
+| `docker-compose.yml`                   | تشغيل محلي للتطبيق مع MongoDB               |
+| `.env.docker.example`                  | قالب متغيرات بيئة لتشغيل Compose            |
+| `.github/workflows/docker-publish.yml` | CI/CD: quality gates ثم بناء/دفع الصورة     |
 
 ---
 

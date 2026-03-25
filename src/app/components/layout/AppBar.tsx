@@ -4,7 +4,7 @@
  * SiteAppBar — Main Application Header
  *
  * - App name + icon (non-clickable)
- * - Nav: الرئيسية | صوري — desktop (md+); drawer on xs/sm
+ * - Nav: Home | My photos — desktop (md+); drawer on xs/sm (Arabic labels in UI)
  * - Active link: underline + primary color
  * - ThemeToggle + UserMenu (fixed, never in drawer)
  */

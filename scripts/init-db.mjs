@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * init-db.mjs — إنشاء قاعدة البيانات المحلية
+ * init-db.mjs — create local MongoDB database and collections
  *
- * يتصل بـ MongoDB المحلي وينشئ قاعدة البيانات web-social-e1 والمجموعات.
- * شغّل: node scripts/init-db.mjs
- * أو: npm run db:init
+ * Connects to local MongoDB and ensures database web-social-e1 and collections exist.
+ * Run: node scripts/init-db.mjs
+ * Or: npm run db:init
  */
 
 import mongoose from 'mongoose';
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 
-// تحميل .env.local إن وُجد
+// Load .env.local or .env when present
 for (const f of ['.env.local', '.env']) {
   const p = resolve(process.cwd(), f);
   if (existsSync(p)) {

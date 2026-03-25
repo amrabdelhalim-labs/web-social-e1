@@ -94,9 +94,9 @@ describe('LocalStorageStrategy — وحدة اختبارات التخزين ال
   it('يستخرج اسم الملف من https:// URL ويحذفه', async () => {
     const { filename } = await strategy.uploadFile(mockFile());
     const deleted = await strategy.deleteFile(`https://cdn.example.com/uploads/${filename}`);
-    // الملف في مجلد التجربة → نسخ الاسم فقط لا المسار الكامل
-    // نتوقع false لأن الملف في TEST_DIR وليس /uploads/
-    // لكن السلوك المهم أن الدالة لا ترمي خطأ
+    // File lives under the test temp dir — only the basename is passed through
+    // Expect false because the file is under TEST_DIR, not /uploads/
+    // Important: the helper must not throw
     expect(typeof deleted).toBe('boolean');
   });
 
@@ -197,7 +197,7 @@ describe('StorageService — مصنع الخدمة', () => {
     const a = getStorageService();
     resetStorageService();
     const b = getStorageService();
-    // المثيلان مختلفان بعد الـ reset
+    // Two distinct instances after resetModule()
     expect(typeof a).toBe('object');
     expect(typeof b).toBe('object');
     resetStorageService();

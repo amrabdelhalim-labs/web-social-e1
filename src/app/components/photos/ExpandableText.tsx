@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * ExpandableText — Truncated Text with "عرض المزيد"
+ * ExpandableText — Truncated description with optional "show more" control
  *
- * Shows truncated description. "عرض المزيد" appears only when text exceeds
+ * Shows a truncated block. The expand action appears only when text exceeds
  * the line limit. Uses char threshold + scrollHeight check.
  */
 

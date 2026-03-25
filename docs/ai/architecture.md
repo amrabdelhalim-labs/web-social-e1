@@ -1,4 +1,4 @@
-# Architecture — صوري
+# Architecture — My Photos
 
 > Detailed layer map, patterns, and data flows. Read before modifying core files.
 

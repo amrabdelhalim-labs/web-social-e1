@@ -27,7 +27,7 @@ export const MAX_DESCRIPTION_LENGTH = 2000;
 
 /** Lines visible in collapsed description before "Show More" */
 export const DESCRIPTION_PREVIEW_LINES = 3;
-/** Min chars to consider truncation (short text never shows "عرض المزيد") */
+/** Min chars to consider truncation (short text never shows the expand control) */
 export const DESCRIPTION_TRUNCATE_MIN_CHARS = 100;
 
 // ── Camera ────────────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 /**
  * useMyPhotos Hook Tests
  *
- * يختبر جلب صور المستخدم، الرفع، التعديل، والحذف.
+ * Tests current user's photos: list, upload, update, and remove.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

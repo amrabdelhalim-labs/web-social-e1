@@ -1,6 +1,6 @@
 {
   "name": "web-social-e1",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "engines": {
     "node": ">=20.0.0",
@@ -13,11 +13,13 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "format": "node scripts/format.mjs",
     "format:check": "node scripts/format.mjs --check",
+    "docker:check": "node scripts/check-docker-config.mjs",
     "validate": "node scripts/validate-workflow.mjs",
     "db:init": "node scripts/init-db.mjs"
   },
@@ -31,7 +33,7 @@
     "bcryptjs": "^3.0.3",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.0",
-    "next": "16.1.6",
+    "next": "16.2.1",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
@@ -46,7 +48,7 @@
     "@types/stylis": "^4.2.7",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.2.1",
     "jsdom": "^28.1.0",
     "prettier": "^3.8.1",
     "typescript": "^5",

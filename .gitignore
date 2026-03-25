@@ -33,9 +33,11 @@ yarn-error.log*
 # env files
 .env*.local
 .env
+.env.docker
 
 # keep .env.example tracked
 !.env.example
+!.env.docker.example
 
 # uploads (local storage — STORAGE_TYPE=local)
 public/uploads/*

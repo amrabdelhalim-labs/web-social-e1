@@ -49,6 +49,10 @@ const requiredFiles = [
   'tsconfig.json',
   'next.config.mjs',
   'vitest.config.ts',
+  'Dockerfile',
+  'docker-compose.yml',
+  '.env.docker.example',
+  '.github/workflows/docker-publish.yml',
   'docs/ai/README.md',
   'docs/plans/project-plan.md',
 ];
@@ -58,10 +62,13 @@ console.log('\n§2 — Lint');
 check('eslint', () => run('npm run lint'));
 
 console.log('\n§3 — TypeScript');
-check('tsc --noEmit', () => run('npx tsc --noEmit'));
+check('npm run typecheck', () => run('npm run typecheck'));
 
 console.log('\n§4 — Tests');
 check('vitest run', () => run('npm test'));
+
+console.log('\n§5 — Docker config sanity');
+check('docker:check', () => run('npm run docker:check'));
 
 console.log(`\n${'─'.repeat(40)}`);
 console.log(`✅ Passed: ${passed}  ❌ Failed: ${failed}`);

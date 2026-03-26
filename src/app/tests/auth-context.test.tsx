@@ -8,7 +8,8 @@
  *  - register() sets user in memory — same
  *  - logout() clears user and fires POST /api/auth/logout (server clears cookie)
  *  - updateUser() updates in-memory user
- *  - loadUser: 401 clears user; network errors are silently swallowed
+ *  - loadUser: 401 clears user AND fires POST /api/auth/logout to clear the HttpOnly cookie
+ *    (prevents middleware redirect loops for expired sessions); network errors are silently swallowed
  *
  * Note: HttpOnly cookies are not accessible in JS (by design), so tests
  * verify behaviour through the user state and API call patterns, not cookies.
@@ -106,9 +107,10 @@ describe('AuthContext', () => {
   });
 
   it('sets user after login — no localStorage access', async () => {
-    // Hydration call returns 401, then login call returns user
+    // Hydration call returns 401 → internal logout clears cookie → then login call returns user
     globalFetch
       .mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401))
+      .mockResolvedValueOnce(makeJsonResponse({ message: 'تم تسجيل الخروج.' })) // triggered by loadUser on 401
       .mockResolvedValueOnce(makeJsonResponse({ data: { user: MOCK_USER } }));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -126,6 +128,7 @@ describe('AuthContext', () => {
   it('throws on login failure', async () => {
     globalFetch
       .mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401))
+      .mockResolvedValueOnce(makeJsonResponse({ message: 'تم تسجيل الخروج.' })) // triggered by loadUser on 401
       .mockResolvedValueOnce(makeJsonResponse({ error: { message: 'كلمة المرور خاطئة' } }, 401));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -141,6 +144,7 @@ describe('AuthContext', () => {
   it('sets user after registration — no localStorage access', async () => {
     globalFetch
       .mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401))
+      .mockResolvedValueOnce(makeJsonResponse({ message: 'تم تسجيل الخروج.' })) // triggered by loadUser on 401
       .mockResolvedValueOnce(makeJsonResponse({ data: { user: MOCK_USER } }));
 
     const { result } = renderHook(() => useAuth(), { wrapper });

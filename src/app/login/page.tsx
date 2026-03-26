@@ -12,10 +12,10 @@
  *   4. On failure → display the server error in an Alert
  */
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Box, TextField } from '@mui/material';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/app/hooks/useAuth';
 import { validateLoginInput } from '@/app/validators';
 import { GuestRoute } from '@/app/components/auth/GuestRoute';
@@ -28,6 +28,12 @@ import { APP_NAME } from '@/app/config';
 function LoginPageContent() {
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  /** Redirect target after successful login — default to home; only allow same-origin paths. */
+  const next = (() => {
+    const raw = searchParams.get('next') ?? '';
+    return raw.startsWith('/') && !raw.startsWith('//') ? raw : '/';
+  })();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,7 +56,7 @@ function LoginPageContent() {
     setSubmitting(true);
     try {
       await login(email.trim(), password);
-      router.push('/');
+      router.push(next);
     } catch (err) {
       setServerError(err instanceof Error ? err.message : 'فشل تسجيل الدخول، حاول مرة أخرى.');
     } finally {
@@ -107,7 +113,9 @@ function LoginPageContent() {
 export default function LoginPage() {
   return (
     <GuestRoute>
-      <LoginPageContent />
+      <Suspense>
+        <LoginPageContent />
+      </Suspense>
     </GuestRoute>
   );
 }

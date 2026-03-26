@@ -50,10 +50,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       likedPhotoIds = new Set(likes.map((l) => l.photo.toString()));
     }
 
-    const photos = result.rows.map((doc) => {
-      const raw = (doc._doc ?? doc) as unknown as Record<string, unknown>;
-      return serializePhoto(raw, likedPhotoIds.has(doc._id.toString()));
-    });
+    const photos = result.rows.map((doc) =>
+      serializePhoto(doc.toObject(), likedPhotoIds.has(doc._id.toString()))
+    );
 
     return NextResponse.json(
       {
@@ -126,7 +125,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } as never);
 
     const serialized = serializePhoto({
-      ...photo._doc,
+      ...photo.toObject(),
       user: { _id: auth.userId, name: '', avatarUrl: null },
     });
 

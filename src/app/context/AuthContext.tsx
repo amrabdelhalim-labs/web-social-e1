@@ -94,6 +94,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const status = (err as Error & { status?: number }).status;
       if (status === 401) {
         setUser(null);
+        // Clear the invalid/expired cookie so the edge middleware doesn't create a
+        // redirect loop (/my-photos → /login → / → /my-photos) for stale sessions.
+        // try/await is used instead of .catch() so test mocks returning undefined
+        // (not a Promise) don't throw "Cannot read property 'catch' of undefined".
+        try {
+          await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+        } catch {
+          // ignore — cookie will expire naturally
+        }
       }
       // Network errors: user stays null — the login page will handle it
     }
@@ -127,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     // Fire-and-forget: clears the HttpOnly cookie server-side
-    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
     setUser(null);
   }, []);
 

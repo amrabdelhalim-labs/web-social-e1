@@ -45,7 +45,9 @@ export async function fetchApi<T>(path: string, options: RequestInit = {}): Prom
     ...(options.headers as Record<string, string> | undefined),
   };
 
-  const res = await fetch(path, { ...options, headers });
+  // credentials: 'same-origin' sends the auth cookie for same-origin requests (the default,
+  // but stated explicitly so behaviour is clear and not accidentally overridden).
+  const res = await fetch(path, { credentials: 'same-origin', ...options, headers });
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
@@ -63,7 +65,7 @@ export async function fetchFormApi<T>(
   formData: FormData,
   method: 'POST' | 'PUT' = 'POST'
 ): Promise<T> {
-  const res = await fetch(path, { method, body: formData });
+  const res = await fetch(path, { method, body: formData, credentials: 'same-origin' });
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {

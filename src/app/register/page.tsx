@@ -12,10 +12,10 @@
  *   4. On failure → display the server error in an Alert
  */
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Box, TextField } from '@mui/material';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/app/hooks/useAuth';
 import { validateRegisterInput } from '@/app/validators';
 import { GuestRoute } from '@/app/components/auth/GuestRoute';
@@ -28,6 +28,12 @@ import { APP_NAME } from '@/app/config';
 function RegisterPageContent() {
   const { register } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  /** Redirect target after registration — default to home; only allow same-origin paths. */
+  const next = (() => {
+    const raw = searchParams.get('next') ?? '';
+    return raw.startsWith('/') && !raw.startsWith('//') ? raw : '/';
+  })();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -57,8 +63,7 @@ function RegisterPageContent() {
     setSubmitting(true);
     try {
       await register({ name: name.trim(), email: email.trim(), password, confirmPassword });
-      // AuthContext.register() sets token + user — navigate to home
-      router.push('/');
+      router.push(next);
     } catch (err) {
       setServerError(err instanceof Error ? err.message : 'فشل إنشاء الحساب، حاول مرة أخرى.');
     } finally {
@@ -137,7 +142,9 @@ function RegisterPageContent() {
 export default function RegisterPage() {
   return (
     <GuestRoute>
-      <RegisterPageContent />
+      <Suspense>
+        <RegisterPageContent />
+      </Suspense>
     </GuestRoute>
   );
 }

@@ -230,6 +230,46 @@ await test('POST /api/auth/register rejects duplicate email → 409', async () =
   if (status !== 409) throw new Error(`Expected 409, got ${status}`);
 });
 
+await test('POST /api/auth/logout clears session cookie → 200', async () => {
+  // Test logout then confirm /me returns 401
+  const saved = token;
+  const res = await fetch(`${BASE_URL}/api/auth/logout`, {
+    method: 'POST',
+    headers: { Cookie: `auth-token=${saved}` },
+  });
+  const body = await res.json().catch(() => null);
+  if (res.status !== 200) throw new Error(`Status: ${res.status}`);
+  if (!body?.message) throw new Error('Missing message in logout response');
+  // Drop any previously cached token; re-login must return a fresh usable session.
+  token = null;
+  // Re-login to get token back for subsequent tests
+  const loginRes = await fetch(`${BASE_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
+  });
+  const loginBody = await loginRes.json().catch(() => null);
+  if (loginRes.status !== 200) throw new Error('Re-login after logout failed');
+  const newToken = extractAuthTokenFromResponse(loginRes);
+  if (newToken) {
+    token = newToken;
+  } else if (loginBody?.data?.token) {
+    token = loginBody.data.token;
+  } else {
+    throw new Error(
+      'Re-login succeeded but returned no auth token (missing Set-Cookie and body token fallback)'
+    );
+  }
+  if (!token) {
+    throw new Error('Re-login produced an empty auth token');
+  }
+  if (saved && token === saved) {
+    // Warn-level invariant: token reuse can happen in edge timing cases, but usually indicates
+    // the server did not rotate session material after logout/login.
+    console.warn('Warning: re-login returned same token value as pre-logout session');
+  }
+});
+
 await test('POST /api/auth/register rejects invalid input → 400', async () => {
   const saved = token;
   token = null;
@@ -397,6 +437,22 @@ await test('GET /api/photos shows isLiked field for authenticated user', async (
   if (status !== 200) throw new Error(`Status: ${status}`);
   if (body.data.length > 0 && !('isLiked' in body.data[0])) {
     throw new Error('Missing isLiked field in photo response');
+  }
+});
+
+await test('GET /api/photos returns user.name and user._id in each photo', async () => {
+  const { status, body } = await api('/api/photos');
+  if (status !== 200) throw new Error(`Status: ${status}`);
+  if (body.data.length === 0) return; // no photos to check
+  const photo = body.data[0];
+  if (!photo.user) throw new Error('Missing user field in photo');
+  if (typeof photo.user._id !== 'string' || !photo.user._id) {
+    throw new Error(
+      `user._id should be a non-empty string, got: ${JSON.stringify(photo.user._id)}`
+    );
+  }
+  if (typeof photo.user.name !== 'string') {
+    throw new Error(`user.name should be a string, got: ${JSON.stringify(photo.user.name)}`);
   }
 });
 

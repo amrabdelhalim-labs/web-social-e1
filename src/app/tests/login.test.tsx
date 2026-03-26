@@ -28,6 +28,7 @@ const mockReplace = vi.fn();
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace }),
   usePathname: () => '/login',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 const mockLogin = vi.fn();

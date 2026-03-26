@@ -12,8 +12,8 @@ import { connectDB } from '@/app/lib/mongodb';
 import { authenticateRequest } from '@/app/middlewares/auth.middleware';
 import { getPhotoRepository } from '@/app/repositories/photo.repository';
 import { serverError } from '@/app/lib/apiErrors';
+import { serializePhoto } from '@/app/lib/photoSerializer';
 import { DEFAULT_PAGE_SIZE } from '@/app/config';
-import type { Photo } from '@/app/types';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -35,20 +35,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const result = await photoRepo.findByUser(auth.userId, page, limit);
 
-    const photos: Photo[] = result.rows.map((doc) => ({
-      _id: doc._id.toString(),
-      title: doc.title,
-      description: doc.description,
-      imageUrl: doc.imageUrl,
-      user: {
-        _id: auth.userId,
-        name: '',
-        avatarUrl: null,
-      },
-      likesCount: doc.likesCount,
-      createdAt: doc.createdAt.toISOString(),
-      updatedAt: doc.updatedAt.toISOString(),
-    }));
+    const photos = result.rows.map((doc) =>
+      serializePhoto({
+        ...doc.toObject(),
+        // User populate is omitted for own photos — owner knows their own identity.
+        // The user section is hidden in PhotoCard when name is empty.
+        user: { _id: auth.userId, name: '', avatarUrl: null },
+      })
+    );
 
     return NextResponse.json(
       {

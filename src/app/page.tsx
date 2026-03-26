@@ -16,7 +16,6 @@ import { Typography } from '@mui/material';
 import { Types } from 'mongoose';
 import { MainLayout } from '@/app/components/layout/MainLayout';
 import { HomePageFeed } from '@/app/components/photos/HomePageFeed';
-import { PhotoGridSkeleton } from '@/app/components/photos/PhotoGridSkeleton';
 import { connectDB } from '@/app/lib/mongodb';
 import { getPhotoRepository } from '@/app/repositories/photo.repository';
 import { getLikeRepository } from '@/app/repositories/like.repository';
@@ -25,7 +24,6 @@ import { serializePhoto } from '@/app/lib/photoSerializer';
 import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
 import { DEFAULT_PAGE_SIZE } from '@/app/config';
 import type { Photo } from '@/app/types';
-import { Suspense } from 'react';
 
 /** DB-backed home feed — skip static prerender at build time (Docker/CI has no MongoDB). */
 export const dynamic = 'force-dynamic';
@@ -63,10 +61,9 @@ async function fetchInitialPhotos(): Promise<{
     likedPhotoIds = new Set(likes.map((l) => l.photo.toString()));
   }
 
-  const photos = result.rows.map((doc) => {
-    const raw = (doc._doc ?? doc) as unknown as Record<string, unknown>;
-    return serializePhoto(raw, likedPhotoIds.has(doc._id.toString()));
-  });
+  const photos = result.rows.map((doc) =>
+    serializePhoto(doc.toObject(), likedPhotoIds.has(doc._id.toString()))
+  );
 
   return {
     photos,
@@ -80,7 +77,16 @@ async function fetchInitialPhotos(): Promise<{
 }
 
 export default async function HomePage() {
-  const { photos, pagination } = await fetchInitialPhotos();
+  let photos: Photo[] = [];
+  let pagination = { page: 1, totalPages: 1, total: 0, limit: DEFAULT_PAGE_SIZE };
+
+  try {
+    const result = await fetchInitialPhotos();
+    photos = result.photos;
+    pagination = result.pagination;
+  } catch {
+    // DB unavailable at render time — show empty feed; client-side load-more still works
+  }
 
   return (
     <MainLayout>
@@ -93,9 +99,7 @@ export default async function HomePage() {
           لا توجد صور لعرضها بعد.
         </Typography>
       ) : (
-        <Suspense fallback={<PhotoGridSkeleton />}>
-          <HomePageFeed initialPhotos={photos} initialPagination={pagination} />
-        </Suspense>
+        <HomePageFeed initialPhotos={photos} initialPagination={pagination} />
       )}
     </MainLayout>
   );

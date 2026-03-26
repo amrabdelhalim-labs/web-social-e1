@@ -293,7 +293,7 @@ it('shows error for invalid email format', async () => {
 5. `npm run docker:check`
 6. `npm run build` (مع `JWT_SECRET` مخصص للـ CI build step)
 
-بهذا، فشل أي خطوة جودة يمنع نشر صورة غير موثوقة.
+في job **`docker`** (بعد اجتياز job **`quality`**): يُبنى صورة محلية `web-social-e1:scan`، ثم يُشغَّل **Trivy** مرتين — مسح **filesystem** ومسح **الصورة** — بحدّ **HIGH/CRITICAL** و`ignore-unfixed`، مع **`trivyignores: '.trivyignore'`** في كلتا الخطوتين. ملف **`.trivyignore`** يوثّق استثناءات CVE مؤقتة (مثل zlib في Alpine أو تبعيات Next.js تحت `next/dist/compiled` التي لا تُحدَّث عبر `overrides` في `package.json`). فشل أي خطوة يمنع دفع الصورة إلى `ghcr.io`.
 
 ---
 

@@ -77,6 +77,8 @@
 
 قبل `docker compose up` أنشئ ملف `.env` من `.env.docker.example` وضع قيمة قوية لـ `JWT_SECRET`.
 
+**CI / الأمان:** سير `docker-publish.yml` يشغّل Trivy على المستودع ثم على صورة `web-social-e1:scan`؛ كلا الخطوتين تستخدمان **`.trivyignore`** (`trivyignores`). راجع [../deployment.md](../deployment.md) لسياسة `overrides` وثغرات Next.js المجمّعة.
+
 ---
 
 ## 5. روابط الدروس

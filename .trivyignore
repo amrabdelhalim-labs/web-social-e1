@@ -1,0 +1,18 @@
+# Only add CVE entries with documented justification and expiry date.
+# Trivy ignore file supports optional `exp:` for temporary ignores (date-only RFC3339).
+
+# Next.js bundles glob, minimatch, tar, cross-spawn under node_modules/next/dist/compiled.
+# Trivy node-pkg reports HIGH for those vendored versions; skip-dirs does not stop node-pkg
+# aggregation. npm overrides cannot replace next/dist/compiled. Revisit on Next.js upgrades.
+# Review by 2026-10-31.
+CVE-2024-21538 exp:2026-10-31
+CVE-2025-64756 exp:2026-10-31
+CVE-2026-26996 exp:2026-10-31
+CVE-2026-27903 exp:2026-10-31
+CVE-2026-27904 exp:2026-10-31
+CVE-2026-23745 exp:2026-10-31
+CVE-2026-23950 exp:2026-10-31
+CVE-2026-24842 exp:2026-10-31
+CVE-2026-26960 exp:2026-10-31
+CVE-2026-29786 exp:2026-10-31
+CVE-2026-31802 exp:2026-10-31

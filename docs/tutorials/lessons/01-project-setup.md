@@ -104,13 +104,14 @@ export default nextConfig;
 
 في جذر المشروع توجد ملفات تضبط التشغيل بالحاويات:
 
-| الملف                                  | الدور                                       |
-| -------------------------------------- | ------------------------------------------- |
-| `Dockerfile`                           | بناء متعدد المراحل لصورة Next.js standalone |
-| `.dockerignore`                        | تقليل سياق البناء وتسريع `docker build`     |
-| `docker-compose.yml`                   | تشغيل محلي للتطبيق مع MongoDB               |
-| `.env.docker.example`                  | قالب متغيرات بيئة لتشغيل Compose            |
-| `.github/workflows/docker-publish.yml` | CI/CD: quality gates ثم بناء/دفع الصورة     |
+| الملف                                  | الدور                                                                   |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `Dockerfile`                           | بناء متعدد المراحل لصورة Next.js standalone                             |
+| `.dockerignore`                        | تقليل سياق البناء وتسريع `docker build`                                 |
+| `.trivyignore`                         | سياسة استثناءات CVE لمسح Trivy (fs + صورة) مع `exp:`                    |
+| `docker-compose.yml`                   | تشغيل محلي للتطبيق مع MongoDB                                           |
+| `.env.docker.example`                  | قالب متغيرات بيئة لتشغيل Compose                                        |
+| `.github/workflows/docker-publish.yml` | CI/CD: quality gates، Trivy (fs + image، `trivyignores`)، بناء/دفع GHCR |
 
 ---
 

@@ -55,6 +55,8 @@ export default defineConfig({
 | `npm run docker:check`                       | فحص إعدادات Docker الحرجة                                 |
 | `npm run validate`                           | فحص شامل: format + lint + typecheck + test + docker:check |
 
+قبل نشر صورة إلى **GHCR**، يمر المستودع أيضًا بمسح **Trivy** (على الملفات ثم على الصورة) كما في [deployment.md](deployment.md) — مع **`.trivyignore`** (`trivyignores` في `docker-publish.yml`) وسياسة **`overrides`** مقابل تبعيات Next.js المجمّعة.
+
 ---
 
 ## 4. فهرس ملفات الاختبار

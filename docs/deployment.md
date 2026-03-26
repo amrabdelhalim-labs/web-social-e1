@@ -24,6 +24,7 @@
 
 - البناء يستخدم وضع **Next.js standalone** (`output: 'standalone'` في `next.config.mjs`) لنسخة تشغيل أخف داخل الحاوية.
 - أثناء `docker build` يُضبط `JWT_SECRET` وهمي **للمرحلة فقط**؛ أسرار الإنتاج تُمرَّر **عند التشغيل** (`docker run` / `docker compose`) ولا تُخزَّن في طبقات الصورة.
+- مرحلة **`runner`** في `Dockerfile` تشغّل `apk upgrade --no-cache` قبل إنشاء المستخدم غير الجذر لتحديث حزم Alpine المعروضة للثغرات المعروفة وقت البناء.
 
 ### 2.2 بناء الصورة محليًا
 
@@ -66,29 +67,46 @@ docker run --rm -p 3000:3000 \
 
 ### 2.5 GitHub Container Registry (ghcr.io)
 
-عند دفع إلى الفرع `main` أو وسم يبدأ بـ `v`، يعمل سير العمل [`.github/workflows/docker-publish.yml`](../.github/workflows/docker-publish.yml) ببناء الصورة ودفعها إلى:
+عند دفع وسم يبدأ بـ `v` (مثل `v0.1.2`)، يعمل سير العمل [`.github/workflows/docker-publish.yml`](../.github/workflows/docker-publish.yml) ببناء الصورة ودفعها إلى:
 
 `ghcr.io/<owner>/<repo>`
+
+يدعم السير أيضًا تشغيلًا يدويًا عبر `workflow_dispatch` مع متغير:
+
+- `publish=false` (الافتراضي): تشغيل quality gates وبناء الصورة **بدون** دفع إلى GHCR.
+- `publish=true`: تشغيل كامل مع دفع الصورة إلى GHCR.
+
+**فحص الأمان على مستويين في job `docker`:**
+
+1. **مسح الملفات (filesystem)** عبر `trivy-action` على شجرة المصدر — يكشف ثغرات في تبعيات مُعلَنة في المستودع قبل التغليف. تُمرَّر **`trivyignores: '.trivyignore'`** حتى تطبَّق نفس سياسة الاستثناءات الموثَّقة على مسح المصدر ومسح الصورة.
+2. **بناء صورة محلية** بـ `docker/build-push-action` (`load: true`, وسم `web-social-e1:scan`) مع تخزين طبقات **GitHub Actions cache**، ثم **مسح الصورة** (`image-ref`) بنفس `trivy-action` (HIGH/CRITICAL، `ignore-unfixed`, `scanners: vuln`) مع **`trivyignores: '.trivyignore'`**. يغطي ذلك حزم OS داخل الصورة وليس فقط ما في lockfiles.
+3. خطوة **الدفع** تستخدم `cache-from: type=gha` فقط (بدون `cache-to` إضافي) لإعادة استخدام الطبقات المبنية أثناء المسح وتقليل كتابات الـ cache الزائدة.
+
+**سلسلة التوريد وملف `.trivyignore`:**
+
+- جذر `package.json` يستخدم **`overrides`** لبعض التبعيات الانتقالية حيث تتوفر إصدارات مصحّحة في السجل العام؛ ذلك **لا يستبدل** الشيفرة داخل **`node_modules/next/dist/compiled`** (حزم Next.js المدمجة).
+- طبقة **node-pkg** في Trivy قد تُبلّغ عن ثغرات HIGH لتلك الإصدارات المجمّعة؛ **`skip-dirs` وحدها لا تكفي** لإخفاء هذه النتائج المدمجة، لذلك تُسجَّل CVE محددة في **`.trivyignore`** مع تعليقات وتواريخ **`exp:`** للمراجعة عند ترقية Next.js أو عند زوال التنبيه.
+- قد تُدرج استثناءات مؤقتة لحزم **Alpine** (مثل **zlib**) عند تأخر الصورة الأساسية عن النشرات الأمنية؛ راجع أسطر الملف والتعليقات عند كل ترقية.
 
 **الصلاحيات:** في المستودع → **Settings** → **Actions** → **General** → **Workflow permissions** يجب السماح بقراءة وكتابة الحزم إن لزم.
 
 **سحب وتشغيل مثال:**
 
 ```bash
-docker pull ghcr.io/OWNER/web-social-e1:main
+docker pull ghcr.io/OWNER/web-social-e1:v0.1.2
 docker run --rm -p 3000:3000 \
   -e DATABASE_URL="..." \
   -e JWT_SECRET="..." \
   -e STORAGE_TYPE=cloudinary \
   -e CLOUDINARY_URL="cloudinary://..." \
-  ghcr.io/OWNER/web-social-e1:main
+  ghcr.io/OWNER/web-social-e1:v0.1.2
 ```
 
 استبدل `OWNER` باسم المستخدم أو المنظمة على GitHub (أحرف صغيرة في عنوان الصورة).
 
 ### 2.6 Quality gates قبل نشر الصورة
 
-قبل بناء/دفع الصورة في GitHub Actions، يمر المستودع عبر بوابات الجودة التالية:
+قبل أي نشر صورة في GitHub Actions، يمر المستودع عبر بوابات الجودة التالية:
 
 1. `npm run format:check`
 2. `npm run lint`

@@ -14,9 +14,11 @@ on:
         default: false
         type: boolean
 
+# One active run per ref (tag or branch). Queue newer runs instead of canceling an
+# in-flight publish — avoids overlapping GHCR pushes / duplicate work on the same ref.
 concurrency:
-  group: docker-${{ github.ref }}
-  cancel-in-progress: true
+  group: docker-publish-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
@@ -84,6 +86,30 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: '1'
+          trivyignores: '.trivyignore'
+
+      - name: Build local image for security scan
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: web-social-e1:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # node-pkg still flags Next vendored deps under next/dist/compiled; skip-dirs does not
+      # suppress merged node-pkg findings. Use .trivyignore with exp: (see file comments).
+      - name: Scan container image vulnerabilities
+        uses: aquasecurity/trivy-action@v0.24.0
+        with:
+          image-ref: 'web-social-e1:scan'
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+          scanners: 'vuln'
+          trivyignores: '.trivyignore'
 
       - name: Log in to GHCR
         if: env.DO_PUSH == 'true'
@@ -110,7 +136,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   cleanup:
     name: Cleanup untagged GHCR versions

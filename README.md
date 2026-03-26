@@ -99,7 +99,7 @@ docker compose up --build
 
 3. افتح [http://localhost:3000](http://localhost:3000) وتحقق من `/api/health`.
 
-لبناء الصورة يدويًا أو النشر على **GitHub Container Registry**، راجع [docs/deployment.md](docs/deployment.md).
+لبناء الصورة يدويًا أو النشر على **GitHub Container Registry**، راجع [docs/deployment.md](docs/deployment.md) — يشرح ترقية حزم Alpine في الصورة، وفحص **Trivy** على الملفات **ثم** على الصورة (`web-social-e1:scan`) مع **`trivyignores: '.trivyignore'`** لخطوتي المسح، وسياسة **`overrides`** مقابل تبعيات Next.js تحت `dist/compiled`، واستراتيجية الـ GHA cache بين المسح والنشر.
 
 ---
 
@@ -119,7 +119,7 @@ web-social-e1/
 │   ├── repositories/     ← Repository Pattern (طبقة الوصول للبيانات)
 │   ├── validators/       ← دوال التحقق من المدخلات
 │   ├── utils/            ← دوال مساعدة
-│   └── tests/            ← 27 ملف اختبار
+│   └── tests/            ← 28 ملف اختبار
 ├── docs/                 ← التوثيق الكامل
 │   ├── plans/            ← خطة المشروع وخطة التوثيق
 │   ├── ai/               ← دليل AI للمشروع
@@ -150,7 +150,7 @@ web-social-e1/
 
 ## الاختبارات
 
-المشروع يحتوي **27 ملف اختبار** يغطي:
+المشروع يحتوي **28 ملف اختبار** يغطي:
 
 - الوحدات: دوال المصادقة، التحقق من المدخلات، عميل API، استراتيجيات التخزين
 - المكونات: PhotoCard، PhotoGrid، CameraCapture، AvatarUploader، LikeButton، وغيرها
@@ -215,8 +215,17 @@ git push heroku main
 
 - **docker:** `Dockerfile` متعدد المراحل مع Next.js `standalone`، مستخدم غير جذر، وفحص صحة (healthcheck).
 - **compose:** `docker-compose.yml` للتطبيق + MongoDB 7 مع مجلد حجم للرفوعات المحلية.
-- **ci:** سير عمل GitHub Actions لبناء الصورة ودفعها إلى `ghcr.io`.
+- **ci:** سير عمل GitHub Actions للنشر عند دفع tag (`v*`) مع خيار تشغيل يدوي (`workflow_dispatch`) لبناء فقط أو بناء+دفع.
 - **docs:** تحديث [docs/deployment.md](docs/deployment.md) وملف مثال [`.env.docker.example`](.env.docker.example).
+
+### v0.1.1 — تحسينات الأداء والبيئة
+
+- إعداد قاعدة بيانات محلية: سكربت `db:init`
+- إصلاح اتصال IPv6 بقاعدة البيانات
+- تحسين تباين الواجهة وفق WCAG AA
+- AppBar: شريط علوي بعرض كامل مع padding متجاوب
+- إصلاح تحذيرات React 19 مع `SyntheticEvent<SubmitEvent>`
+- إزالة Docker والإعداد المعقد لصالح بيئة تطوير مباشرة
 
 ### v0.1.0 — جودة وتوثيق (220 اختبار)
 
@@ -228,16 +237,7 @@ git push heroku main
 - **docs:** توحيد أوامر الاختبار وإضافة test:coverage ودروس 07–11
 - **style:** تطبيق Prettier على التوثيق والدروس
 
-### v0.1.1 — تحسينات الأداء والبيئة
-
-- إعداد قاعدة بيانات محلية: سكربت `db:init`
-- إصلاح اتصال IPv6 بقاعدة البيانات
-- تحسين تباين الواجهة وفق WCAG AA
-- AppBar: شريط علوي بعرض كامل مع padding متجاوب
-- إصلاح تحذيرات React 19 مع `SyntheticEvent<SubmitEvent>`
-- إزالة Docker والإعداد المعقد لصالح بيئة تطوير مباشرة
-
-### v0.1.0 — الهيكل الأولي
+### قبل v0.1.0 — الهيكل الأولي
 
 - إعداد مشروع Next.js مع TypeScript و MUI
 - بنية المجلدات الكاملة

@@ -13,6 +13,7 @@
 - صورة إنتاج `standalone` لـ Next.js
 - تكديس محلي عبر `docker compose` (تطبيق + MongoDB)
 - خط أنابيب نشر صورة إلى `ghcr.io` عبر GitHub Actions
+- بوابات جودة ثم مسح **Trivy** (filesystem ثم الصورة) مع ملف **`.trivyignore`** الموثَّق (`trivyignores` في `docker-publish.yml`)؛ **`overrides`** في `package.json` لا تغطي تبعيات Next.js المجمّعة تحت `next/dist/compiled`
 
 | الطبقة   | التقنية                                    |
 | -------- | ------------------------------------------ |

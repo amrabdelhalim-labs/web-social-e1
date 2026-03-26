@@ -70,9 +70,9 @@ docker compose up --build
 
 ## CI and release notes
 
-- Docker workflow file: `.github/workflows/docker-publish.yml`.
-- Image publish target: `ghcr.io/<owner>/<repo>`.
-- Pull requests build image without push; main/tags push images after quality gates.
+- Docker workflow file: `.github/workflows/docker-publish.yml` (runs on SemVer tags `v*` or `workflow_dispatch`; optional `publish` flag for GHCR push).
+- Image publish target: `ghcr.io/<owner>/<repo>` (lowercased repository path).
+- After the `quality` job passes, the `docker` job runs Trivy **filesystem** scan and **image** scan (`web-social-e1:scan`); both steps set `trivyignores: '.trivyignore'`. Versioned CVE policy and `exp:` review dates live in `.trivyignore` (Alpine/zlib and Next.js `dist/compiled` vendored deps are not fully addressed by npm `overrides` alone).
 
 ## Live API integration check
 

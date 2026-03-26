@@ -119,38 +119,36 @@ describe('generateToken / verifyToken', () => {
 
 ### ٣.٢ اختبار API مع fetch وهمي
 
+الجلسة في التطبيق عبر **HttpOnly cookie** — العميل لا يحقن `Authorization`. الاختبار يتأكد من عدم وجود الرأس:
+
 ```typescript
-// api-client.test.ts
+// api-client.test.ts — مقتطف
 beforeEach(() => {
   vi.stubGlobal('fetch', globalFetch);
   globalFetch.mockReset();
-  localStorage.clear();
 });
 
-it('adds Authorization header when token exists in localStorage', async () => {
-  localStorage.setItem('auth-token', 'my.jwt');
+it('sends JSON without Authorization header', async () => {
   globalFetch.mockResolvedValueOnce(makeResponse({ data: null }));
-
   await fetchApi('/api/auth/me');
-
   const [, options] = globalFetch.mock.calls[0];
   const headers = (options as RequestInit)?.headers as Record<string, string>;
-  expect(headers['Authorization']).toBe('Bearer my.jwt');
+  expect(headers['Authorization']).toBeUndefined();
 });
 ```
 
 ### ٣.٣ اختبار السياقات (Context) مع renderHook
 
 ```typescript
-// auth-context.test.tsx
+// auth-context.test.tsx — مقتطف (cookie على الخادم؛ نتحقق من المستخدم فقط)
 function wrapper({ children }: { children: React.ReactNode }) {
   return <AuthProvider>{children}</AuthProvider>;
 }
 
-it('stores token and user after login', async () => {
-  globalFetch.mockResolvedValueOnce(
-    makeJsonResponse({ data: { token: MOCK_TOKEN, user: MOCK_USER } })
-  );
+it('sets user after login — no auth token in localStorage', async () => {
+  globalFetch
+    .mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401))
+    .mockResolvedValueOnce(makeJsonResponse({ data: { user: MOCK_USER } }));
 
   const { result } = renderHook(() => useAuth(), { wrapper });
   await waitFor(() => expect(result.current.loading).toBe(false));
@@ -160,7 +158,7 @@ it('stores token and user after login', async () => {
   });
 
   expect(result.current.user).toEqual(MOCK_USER);
-  expect(localStorage.getItem('auth-token')).toBe(MOCK_TOKEN);
+  expect(localStorage.getItem('auth-token')).toBeNull();
 });
 ```
 
@@ -208,25 +206,26 @@ it('shows error for invalid email format', async () => {
 
 ### ٤.١ اختبارات الوحدة (Utilities & Logic)
 
-| الملف                          | ما يختبره                                                                   |
-| ------------------------------ | --------------------------------------------------------------------------- |
-| `auth.test.ts`                 | `generateToken`، `verifyToken`، `hashPassword`، `comparePassword`           |
-| `validators.test.ts`           | `validateLoginInput`، `validateRegisterInput`، `validatePhotoInput`، وغيرها |
-| `api-client.test.ts`           | `fetchApi`، `fetchFormApi`، دوال المسارات (loginApi، uploadPhotoApi، إلخ)   |
-| `storage.test.ts`              | `getStorageService`، `resetStorageService`، LocalStorageStrategy            |
-| `auth-middleware.test.ts`      | `authenticateRequest`: توكن صحيح، غير صحيح، مفقود                           |
-| `profile-delete-route.test.ts` | منطق مسار `DELETE /api/profile` (cascade، تأكيد كلمة المرور)                |
-| `docker-config.test.ts`        | ثوابت Docker الحرجة: `standalone`، healthcheck، وربط compose                |
+| الملف                          | ما يختبره                                                                         |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| `auth.test.ts`                 | `generateToken`، `verifyToken`، `hashPassword`، `comparePassword`                 |
+| `validators.test.ts`           | `validateLoginInput`، `validateRegisterInput`، `validatePhotoInput`، وغيرها       |
+| `api-client.test.ts`           | `fetchApi`، `fetchFormApi`، دوال المسارات؛ **لا** حقن Authorization (جلسة cookie) |
+| `fileValidation.test.ts`       | `detectImageType` / `validateImageBuffer` (PNG، JPEG، رفض تزوير المحتوى)          |
+| `storage.test.ts`              | `getStorageService`، `resetStorageService`، LocalStorageStrategy                  |
+| `auth-middleware.test.ts`      | `authenticateRequest`: cookie، Bearer، أولوية cookie، رفض غير صالح                |
+| `profile-delete-route.test.ts` | منطق مسار `DELETE /api/profile` (cascade، تأكيد كلمة المرور)                      |
+| `docker-config.test.ts`        | ثوابت Docker الحرجة: `standalone`، healthcheck، وربط compose                      |
 
 ### ٤.٢ اختبارات السياقات والخطافات
 
-| الملف                    | ما يختبره                                                    |
-| ------------------------ | ------------------------------------------------------------ |
-| `auth-context.test.tsx`  | AuthContext: التحميل، التوكن، login، logout، updateUser، 401 |
-| `theme-context.test.tsx` | ThemeContext: السمة الافتراضية، التبديل، localStorage        |
-| `usePhotos.test.ts`      | تحميل الصور، pagination، الإعجاب، معالجة الأخطاء             |
-| `useMyPhotos.test.ts`    | صور المستخدم، رفع، تعديل، حذف                                |
-| `useCamera.test.ts`      | getUserMedia، الالتقاط، الأذونات المرفوضة، iOS fallback      |
+| الملف                    | ما يختبره                                                                                       |
+| ------------------------ | ----------------------------------------------------------------------------------------------- |
+| `auth-context.test.tsx`  | AuthContext: `/api/auth/me`، login/register بدون localStorage، logout + `POST /api/auth/logout` |
+| `theme-context.test.tsx` | ThemeContext: السمة الافتراضية، التبديل، localStorage                                           |
+| `usePhotos.test.ts`      | تحميل الصور، pagination، الإعجاب، معالجة الأخطاء                                                |
+| `useMyPhotos.test.ts`    | صور المستخدم، رفع، تعديل، حذف                                                                   |
+| `useCamera.test.ts`      | getUserMedia، الالتقاط، الأذونات المرفوضة، iOS fallback                                         |
 
 ### ٤.٣ اختبارات المكونات
 
@@ -272,13 +271,13 @@ it('shows error for invalid email format', async () => {
 
 ## 6. الفلسفة العامة
 
-| المبدأ                       | التطبيق في صوري                                                              |
-| ---------------------------- | ---------------------------------------------------------------------------- |
-| **اختبر السلوك، لا التنفيذ** | تحقق من ما يظهر للمستخدم وما يحدث عند تفاعله                                 |
-| **معزولية كاملة**            | كل اختبار مستقل؛ `beforeEach` لمسح الـ mocks و localStorage                  |
-| **وهمية مركّزة**             | الـ mocks العامة في `setup.ts`؛ `vi.fn()` و `vi.mock()` للخاصة بكل ملف       |
-| **رسائل بالإنجليزية**        | أوصاف `describe` و `it` بالإنجليزية                                          |
-| **نص UI بالعربية**           | قيم `getByText`، `getByLabelText`، `toHaveTextContent` تعكس الواجهة الحقيقية |
+| المبدأ                       | التطبيق في صوري                                                                        |
+| ---------------------------- | -------------------------------------------------------------------------------------- |
+| **اختبر السلوك، لا التنفيذ** | تحقق من ما يظهر للمستخدم وما يحدث عند تفاعله                                           |
+| **معزولية كاملة**            | كل اختبار مستقل؛ `beforeEach` لمسح الـ mocks؛ `localStorage` لا يُستخدم لتوكن المصادقة |
+| **وهمية مركّزة**             | الـ mocks العامة في `setup.ts`؛ `vi.fn()` و `vi.mock()` للخاصة بكل ملف                 |
+| **رسائل بالإنجليزية**        | أوصاف `describe` و `it` بالإنجليزية                                                    |
+| **نص UI بالعربية**           | قيم `getByText`، `getByLabelText`، `toHaveTextContent` تعكس الواجهة الحقيقية           |
 
 ---
 
@@ -305,15 +304,16 @@ it('shows error for invalid email format', async () => {
 
 ## 9. الربط مع الدروس الأخرى
 
-| الملف                                                        | الدرس المرتبط                                       |
-| ------------------------------------------------------------ | --------------------------------------------------- |
-| auth.test، auth-middleware.test، auth-context.test           | [04 — المصادقة والحماية](04-authentication.md)      |
-| api-client.test، profile-delete-route.test                   | [06 — مسارات API](06-api-routes.md)                 |
-| theme-context.test                                           | [07 — نظام السمات والتخطيط](07-theme-and-layout.md) |
-| login.test، register.test                                    | [08 — صفحات المصادقة](08-auth-pages.md)             |
-| usePhotos، useMyPhotos، useCamera، PhotoCard، PhotoGrid، إلخ | [09 — واجهة الصور](09-photos-crud.md)               |
-| AvatarUploader.test، DeleteAccountDialog.test                | [10 — الملف الشخصي](10-profile.md)                  |
-| storage.test                                                 | [05 — استراتيجية التخزين](05-storage-strategy.md)   |
+| الملف                                                        | الدرس المرتبط                                          |
+| ------------------------------------------------------------ | ------------------------------------------------------ |
+| auth.test، auth-middleware.test، auth-context.test           | [04 — المصادقة والحماية](04-authentication.md)         |
+| api-client.test، profile-delete-route.test                   | [06 — مسارات API](06-api-routes.md)                    |
+| fileValidation.test                                          | التحقق من الصور في [06](06-api-routes.md) ورفع الملفات |
+| theme-context.test                                           | [07 — نظام السمات والتخطيط](07-theme-and-layout.md)    |
+| login.test، register.test                                    | [08 — صفحات المصادقة](08-auth-pages.md)                |
+| usePhotos، useMyPhotos، useCamera، PhotoCard، PhotoGrid، إلخ | [09 — واجهة الصور](09-photos-crud.md)                  |
+| AvatarUploader.test، DeleteAccountDialog.test                | [10 — الملف الشخصي](10-profile.md)                     |
+| storage.test                                                 | [05 — استراتيجية التخزين](05-storage-strategy.md)      |
 
 ---
 

@@ -131,37 +131,38 @@ Photo ──< Like    (one-to-many: الصورة تملك عدة إعجابات)
 
 ### 4.1 نقاط المصادقة
 
-| Method | Path                 | Auth | الوصف                                |
-| ------ | -------------------- | ---- | ------------------------------------ |
-| POST   | `/api/auth/register` | —    | إنشاء حساب جديد + إرجاع JWT تلقائيًا |
-| POST   | `/api/auth/login`    | —    | تسجيل الدخول + إرجاع JWT             |
-| GET    | `/api/auth/me`       | JWT  | جلب بيانات المستخدم الحالي           |
+| Method | Path                 | Auth | الوصف                                                             |
+| ------ | -------------------- | ---- | ----------------------------------------------------------------- |
+| POST   | `/api/auth/register` | —    | إنشاء حساب + **Set-Cookie** (`auth-token`) + `{ data: { user } }` |
+| POST   | `/api/auth/login`    | —    | تسجيل دخول + cookie كما أعلاه                                     |
+| POST   | `/api/auth/logout`   | —    | مسح cookie الجلسة                                                 |
+| GET    | `/api/auth/me`       | جلسة | جلب بيانات المستخدم (cookie أو `Authorization: Bearer`)           |
 
 ### 4.2 نقاط الملف الشخصي
 
-| Method | Path                    | Auth | الوصف                                         |
-| ------ | ----------------------- | ---- | --------------------------------------------- |
-| PUT    | `/api/profile`          | JWT  | تحديث الاسم أو البريد الإلكتروني              |
-| PUT    | `/api/profile/password` | JWT  | تغيير كلمة المرور (يتطلب كلمة المرور الحالية) |
-| PUT    | `/api/profile/avatar`   | JWT  | رفع/تغيير صورة المستخدم (multipart/form-data) |
-| DELETE | `/api/profile/avatar`   | JWT  | حذف صورة المستخدم (العودة إلى الافتراضي)      |
-| DELETE | `/api/profile`          | JWT  | حذف الحساب نهائيًا (يتطلب كلمة المرور)        |
+| Method | Path                    | Auth | الوصف                                             |
+| ------ | ----------------------- | ---- | ------------------------------------------------- |
+| PUT    | `/api/profile`          | جلسة | تحديث الاسم أو البريد الإلكتروني                  |
+| PUT    | `/api/profile/password` | جلسة | تغيير كلمة المرور (يتطلب كلمة المرور الحالية)     |
+| PUT    | `/api/profile/avatar`   | جلسة | رفع/تغيير صورة المستخدم (multipart + Magic Bytes) |
+| DELETE | `/api/profile/avatar`   | جلسة | حذف صورة المستخدم (العودة إلى الافتراضي)          |
+| DELETE | `/api/profile`          | جلسة | حذف الحساب نهائيًا (يتطلب كلمة المرور)            |
 
 ### 4.3 نقاط الصور
 
-| Method | Path               | Auth | الوصف                                              |
-| ------ | ------------------ | ---- | -------------------------------------------------- |
-| GET    | `/api/photos`      | —    | جلب الصور العامة (مع pagination)                   |
-| POST   | `/api/photos`      | JWT  | رفع صورة جديدة (multipart/form-data)               |
-| GET    | `/api/photos/mine` | JWT  | جلب صور المستخدم الحالي (مع pagination)            |
-| PUT    | `/api/photos/[id]` | JWT  | تعديل عنوان/وصف صورة (المالك فقط)                  |
-| DELETE | `/api/photos/[id]` | JWT  | حذف صورة (المالك فقط) + حذف الملف + إعجابات مرتبطة |
+| Method | Path               | Auth | الوصف                                                     |
+| ------ | ------------------ | ---- | --------------------------------------------------------- |
+| GET    | `/api/photos`      | —    | جلب الصور العامة (مع pagination؛ `isLiked` عند وجود جلسة) |
+| POST   | `/api/photos`      | جلسة | رفع صورة (multipart + **Magic Bytes** للتحقق من PNG/JPEG) |
+| GET    | `/api/photos/mine` | جلسة | جلب صور المستخدم الحالي (مع pagination)                   |
+| PUT    | `/api/photos/[id]` | جلسة | تعديل عنوان/وصف صورة (المالك فقط)                         |
+| DELETE | `/api/photos/[id]` | جلسة | حذف صورة (المالك فقط) + حذف الملف + إعجابات مرتبطة        |
 
 ### 4.4 نقاط الإعجابات
 
 | Method | Path                    | Auth | الوصف                       |
 | ------ | ----------------------- | ---- | --------------------------- |
-| POST   | `/api/photos/[id]/like` | JWT  | تبديل الإعجاب (like/unlike) |
+| POST   | `/api/photos/[id]/like` | جلسة | تبديل الإعجاب (like/unlike) |
 
 ### 4.5 نقطة الصحة
 
@@ -426,21 +427,22 @@ feat(storage): add pluggable storage service with local, Cloudinary, and S3 stra
 
 **المهام:**
 
-1. `POST /api/auth/register` — إنشاء حساب + JWT
-2. `POST /api/auth/login` — تسجيل دخول + JWT
-3. `GET /api/auth/me` — بيانات المستخدم الحالي
-4. `PUT /api/profile` — تحديث name / email (تحقق من تكرار البريد)
-5. `PUT /api/profile/password` — تغيير كلمة المرور (التحقق من الحالية + تشفير الجديدة)
-6. `PUT /api/profile/avatar` — رفع صورة الملف الشخصي (formData → Storage → avatarUrl في DB)
-7. `DELETE /api/profile/avatar` — حذف صورة الملف الشخصي (storage.deleteFile + avatarUrl → null)
-8. `DELETE /api/profile` — حذف الحساب (password confirmation → cascade delete: photos + likes + avatar file)
-9. `GET /api/photos` — الصور العامة (paginated, مع حالة isLiked للمستخدم)
-10. `POST /api/photos` — رفع صورة (formData → Storage Service)
-11. `GET /api/photos/mine` — صور المستخدم الحالي
-12. `PUT /api/photos/[id]` — تعديل عنوان/وصف (مالك فقط)
-13. `DELETE /api/photos/[id]` — حذف صورة + ملف + إعجابات مرتبطة
-14. `POST /api/photos/[id]/like` — toggle like/unlike
-15. `GET /api/health` — فحص الصحة
+1. `POST /api/auth/register` — إنشاء حساب + cookie جلسة + `{ user }`
+2. `POST /api/auth/login` — تسجيل دخول + cookie جلسة + `{ user }`
+3. `POST /api/auth/logout` — مسح الجلسة
+4. `GET /api/auth/me` — بيانات المستخدم الحالي
+5. `PUT /api/profile` — تحديث name / email (تحقق من تكرار البريد)
+6. `PUT /api/profile/password` — تغيير كلمة المرور (التحقق من الحالية + تشفير الجديدة)
+7. `PUT /api/profile/avatar` — رفع صورة الملف الشخصي (formData → **Magic Bytes** → Storage → avatarUrl)
+8. `DELETE /api/profile/avatar` — حذف صورة الملف الشخصي (storage.deleteFile + avatarUrl → null)
+9. `DELETE /api/profile` — حذف الحساب (password confirmation → cascade delete: photos + likes + avatar file)
+10. `GET /api/photos` — الصور العامة (paginated, مع حالة isLiked للمستخدم)
+11. `POST /api/photos` — رفع صورة (formData → **Magic Bytes** → Storage Service)
+12. `GET /api/photos/mine` — صور المستخدم الحالي
+13. `PUT /api/photos/[id]` — تعديل عنوان/وصف (مالك فقط)
+14. `DELETE /api/photos/[id]` — حذف صورة + ملف + إعجابات مرتبطة
+15. `POST /api/photos/[id]/like` — toggle like/unlike
+16. `GET /api/health` — فحص الصحة
 
 **الإيداع:**
 
@@ -457,15 +459,17 @@ feat(api): add auth, profile management, photos CRUD, and likes API routes
 **المهام:**
 
 1. `ThemeContext.tsx` — MUI theme مع dark/light + RTL + Cairo font + WCAG AA
-2. `AuthContext.tsx` — JWT state + login/register/logout + updateUser (لتحديث الـ user بعد تعديل الملف)
-3. `providers.tsx` — شجرة Providers
-4. `useAuth.ts`, `useThemeMode.ts` — custom hooks
-5. `lib/api.ts` — طبقة HTTP المركزية (fetchApi + typed helpers لجميع endpoints)
-6. `AppBar.tsx` — شريط علوي مع avatar المستخدم + UserMenu
-7. `UserMenu.tsx` — قائمة dropdown: ضيف (تسجيل الدخول، إنشاء حساب) | مسجّل (ملفي، تسجيل خروج)
-8. `MainLayout.tsx` — غلاف الصفحة
-9. `ThemeToggle.tsx` — زر تبديل الوضع
-10. `GuestRoute.tsx` — حماية صفحات الضيوف
+2. `AuthContext.tsx` — حالة المستخدم في الذاكرة؛ جلسة عبر **HttpOnly cookie**؛ login/register/logout + updateUser
+3. `src/middleware.ts` — Edge: حماية `/my-photos` و`/profile` قبل الرندر
+4. `providers.tsx` — شجرة Providers
+5. `useAuth.ts`, `useThemeMode.ts` — custom hooks
+6. `lib/api.ts` — طبقة HTTP (بدون حقن Bearer؛ الـ cookie تُرسَل تلقائيًا) + `logoutApi`
+7. `AppBar.tsx` — شريط علوي مع avatar المستخدم + UserMenu
+8. `UserMenu.tsx` — قائمة dropdown: ضيف (تسجيل الدخول، إنشاء حساب) | مسجّل (ملفي، تسجيل خروج)
+9. `MainLayout.tsx` — غلاف الصفحة
+10. `ThemeToggle.tsx` — زر تبديل الوضع
+11. `GuestRoute.tsx` — حماية صفحات الضيوف
+12. `page.tsx` + `HomePageFeed.tsx` — الصفحة الرئيسية: RSC + عميل للتصفح
 
 **الإيداع:**
 
@@ -727,9 +731,10 @@ web-social-e1/
 │   └── validate-workflow.mjs
 │
 ├── src/
+│   ├── middleware.ts               ← Edge Middleware (حماية مسارات محددة)
 │   └── app/
 │       ├── layout.tsx              ← Root layout (html, dir=rtl, fonts, anti-FOUC script)
-│       ├── page.tsx                ← الصفحة الرئيسية (عرض الصور العامة)
+│       ├── page.tsx                ← RSC: التغذية العامة؛ عميل: HomePageFeed.tsx
 │       ├── not-found.tsx           ← صفحة 404
 │       ├── globals.css             ← الأنماط العامة
 │       ├── config.ts               ← ثوابت التطبيق
@@ -746,6 +751,7 @@ web-social-e1/
 │       │   ├── auth/
 │       │   │   ├── login/route.ts
 │       │   │   ├── register/route.ts
+│       │   │   ├── logout/route.ts
 │       │   │   └── me/route.ts
 │       │   ├── profile/
 │       │   │   ├── route.ts        ← PUT (update info) + DELETE (delete account)
@@ -770,6 +776,7 @@ web-social-e1/
 │       │   ├── camera/
 │       │   │   └── CameraCapture.tsx   ← video stream + capture + preview
 │       │   ├── photos/
+│       │   │   ├── HomePageFeed.tsx  ← عميل: pagination الصفحة الرئيسية
 │       │   │   ├── PhotoCard.tsx
 │       │   │   ├── PhotoGrid.tsx
 │       │   │   ├── PhotoUploadForm.tsx ← tab: ملف | كاميرا
@@ -786,7 +793,7 @@ web-social-e1/
 │       │       └── UserMenu.tsx        ← AppBar dropdown menu
 │       │
 │       ├── context/
-│       │   ├── AuthContext.tsx         ← user state + updateUser() للتحديث بعد تعديل الملف
+│       │   ├── AuthContext.tsx         ← user في الذاكرة؛ جلسة HttpOnly cookie
 │       │   └── ThemeContext.tsx
 │       │
 │       ├── hooks/
@@ -796,9 +803,12 @@ web-social-e1/
 │       │   └── useCamera.ts            ← getUserMedia + capture + iOS fallback
 │       │
 │       ├── lib/
-│       │   ├── api.ts                  ← fetchApi + typed helpers لجميع endpoints
+│       │   ├── api.ts                  ← fetchApi + typed helpers (جلسة عبر cookie)
 │       │   ├── apiErrors.ts            ← استجابات خطأ موحدة بالعربية
 │       │   ├── auth.ts                 ← JWT + bcrypt
+│       │   ├── authCookie.ts           ← خيارات cookie الجلسة
+│       │   ├── fileValidation.ts       ← Magic Bytes للصور
+│       │   ├── photoSerializer.ts      ← تسلسل Photo مشترك (API + RSC)
 │       │   ├── mongodb.ts              ← singleton connection
 │       │   └── storage/
 │       │       ├── storage.interface.ts
@@ -808,7 +818,7 @@ web-social-e1/
 │       │       └── s3.strategy.ts
 │       │
 │       ├── middlewares/
-│       │   └── auth.middleware.ts
+│       │   └── auth.middleware.ts      ← cookie ثم Bearer
 │       │
 │       ├── models/
 │       │   ├── User.ts                 ← يشمل avatarUrl: String (optional)

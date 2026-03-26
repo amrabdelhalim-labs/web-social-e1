@@ -6,7 +6,7 @@
 
 ## 1. لمحة عامة
 
-المصادقة في صوري **عديمة الحالة** (stateless): الخادم لا يخزّن جلسات. التوكن يحمل المعرّف؛ العميل يرسله في كل طلب. التحقق من المدخلات يحدث قبل قاعدة البيانات؛ وحماية الصفحات تتم عبر مكونات تغلّف المحتوى وتعيد التوجيه حسب حالة المستخدم.
+المصادقة في صوري **عديمة الحالة** على الخادم (لا جدول جلسات): الـ JWT يحمل المعرّف ويُتحقق من توقيعه. **تخزين الجلسة في المتصفح:** Cookie **HttpOnly** (`auth-token`) وليس localStorage. التحقق من المدخلات يحدث قبل قاعدة البيانات؛ **حماية الصفحات** تتم على مستويين: **Edge Middleware** يمنع الوصول بدون cookie، ومكونات `ProtectedRoute` / `GuestRoute` تكمّل التجربة على العميل.
 
 **تشبيه:** JWT تذكرة موقّعة: تحمل هويتك، وأي باب (مسار API) يتحقق من التوقيع يقبلك دون الرجوع إلى مركز التذاكر في كل مرة.
 
@@ -114,32 +114,28 @@ if (!foundUser) return unauthorizedError('البريد الإلكتروني أو
 
 ### ٥.١ الفكرة
 
-`authenticateRequest(request)` يقرأ رأس `Authorization: Bearer <token>`، يتحقق من التوكن، ويُرجع إما `{ userId }` أو `{ error: NextResponse }`. لا يرمي استثناءات — المسار يتفرّع حسب النتيجة.
+`authenticateRequest(request)` يقرأ الـ JWT من **cookie `auth-token` أولاً**، ثم من رأس `Authorization: Bearer <token>` كبديل. يتحقق عبر `verifyToken` ويُرجع إما `{ userId }` أو `{ error: NextResponse }`. لا يرمي استثناءات — المسار يتفرّع حسب النتيجة.
 
-### ٥.٢ الكود
+### ٥.٢ الكود (مبسّط)
 
 ```typescript
-// auth.middleware.ts — authenticateRequest
-export function authenticateRequest(request: NextRequest): AuthResult {
-  const authHeader = request.headers.get('authorization');
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return { error: unauthorizedError('رمز المصادقة مفقود.') };
-  }
-
-  const token = authHeader.slice(7);
-  try {
-    const payload = verifyToken(token);
-    return { userId: payload.id };
-  } catch {
-    return { error: unauthorizedError('رمز المصادقة غير صالح أو منتهي الصلاحية.') };
-  }
-}
+// auth.middleware.ts — أولوية: cookie ثم Bearer
+const cookieToken = request.cookies.get(AUTH_COOKIE_NAME)?.value ?? null;
+const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+const token = cookieToken ?? bearerToken;
+if (!token) return { error: unauthorizedError('رمز المصادقة مفقود.') };
+// ثم verifyToken(token) → userId
 ```
+
+إعدادات الـ cookie مركّزة في `lib/authCookie.ts` (`httpOnly`, `sameSite`, `secure` في الإنتاج).
+
+### ٥.٣ Edge Middleware — حماية المسارات
+
+ملف **`src/middleware.ts`** يعمل قبل رندر الصفحة: إن زار مستخدم غير مسجّل مساراتًا محمية (`/my-photos`، `/profile`) بلا cookie، يُعاد توجيهه إلى `/login?next=...`. صفحات الضيف (`/login`، `/register`) تُعاد بعيدًا إن وُجدت جلسة (cookie). التحقق هنا **من وجود الـ cookie** فقط؛ التحقق الكامل من صلاحية الـ JWT يبقى في مسارات API.
 
 ---
 
-## 6. مسارات API — login، register، me
+## 6. مسارات API — login، register، logout، me
 
 ### ٦.١ تدفق تسجيل الدخول
 
@@ -150,27 +146,32 @@ POST /api/auth/login { email, password }
   → userRepo.findByEmail
   → comparePassword
   → generateToken
-  → { token, user }
+  → Set-Cookie: auth-token=...
+  → JSON: { data: { user } }   (بدون token في الجسم)
 ```
 
 ### ٦.٢ تدفق التسجيل
 
 ```text
 # Register flow
-POST /api/auth/register { name, email, password, confirmPassword }
-  → validateRegisterInput
-  → userRepo.emailExists (409 إن وُجد)
-  → hashPassword
-  → userRepo.create
+POST /api/auth/register { ... }
+  → ... إنشاء مستخدم
   → generateToken
-  → { token, user }
+  → Set-Cookie + { data: { user } }
 ```
 
-### ٦.٣ تدفق جلب المستخدم الحالي
+### ٦.٣ تسجيل الخروج
+
+```text
+POST /api/auth/logout
+  → يمسح cookie auth-token من الاستجابة
+```
+
+### ٦.٤ تدفق جلب المستخدم الحالي
 
 ```text
 # Me flow
-GET /api/auth/me + Authorization: Bearer <token>
+GET /api/auth/me  (الـ cookie تُرسَل تلقائيًا من المتصفح)
   → authenticateRequest (401 إن فشل)
   → userRepo.findById
   → { user } (بدون password)
@@ -182,16 +183,15 @@ GET /api/auth/me + Authorization: Bearer <token>
 
 ### ٧.١ AuthContext
 
-يدير حالة المصادقة في العميل: التوكن في localStorage، المستخدم في الذاكرة. عند التحميل يقرأ التوكن ويستدعي `/api/auth/me`؛ عند 401 يمسح الجلسة.
+يدير **المستخدم في الذاكرة فقط** — لا يخزّن JWT في JavaScript. عند التحميل يستدعي `GET /api/auth/me` (الـ cookie تُرسَل تلقائيًا)؛ عند 401 يُصفَّر المستخدم. `login` / `register` يحدّثان `user` من جسم الاستجابة بعد أن يضبط الخادم الـ cookie. `logout` يستدعي `POST /api/auth/logout` ثم يصفّر المستخدم محليًا.
 
 | القيمة     | الوصف                                              |
 | ---------- | -------------------------------------------------- |
 | user       | المستخدم الحالي أو null                            |
-| token      | التوكن (للإرسال مع الطلبات)                        |
-| loading    | أثناء التحقق الأولي                                |
-| login      | تسجيل الدخول وحفظ التوكن                           |
-| register   | إنشاء حساب وتسجيل الدخول                           |
-| logout     | مسح التوكن والمستخدم                               |
+| loading    | أثناء التحقق الأولي (`/api/auth/me`)               |
+| login      | تسجيل الدخول — الخادم يضبط الـ cookie              |
+| register   | إنشاء حساب — الخادم يضبط الـ cookie                |
+| logout     | مسح الجلسة على الخادم + تصفير المستخدم محليًا      |
 | updateUser | تحديث المستخدم في الذاكرة (بعد تعديل الملف الشخصي) |
 
 ### ٧.٢ useAuth
@@ -224,7 +224,7 @@ export function useAuth(): AuthContextValue {
 
 ### ٨.٢ ProtectedRoute
 
-للصفحات المحمية (my-photos، profile). إن لم يكن المستخدم مسجّلاً يُعاد توجيهه إلى `/login`.
+للصفحات المحمية (my-photos، profile). إن لم يكن المستخدم مسجّلاً يُعاد توجيهه إلى `/login`. يكمّل **Middleware** الذي يمنع رندر الصفحة بدون cookie من الأساس.
 
 ```tsx
 // ProtectedRoute — استخدام
@@ -237,17 +237,19 @@ export function useAuth(): AuthContextValue {
 
 ## 9. ملخص
 
-| ما تعلمناه                 | الملف المسؤول         |
-| -------------------------- | --------------------- |
-| JWT و bcrypt               | `auth.ts`             |
-| التحقق من المدخلات         | `validators/index.ts` |
-| رسائل الخطأ الموحدة        | `apiErrors.ts`        |
-| استخراج التوكن من الرأس    | `auth.middleware.ts`  |
-| مسارات login، register، me | `api/auth/*`          |
-| حالة المصادقة في العميل    | `AuthContext.tsx`     |
-| خطاف useAuth               | `useAuth.ts`          |
-| حماية صفحات الضيوف         | `GuestRoute.tsx`      |
-| حماية الصفحات المسجّلة     | `ProtectedRoute.tsx`  |
+| ما تعلمناه                         | الملف / الموقع        |
+| ---------------------------------- | --------------------- |
+| JWT و bcrypt                       | `auth.ts`             |
+| التحقق من المدخلات                 | `validators/index.ts` |
+| رسائل الخطأ الموحدة                | `apiErrors.ts`        |
+| استخراج التوكن (cookie + Bearer)   | `auth.middleware.ts`  |
+| خيارات cookie الجلسة               | `lib/authCookie.ts`   |
+| مسارات login، register، logout، me | `api/auth/*`          |
+| حماية مسارات Edge                  | `src/middleware.ts`   |
+| حالة المستخدم في العميل            | `AuthContext.tsx`     |
+| خطاف useAuth                       | `useAuth.ts`          |
+| حماية صفحات الضيوف                 | `GuestRoute.tsx`      |
+| حماية الصفحات المسجّلة             | `ProtectedRoute.tsx`  |
 
 ---
 

@@ -121,17 +121,21 @@ return NextResponse.json(
 
 ### ٥.١ POST /api/auth/register
 
-إنشاء حساب جديد. التحقق من المدخلات → التحقق من عدم تكرار البريد → تشفير كلمة المرور → إنشاء المستخدم → إنشاء JWT وإرجاعه مع بيانات المستخدم.
+إنشاء حساب جديد. التحقق من المدخلات → التحقق من عدم تكرار البريد → تشفير كلمة المرور → إنشاء المستخدم → إنشاء JWT → **`Set-Cookie`** (`auth-token`) → استجابة JSON `{ data: { user } }` فقط (بدون توكن في الجسم).
 
 ### ٥.٢ POST /api/auth/login
 
-تسجيل الدخول. التحقق من المدخلات → البحث بالبريد → مقارنة كلمة المرور → إنشاء JWT وإرجاعه.
+تسجيل الدخول. التحقق من المدخلات → البحث بالبريد → مقارنة كلمة المرور → JWT في **cookie HttpOnly** + `{ data: { user } }`.
 
-### ٥.٣ GET /api/auth/me
+### ٥.٣ POST /api/auth/logout
 
-جلب بيانات المستخدم الحالي. يتطلب `authenticateRequest(request)` — عند الفشل يُرجع `auth.error` مباشرة.
+مسح جلسة المستخدم: يستدعي `response.cookies.delete(AUTH_COOKIE_NAME)`.
 
-### ٥.٤ نمط مشترك
+### ٥.٤ GET /api/auth/me
+
+جلب بيانات المستخدم الحالي. يتطلب `authenticateRequest(request)` (cookie أو Bearer) — عند الفشل يُرجع `auth.error` مباشرة.
+
+### ٥.٥ نمط مشترك (login)
 
 ```typescript
 // api/auth/login/route.ts — نمط مشترك
@@ -147,7 +151,9 @@ const isMatch = await comparePassword(body.password, foundUser.password);
 if (!isMatch) return unauthorizedError('...');
 
 const token = generateToken(foundUser._id.toString());
-return NextResponse.json({ data: { token, user }, message: '...' }, { status: 200 });
+const response = NextResponse.json({ data: { user }, message: '...' }, { status: 200 });
+response.cookies.set(AUTH_COOKIE_NAME, token, AUTH_COOKIE_OPTIONS);
+return response;
 ```
 
 ---
@@ -184,14 +190,14 @@ if (filesToDelete.length > 0) await storage.deleteFiles(filesToDelete);
 
 ### ٧.١ جدول المسارات
 
-| Method | المسار                | Auth    | الوصف                                                 |
-| ------ | --------------------- | ------- | ----------------------------------------------------- |
-| GET    | /api/photos           | اختياري | قائمة الصور العامة (pagination، isLiked عند وجود JWT) |
-| POST   | /api/photos           | مطلوب   | رفع صورة (multipart: photo، title، description)       |
-| GET    | /api/photos/mine      | مطلوب   | صور المستخدم الحالي                                   |
-| PUT    | /api/photos/[id]      | مطلوب   | تعديل عنوان/وصف (المالك فقط)                          |
-| DELETE | /api/photos/[id]      | مطلوب   | حذف صورة (المالك فقط)                                 |
-| POST   | /api/photos/[id]/like | مطلوب   | تبديل الإعجاب                                         |
+| Method | المسار                | Auth    | الوصف                                                                 |
+| ------ | --------------------- | ------- | --------------------------------------------------------------------- |
+| GET    | /api/photos           | اختياري | قائمة الصور العامة (pagination، isLiked عند وجود جلسة)                |
+| POST   | /api/photos           | مطلوب   | رفع صورة؛ التحقق من نوع الملف بـ **Magic Bytes** وليس `file.type` فقط |
+| GET    | /api/photos/mine      | مطلوب   | صور المستخدم الحالي                                                   |
+| PUT    | /api/photos/[id]      | مطلوب   | تعديل عنوان/وصف (المالك فقط)                                          |
+| DELETE | /api/photos/[id]      | مطلوب   | حذف صورة (المالك فقط)                                                 |
+| POST   | /api/photos/[id]/like | مطلوب   | تبديل الإعجاب                                                         |
 
 ### ٧.٢ رفع الصورة — Cleanup عند الفشل
 
@@ -229,7 +235,7 @@ return NextResponse.json({ data: { liked: result.liked, likesCount } }, { status
 
 ### ٨.١ الفكرة
 
-ملف `'use client'` يوفر دوالاً موحّدة لاستدعاء API. `fetchApi` و `fetchFormApi` يقرآن التوكن من `localStorage` ويحقنانه في `Authorization: Bearer <token>`. عند أي استجابة غير 2xx يُرمى `Error` برسالة الخادم العربية.
+ملف `'use client'` يوفر دوالاً موحّدة لاستدعاء API. **لا يُحقَن** رأس `Authorization` يدويًا: الجلسة عبر **HttpOnly cookie** تُرسَل تلقائيًا مع `fetch` لنفس النطاق. `fetchApi` و `fetchFormApi` يضبطان الرؤوس اللازمة للـ JSON أو multipart فقط. عند أي استجابة غير 2xx يُرمى `Error` برسالة الخادم العربية. تتوفر `logoutApi()` لاستدعاء `POST /api/auth/logout`.
 
 ### ٨.٢ الدوال الأساسية
 
@@ -243,7 +249,7 @@ return NextResponse.json({ data: { liked: result.liked, likesCount } }, { status
 ```typescript
 // lib/api.ts — أمثلة
 export function loginApi(input: LoginInput) {
-  return fetchApi<ApiResponse<{ token: string; user: User }>>('/api/auth/login', {
+  return fetchApi<ApiResponse<{ user: User }>>('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify(input),
   });
@@ -274,7 +280,7 @@ export function toggleLikeApi(photoId: string) {
 | شكل الاستجابة ورموز الأخطاء | `api-endpoints.md`                                             |
 | مساعدات الأخطاء             | `lib/apiErrors.ts`                                             |
 | مسار الصحة                  | `api/health/route.ts`                                          |
-| مسارات المصادقة             | `api/auth/login`, `register`, `me`                             |
+| مسارات المصادقة             | `api/auth/login`, `register`, `logout`, `me`                   |
 | مسارات الملف الشخصي         | `api/profile`, `profile/avatar`, `profile/password`            |
 | مسارات الصور                | `api/photos`, `photos/mine`, `photos/[id]`, `photos/[id]/like` |
 | طبقة العميل                 | `lib/api.ts`                                                   |

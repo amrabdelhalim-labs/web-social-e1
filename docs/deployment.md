@@ -25,6 +25,7 @@
 - البناء يستخدم وضع **Next.js standalone** (`output: 'standalone'` في `next.config.mjs`) لنسخة تشغيل أخف داخل الحاوية.
 - أثناء `docker build` يُضبط `JWT_SECRET` وهمي **للمرحلة فقط**؛ أسرار الإنتاج تُمرَّر **عند التشغيل** (`docker run` / `docker compose`) ولا تُخزَّن في طبقات الصورة.
 - مرحلة **`runner`** في `Dockerfile` تشغّل `apk upgrade --no-cache` قبل إنشاء المستخدم غير الجذر لتحديث حزم Alpine المعروضة للثغرات المعروفة وقت البناء.
+- **جلسة المستخدم:** التوكن في **Cookie HttpOnly** (`auth-token`). في `NODE_ENV=production` يُضبط `Secure` على الـ cookie — يجب أن يخدم التطبيق عبر **HTTPS** (أو وكيل عكسي يُنهي TLS) وإلا لن يُرسِل المتصفح الـ cookie على طلبات `http://` العادية.
 
 ### 2.2 بناء الصورة محليًا
 

@@ -1,10 +1,13 @@
 /**
  * POST /api/auth/register
  *
- * Creates a new user account and returns a JWT token with user data.
+ * Creates a new user account.
+ * Sets an HttpOnly session cookie and returns the user object.
  *
  * Body: { name, email, password, confirmPassword }
- * Response: { data: { token, user }, message }
+ * Response: { data: { user }, message }
+ *
+ * Security: same cookie strategy as /api/auth/login.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,6 +16,7 @@ import { hashPassword, generateToken } from '@/app/lib/auth';
 import { getUserRepository } from '@/app/repositories/user.repository';
 import { validateRegisterInput } from '@/app/validators';
 import { validationError, conflictError, serverError } from '@/app/lib/apiErrors';
+import { AUTH_COOKIE_OPTIONS, AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
 import type { User } from '@/app/types';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -47,10 +51,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       updatedAt: newUser.updatedAt.toISOString(),
     };
 
-    return NextResponse.json(
-      { data: { token, user }, message: 'تم إنشاء الحساب بنجاح.' },
+    const response = NextResponse.json(
+      { data: { user }, message: 'تم إنشاء الحساب بنجاح.' },
       { status: 201 }
     );
+    response.cookies.set(AUTH_COOKIE_NAME, token, AUTH_COOKIE_OPTIONS);
+    return response;
   } catch (error) {
     console.error('Register error:', error);
     return serverError();

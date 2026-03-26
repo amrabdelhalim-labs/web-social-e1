@@ -10,7 +10,7 @@
 | ---------------------- | ------------------------------------------ |
 | **إطار الاختبار**      | Vitest                                     |
 | **اختبارات المكونات**  | Testing Library (`@testing-library/react`) |
-| **عدد ملفات الاختبار** | 28 ملف                                     |
+| **عدد ملفات الاختبار** | 29 ملفًا                                   |
 | **النوع السائد**       | اختبارات وحدة (Unit Tests)                 |
 | **البيئة**             | jsdom                                      |
 
@@ -67,18 +67,19 @@ export default defineConfig({
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
 | `auth.test.ts`                 | `generateToken`، `verifyToken`، `hashPassword`، `comparePassword`                                                              |
 | `validators.test.ts`           | `validateLoginInput`، `validateRegisterInput`، `validatePhotoInput`، `validateUpdatePhotoInput`، `validateChangePasswordInput` |
-| `api-client.test.ts`           | دوال طبقة HTTP (`lib/api.ts`): إرسال الطلبات، التوكن، معالجة الأخطاء                                                           |
+| `api-client.test.ts`           | دوال طبقة HTTP (`lib/api.ts`): JSON/multipart، عدم حقن Authorization (جلسة عبر cookie)                                         |
+| `fileValidation.test.ts`       | `detectImageType` / `validateImageBuffer`: PNG، JPEG، رفض تزوير المحتوى                                                        |
 | `storage.test.ts`              | `getStorageService`، `resetStorageService`، LocalStorageStrategy                                                               |
-| `auth-middleware.test.ts`      | `authenticateRequest`: توكن صحيح، توكن غير صحيح، توكن مفقود                                                                    |
+| `auth-middleware.test.ts`      | `authenticateRequest`: cookie صالح، Bearer كبديل، أولوية cookie، رفض غير صالح                                                  |
 | `profile-delete-route.test.ts` | منطق مسار `DELETE /api/profile`: cascade، تأكيد كلمة المرور                                                                    |
 | `docker-config.test.ts`        | التحقق من ثوابت Docker: `standalone` في Next، healthcheck في Dockerfile، وربط compose                                          |
 
 ### 4.2 اختبارات السياقات (Contexts)
 
-| الملف                    | ما يختبره                                                                                |
-| ------------------------ | ---------------------------------------------------------------------------------------- |
-| `auth-context.test.tsx`  | `AuthContext`: حالة التحميل، المستخدم من التوكن المحفوظ، `login`، `logout`، `updateUser` |
-| `theme-context.test.tsx` | `ThemeContext`: السمة الافتراضية (SSR)، التبديل، الحفظ في localStorage                   |
+| الملف                    | ما يختبره                                                                                                           |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `auth-context.test.tsx`  | `AuthContext`: `/api/auth/me` عند التحميل، `login`/`register` بدون localStorage، `logout` يستدعي `/api/auth/logout` |
+| `theme-context.test.tsx` | `ThemeContext`: السمة الافتراضية (SSR)، التبديل، الحفظ في localStorage                                              |
 
 ### 4.3 اختبارات الخطافات (Hooks)
 
@@ -136,15 +137,15 @@ beforeEach(() => {
   global.fetch = vi.fn();
 });
 
-it('sends token in Authorization header', async () => {
+// المصادقة عبر HttpOnly cookie — لا يُحقَن رأس Authorization من العميل
+import { fetchApi } from '@/app/lib/api';
+
+it('sends JSON without Authorization header', async () => {
   vi.mocked(fetch).mockResolvedValue({ ok: true, json: async () => ({ data: {} }) } as Response);
-  await apiFunction();
-  expect(fetch).toHaveBeenCalledWith(
-    expect.any(String),
-    expect.objectContaining({
-      headers: expect.objectContaining({ Authorization: expect.stringContaining('Bearer') }),
-    })
-  );
+  await fetchApi('/api/auth/me');
+  const [, options] = vi.mocked(fetch).mock.calls[0];
+  const headers = (options as RequestInit)?.headers as Record<string, string>;
+  expect(headers['Authorization']).toBeUndefined();
 });
 ```
 

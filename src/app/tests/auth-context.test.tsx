@@ -1,14 +1,17 @@
 /**
  * Auth Context Tests
  *
- * Tests for AuthContext logic including:
+ * Tests for AuthContext logic with cookie-based authentication:
  *  - Initial loading state
- *  - Token hydration from localStorage
- *  - login() stores token + user
- *  - register() stores token + user
- *  - logout() clears token + user
+ *  - User hydration on mount via GET /api/auth/me (cookie sent automatically)
+ *  - login() sets user in memory — cookie is set by the server (HttpOnly)
+ *  - register() sets user in memory — same
+ *  - logout() clears user and fires POST /api/auth/logout (server clears cookie)
  *  - updateUser() updates in-memory user
- *  - loadUser: 401 clears token; network errors are silently swallowed
+ *  - loadUser: 401 clears user; network errors are silently swallowed
+ *
+ * Note: HttpOnly cookies are not accessible in JS (by design), so tests
+ * verify behaviour through the user state and API call patterns, not cookies.
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
@@ -28,8 +31,6 @@ const MOCK_USER: User = {
   updatedAt: '2026-01-01T00:00:00.000Z',
 };
 
-const MOCK_TOKEN = 'mock.jwt.token';
-
 // ─── Setup ───────────────────────────────────────────────────────────────────
 
 const globalFetch = vi.fn() as MockedFunction<typeof fetch>;
@@ -37,7 +38,6 @@ const globalFetch = vi.fn() as MockedFunction<typeof fetch>;
 beforeEach(() => {
   vi.stubGlobal('fetch', globalFetch);
   globalFetch.mockReset();
-  localStorage.clear();
 });
 
 function makeJsonResponse(body: unknown, status = 200): Response {
@@ -55,64 +55,61 @@ function wrapper({ children }: { children: React.ReactNode }) {
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe('AuthContext', () => {
-  it('ends loading with no user when no token is stored', async () => {
-    const { result } = renderHook(() => useAuth(), { wrapper });
-
-    // useEffect runs asynchronously — wait for the loading flag to settle
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.user).toBeNull();
-    expect(result.current.token).toBeNull();
-  });
-
-  it('loads user from stored token on mount', async () => {
-    localStorage.setItem('auth-token', MOCK_TOKEN);
-    globalFetch.mockResolvedValueOnce(makeJsonResponse({ data: MOCK_USER }));
+  it('calls /api/auth/me on mount without Authorization header', async () => {
+    globalFetch.mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
-
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(result.current.user).toEqual(MOCK_USER);
-    expect(result.current.token).toBe(MOCK_TOKEN);
     expect(globalFetch).toHaveBeenCalledWith(
       '/api/auth/me',
-      expect.objectContaining({
-        headers: expect.objectContaining({ Authorization: `Bearer ${MOCK_TOKEN}` }),
+      expect.not.objectContaining({
+        headers: expect.objectContaining({ Authorization: expect.any(String) }),
       })
     );
   });
 
-  it('clears token on 401 from /api/auth/me', async () => {
-    localStorage.setItem('auth-token', MOCK_TOKEN);
+  it('ends loading with no user when /api/auth/me returns 401', async () => {
     globalFetch.mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
-
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.user).toBeNull();
-    expect(result.current.token).toBeNull();
-    expect(localStorage.getItem('auth-token')).toBeNull();
   });
 
-  it('keeps user null on network failure (not PWA app)', async () => {
-    localStorage.setItem('auth-token', MOCK_TOKEN);
+  it('loads user when /api/auth/me returns valid session', async () => {
+    globalFetch.mockResolvedValueOnce(makeJsonResponse({ data: MOCK_USER }));
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.user).toEqual(MOCK_USER);
+  });
+
+  it('sets user to null on 401 from /api/auth/me', async () => {
+    globalFetch.mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401));
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.user).toBeNull();
+  });
+
+  it('keeps user null on network failure', async () => {
     globalFetch.mockRejectedValueOnce(new TypeError('Network error'));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
-
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    // Network failure does not restore any cache — user stays null
     expect(result.current.user).toBeNull();
-    // Token is still present; only 401 clears the token
-    expect(result.current.token).toBe(MOCK_TOKEN);
   });
 
-  it('stores token and user after login', async () => {
-    globalFetch.mockResolvedValueOnce(
-      makeJsonResponse({ data: { token: MOCK_TOKEN, user: MOCK_USER } })
-    );
+  it('sets user after login — no localStorage access', async () => {
+    // Hydration call returns 401, then login call returns user
+    globalFetch
+      .mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401))
+      .mockResolvedValueOnce(makeJsonResponse({ data: { user: MOCK_USER } }));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -122,14 +119,14 @@ describe('AuthContext', () => {
     });
 
     expect(result.current.user).toEqual(MOCK_USER);
-    expect(result.current.token).toBe(MOCK_TOKEN);
-    expect(localStorage.getItem('auth-token')).toBe(MOCK_TOKEN);
+    // Cookie is set by server (HttpOnly) — localStorage must not be touched
+    expect(localStorage.getItem('auth-token')).toBeNull();
   });
 
   it('throws on login failure', async () => {
-    globalFetch.mockResolvedValueOnce(
-      makeJsonResponse({ error: { message: 'كلمة المرور خاطئة' } }, 401)
-    );
+    globalFetch
+      .mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401))
+      .mockResolvedValueOnce(makeJsonResponse({ error: { message: 'كلمة المرور خاطئة' } }, 401));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -141,10 +138,10 @@ describe('AuthContext', () => {
     ).rejects.toThrow('كلمة المرور خاطئة');
   });
 
-  it('stores token and user after registration', async () => {
-    globalFetch.mockResolvedValueOnce(
-      makeJsonResponse({ data: { token: MOCK_TOKEN, user: MOCK_USER } })
-    );
+  it('sets user after registration — no localStorage access', async () => {
+    globalFetch
+      .mockResolvedValueOnce(makeJsonResponse({ error: { message: 'غير مصرح' } }, 401))
+      .mockResolvedValueOnce(makeJsonResponse({ data: { user: MOCK_USER } }));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -159,28 +156,36 @@ describe('AuthContext', () => {
     });
 
     expect(result.current.user).toEqual(MOCK_USER);
-    expect(result.current.token).toBe(MOCK_TOKEN);
-    expect(localStorage.getItem('auth-token')).toBe(MOCK_TOKEN);
+    expect(localStorage.getItem('auth-token')).toBeNull();
   });
 
-  it('clears session after logout', async () => {
-    localStorage.setItem('auth-token', MOCK_TOKEN);
-    globalFetch.mockResolvedValueOnce(makeJsonResponse({ data: MOCK_USER }));
+  it('clears user after logout and fires POST /api/auth/logout', async () => {
+    globalFetch
+      .mockResolvedValueOnce(makeJsonResponse({ data: MOCK_USER }))
+      .mockResolvedValueOnce(makeJsonResponse({ message: 'تم تسجيل الخروج.' }));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.user).toEqual(MOCK_USER);
 
     act(() => {
       result.current.logout();
     });
 
     expect(result.current.user).toBeNull();
-    expect(result.current.token).toBeNull();
-    expect(localStorage.getItem('auth-token')).toBeNull();
+
+    // Logout should call the logout API to clear the server-side cookie
+    await waitFor(() => {
+      const calls = globalFetch.mock.calls;
+      const logoutCall = calls.find(
+        ([path, options]) =>
+          path === '/api/auth/logout' && (options as RequestInit)?.method === 'POST'
+      );
+      expect(logoutCall).toBeDefined();
+    });
   });
 
   it('updates user data in memory', async () => {
-    localStorage.setItem('auth-token', MOCK_TOKEN);
     globalFetch.mockResolvedValueOnce(makeJsonResponse({ data: MOCK_USER }));
 
     const { result } = renderHook(() => useAuth(), { wrapper });

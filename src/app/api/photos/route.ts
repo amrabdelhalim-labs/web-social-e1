@@ -14,28 +14,10 @@ import { getLikeRepository } from '@/app/repositories/like.repository';
 import { validatePhotoInput } from '@/app/validators';
 import { validationError, serverError } from '@/app/lib/apiErrors';
 import { getStorageService } from '@/app/lib/storage/storage.service';
+import { validateImageBuffer } from '@/app/lib/fileValidation';
+import { serializePhoto } from '@/app/lib/photoSerializer';
 import { DEFAULT_PAGE_SIZE, MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES } from '@/app/config';
-import type { Photo, StorageFile } from '@/app/types';
-
-function serializePhoto(doc: Record<string, unknown>, isLiked = false): Photo {
-  const user = doc.user as Record<string, unknown> | undefined;
-
-  return {
-    _id: String(doc._id),
-    title: String(doc.title),
-    description: doc.description ? String(doc.description) : undefined,
-    imageUrl: String(doc.imageUrl),
-    user: {
-      _id: user ? String(user._id) : '',
-      name: user ? String(user.name) : '',
-      avatarUrl: user ? (user.avatarUrl as string | null) : null,
-    },
-    likesCount: Number(doc.likesCount ?? 0),
-    isLiked,
-    createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : String(doc.createdAt),
-    updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : String(doc.updatedAt),
-  };
-}
+import type { StorageFile } from '@/app/types';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -110,20 +92,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return validationError(['ملف الصورة مطلوب.']);
     }
 
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      return validationError(['صيغة الملف غير مدعومة. الصيغ المسموحة: PNG, JPEG.']);
-    }
-
     if (file.size > MAX_FILE_SIZE) {
       return validationError(['حجم الصورة يتجاوز الحد المسموح (5 ميجابايت).']);
     }
 
     const storage = getStorageService();
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Validate actual file content — MIME type from the browser is spoofable
+    const detectedType = validateImageBuffer(buffer, ALLOWED_IMAGE_TYPES);
+    if (!detectedType) {
+      return validationError(['صيغة الملف غير مدعومة. الصيغ المسموحة: PNG, JPEG.']);
+    }
+
     const storageFile: StorageFile = {
       buffer,
       originalname: file.name,
-      mimetype: file.type,
+      mimetype: detectedType,
       size: file.size,
     };
 

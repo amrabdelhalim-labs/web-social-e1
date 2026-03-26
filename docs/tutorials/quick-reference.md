@@ -6,19 +6,20 @@
 
 ## 1. خريطة الملفات (حسب الطبقة)
 
-| الطبقة           | المسار                    | أمثلة                                                                        |
-| ---------------- | ------------------------- | ---------------------------------------------------------------------------- |
-| الصفحات          | `src/app/*/page.tsx`      | `page.tsx`, `login/page.tsx`, `my-photos/page.tsx`, `profile/page.tsx`       |
-| مسارات API       | `src/app/api/**/route.ts` | `api/auth/login/route.ts`, `api/photos/route.ts`, `api/photos/[id]/route.ts` |
-| المكونات         | `src/app/components/`     | `photos/PhotoCard.tsx`, `layout/UserMenu.tsx`, `profile/AvatarUploader.tsx`  |
-| السياقات         | `src/app/context/`        | `AuthContext.tsx`, `ThemeContext.tsx`                                        |
-| الخطافات         | `src/app/hooks/`          | `useAuth.ts`, `usePhotos.ts`, `useMyPhotos.ts`, `useCamera.ts`               |
-| المكتبات         | `src/app/lib/`            | `auth.ts`, `mongodb.ts`, `api.ts`, `storage/storage.service.ts`              |
-| النماذج          | `src/app/models/`         | `User.ts`, `Photo.ts`, `Like.ts`                                             |
-| المستودعات       | `src/app/repositories/`   | `user.repository.ts`, `photo.repository.ts`, `like.repository.ts`            |
-| المحققون         | `src/app/validators/`     | `index.ts`                                                                   |
-| الاختبارات       | `src/app/tests/`          | `auth.test.ts`, `PhotoCard.test.tsx`, `login.test.tsx`                       |
-| الإعداد والأنواع | جذر `src/app/`            | `config.ts`, `types.ts`, `providers.tsx`, `layout.tsx`                       |
+| الطبقة           | المسار                    | أمثلة                                                                                         |
+| ---------------- | ------------------------- | --------------------------------------------------------------------------------------------- |
+| الصفحات          | `src/app/*/page.tsx`      | `page.tsx` (RSC + `HomePageFeed`)، `login/page.tsx`، `my-photos/page.tsx`، `profile/page.tsx` |
+| Edge Middleware  | `src/middleware.ts`       | حماية `/my-photos`، `/profile`؛ إعادة توجيه الضيف من `/login` إن وُجدت جلسة                   |
+| مسارات API       | `src/app/api/**/route.ts` | `api/auth/login/route.ts`, `api/auth/logout/route.ts`, `api/photos/route.ts` …                |
+| المكونات         | `src/app/components/`     | `photos/PhotoCard.tsx`, `layout/UserMenu.tsx`, `profile/AvatarUploader.tsx`                   |
+| السياقات         | `src/app/context/`        | `AuthContext.tsx`, `ThemeContext.tsx`                                                         |
+| الخطافات         | `src/app/hooks/`          | `useAuth.ts`, `usePhotos.ts`, `useMyPhotos.ts`, `useCamera.ts`                                |
+| المكتبات         | `src/app/lib/`            | `auth.ts`, `authCookie.ts`, `fileValidation.ts`, `photoSerializer.ts`, `api.ts`, `storage/`   |
+| النماذج          | `src/app/models/`         | `User.ts`, `Photo.ts`, `Like.ts`                                                              |
+| المستودعات       | `src/app/repositories/`   | `user.repository.ts`, `photo.repository.ts`, `like.repository.ts`                             |
+| المحققون         | `src/app/validators/`     | `index.ts`                                                                                    |
+| الاختبارات       | `src/app/tests/`          | `auth.test.ts`, `PhotoCard.test.tsx`, `login.test.tsx`                                        |
+| الإعداد والأنواع | جذر `src/app/`            | `config.ts`, `types.ts`, `providers.tsx`, `layout.tsx`                                        |
 
 ---
 
@@ -44,23 +45,26 @@
 
 ## 3. مسارات API (ملخص)
 
-| Method | Path                  | Auth    | الوصف              |
-| ------ | --------------------- | ------- | ------------------ |
-| POST   | /api/auth/register    | —       | إنشاء حساب         |
-| POST   | /api/auth/login       | —       | تسجيل الدخول       |
-| GET    | /api/auth/me          | JWT     | بيانات المستخدم    |
-| PUT    | /api/profile          | JWT     | تحديث البيانات     |
-| PUT    | /api/profile/password | JWT     | تغيير كلمة المرور  |
-| PUT    | /api/profile/avatar   | JWT     | رفع صورة شخصية     |
-| DELETE | /api/profile/avatar   | JWT     | حذف الصورة الشخصية |
-| DELETE | /api/profile          | JWT     | حذف الحساب         |
-| GET    | /api/photos           | اختياري | قائمة الصور العامة |
-| POST   | /api/photos           | JWT     | رفع صورة           |
-| GET    | /api/photos/mine      | JWT     | صور المستخدم       |
-| PUT    | /api/photos/[id]      | JWT     | تعديل صورة         |
-| DELETE | /api/photos/[id]      | JWT     | حذف صورة           |
-| POST   | /api/photos/[id]/like | JWT     | تبديل الإعجاب      |
-| GET    | /api/health           | —       | فحص الصحة          |
+**Auth:** «جلسة» = cookie `auth-token` (المتصفح) أو `Authorization: Bearer` (بديل). انظر [api-endpoints.md](../api-endpoints.md).
+
+| Method | Path                  | Auth    | الوصف               |
+| ------ | --------------------- | ------- | ------------------- |
+| POST   | /api/auth/register    | —       | إنشاء حساب + cookie |
+| POST   | /api/auth/login       | —       | تسجيل دخول + cookie |
+| POST   | /api/auth/logout      | —       | مسح الجلسة          |
+| GET    | /api/auth/me          | جلسة    | بيانات المستخدم     |
+| PUT    | /api/profile          | جلسة    | تحديث البيانات      |
+| PUT    | /api/profile/password | جلسة    | تغيير كلمة المرور   |
+| PUT    | /api/profile/avatar   | جلسة    | رفع صورة شخصية      |
+| DELETE | /api/profile/avatar   | جلسة    | حذف الصورة الشخصية  |
+| DELETE | /api/profile          | جلسة    | حذف الحساب          |
+| GET    | /api/photos           | اختياري | قائمة الصور العامة  |
+| POST   | /api/photos           | جلسة    | رفع صورة            |
+| GET    | /api/photos/mine      | جلسة    | صور المستخدم        |
+| PUT    | /api/photos/[id]      | جلسة    | تعديل صورة          |
+| DELETE | /api/photos/[id]      | جلسة    | حذف صورة            |
+| POST   | /api/photos/[id]/like | جلسة    | تبديل الإعجاب       |
+| GET    | /api/health           | —       | فحص الصحة           |
 
 للتفاصيل والأمثلة: [../api-endpoints.md](../api-endpoints.md).
 

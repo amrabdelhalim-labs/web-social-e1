@@ -9,6 +9,7 @@ import { authenticateRequest } from '@/app/middlewares/auth.middleware';
 import { getUserRepository } from '@/app/repositories/user.repository';
 import { notFoundError, validationError, serverError } from '@/app/lib/apiErrors';
 import { getStorageService } from '@/app/lib/storage/storage.service';
+import { validateImageBuffer } from '@/app/lib/fileValidation';
 import { AVATAR_MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES } from '@/app/config';
 import type { User, StorageFile } from '@/app/types';
 
@@ -24,10 +25,6 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       return validationError(['ملف الصورة مطلوب.']);
     }
 
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      return validationError(['صيغة الملف غير مدعومة. الصيغ المسموحة: PNG, JPEG.']);
-    }
-
     if (file.size > AVATAR_MAX_FILE_SIZE) {
       return validationError(['حجم الصورة يتجاوز الحد المسموح (2 ميجابايت).']);
     }
@@ -40,10 +37,17 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     if (!foundUser) return notFoundError('المستخدم غير موجود.');
 
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Validate actual file content — MIME type from the browser is spoofable
+    const detectedType = validateImageBuffer(buffer, ALLOWED_IMAGE_TYPES);
+    if (!detectedType) {
+      return validationError(['صيغة الملف غير مدعومة. الصيغ المسموحة: PNG, JPEG.']);
+    }
+
     const storageFile: StorageFile = {
       buffer,
       originalname: file.name,
-      mimetype: file.type,
+      mimetype: detectedType,
       size: file.size,
     };
 

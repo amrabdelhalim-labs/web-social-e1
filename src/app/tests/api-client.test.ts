@@ -5,8 +5,12 @@
  * selected typed endpoint helpers. Does NOT test actual HTTP — all fetch
  * calls are intercepted with vi.fn() mocks.
  *
+ * Auth is now cookie-based (HttpOnly) — no Authorization header is injected
+ * by the client. Cookies are sent automatically by the browser for same-origin
+ * requests, which is invisible at the fetch-options level in these tests.
+ *
  * Covers:
- *  - fetchApi: injects Authorization header when token is present
+ *  - fetchApi: sends JSON request without Authorization header (cookie is automatic)
  *  - fetchApi: throws with Arabic server message on non-2xx
  *  - fetchApi: throws generic fallback when no error message
  *  - fetchFormApi: does NOT set Content-Type header (browser sets boundary)
@@ -32,7 +36,6 @@ const globalFetch = vi.fn() as MockedFunction<typeof fetch>;
 beforeEach(() => {
   vi.stubGlobal('fetch', globalFetch);
   globalFetch.mockReset();
-  localStorage.clear();
 });
 
 function makeResponse(body: unknown, status = 200): Response {
@@ -46,7 +49,7 @@ function makeResponse(body: unknown, status = 200): Response {
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe('fetchApi', () => {
-  it('sends JSON request without token when no token exists', async () => {
+  it('sends JSON request without Authorization header (cookie-based auth)', async () => {
     globalFetch.mockResolvedValueOnce(makeResponse({ data: null }));
 
     await fetchApi('/api/auth/me');
@@ -54,18 +57,8 @@ describe('fetchApi', () => {
     const [, options] = globalFetch.mock.calls[0];
     const headers = (options as RequestInit)?.headers as Record<string, string>;
     expect(headers['Content-Type']).toBe('application/json');
+    // No Authorization header — auth is via HttpOnly cookie (set by server)
     expect(headers['Authorization']).toBeUndefined();
-  });
-
-  it('adds Authorization header when token exists in localStorage', async () => {
-    localStorage.setItem('auth-token', 'my.jwt');
-    globalFetch.mockResolvedValueOnce(makeResponse({ data: null }));
-
-    await fetchApi('/api/auth/me');
-
-    const [, options] = globalFetch.mock.calls[0];
-    const headers = (options as RequestInit)?.headers as Record<string, string>;
-    expect(headers['Authorization']).toBe('Bearer my.jwt');
   });
 
   it('throws with server message on non-2xx response', async () => {
@@ -99,8 +92,8 @@ describe('fetchFormApi', () => {
     await fetchFormApi('/api/profile/avatar', form);
 
     const [, options] = globalFetch.mock.calls[0];
-    const headers = (options as RequestInit)?.headers as Record<string, string>;
-    expect(headers['Content-Type']).toBeUndefined();
+    const headers = (options as RequestInit)?.headers as Record<string, string> | undefined;
+    expect(headers?.['Content-Type']).toBeUndefined();
   });
 
   it('sends POST request by default', async () => {
@@ -124,7 +117,7 @@ describe('fetchFormApi', () => {
 
 describe('Endpoint helpers', () => {
   it('loginApi: sends POST /api/auth/login', async () => {
-    globalFetch.mockResolvedValueOnce(makeResponse({ data: { token: 'tok', user: {} } }));
+    globalFetch.mockResolvedValueOnce(makeResponse({ data: { user: {} } }));
 
     await loginApi({ email: 'a@b.com', password: '123456' });
 
@@ -134,7 +127,7 @@ describe('Endpoint helpers', () => {
   });
 
   it('registerApi: sends POST /api/auth/register', async () => {
-    globalFetch.mockResolvedValueOnce(makeResponse({ data: { token: 'tok', user: {} } }));
+    globalFetch.mockResolvedValueOnce(makeResponse({ data: { user: {} } }));
 
     await registerApi({
       name: 'علي',

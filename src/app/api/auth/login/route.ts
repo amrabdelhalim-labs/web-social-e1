@@ -1,10 +1,14 @@
 /**
  * POST /api/auth/login
  *
- * Authenticates a user by email and password, returns a JWT token.
+ * Authenticates a user by email and password.
+ * Sets an HttpOnly session cookie and returns the user object.
  *
  * Body: { email, password }
- * Response: { data: { token, user }, message }
+ * Response: { data: { user }, message }
+ *
+ * Security: the JWT is stored in an HttpOnly cookie, not returned in the
+ * response body, making it inaccessible to JavaScript (XSS-safe).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,6 +17,7 @@ import { comparePassword, generateToken } from '@/app/lib/auth';
 import { getUserRepository } from '@/app/repositories/user.repository';
 import { validateLoginInput } from '@/app/validators';
 import { validationError, unauthorizedError, serverError } from '@/app/lib/apiErrors';
+import { AUTH_COOKIE_OPTIONS, AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
 import type { User } from '@/app/types';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -46,10 +51,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       updatedAt: foundUser.updatedAt.toISOString(),
     };
 
-    return NextResponse.json(
-      { data: { token, user }, message: 'تم تسجيل الدخول بنجاح.' },
+    const response = NextResponse.json(
+      { data: { user }, message: 'تم تسجيل الدخول بنجاح.' },
       { status: 200 }
     );
+    response.cookies.set(AUTH_COOKIE_NAME, token, AUTH_COOKIE_OPTIONS);
+    return response;
   } catch (error) {
     console.error('Login error:', error);
     return serverError();

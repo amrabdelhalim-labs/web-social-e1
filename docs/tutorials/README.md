@@ -6,7 +6,7 @@
 
 ## لمحة تقنية
 
-صوري تطبيق ويب Full-Stack مبني بـ **Next.js 16** (App Router) و **TypeScript** و **MongoDB**. الواجهة عربية (RTL) باستخدام **MUI 7**. المصادقة عبر **JWT** و **bcrypt**، وطبقة البيانات تعتمد **نمط المستودعات** (Repository Pattern). رفع الصور يعتمد **استراتيجية قابلة للتبديل** (محلي / Cloudinary / S3). الاختبارات بـ **Vitest** و **Testing Library**.
+صوري تطبيق ويب Full-Stack مبني بـ **Next.js 16** (App Router) و **TypeScript** و **MongoDB**. الواجهة عربية (RTL) باستخدام **MUI 7**. المصادقة عبر **JWT** (موقّع على الخادم) مخزَّن في **Cookie HttpOnly** مع **bcrypt**، وحماية مسارات عبر **Edge Middleware** و`ProtectedRoute`. طبقة البيانات تعتمد **نمط المستودعات**. رفع الصور: استراتيجية تخزين قابلة للتبديل + **التحقق من محتوى الملف (Magic Bytes)** على الخادم. الاختبارات بـ **Vitest** و **Testing Library** (~٢٩ ملفًا).
 
 في الإصدار الحالي، التوثيق يشمل أيضًا مسار نشر بالحاويات عبر **Docker**:
 
@@ -15,14 +15,14 @@
 - خط أنابيب نشر صورة إلى `ghcr.io` عبر GitHub Actions
 - بوابات جودة ثم مسح **Trivy** (filesystem ثم الصورة) مع ملف **`.trivyignore`** الموثَّق (`trivyignores` في `docker-publish.yml`)؛ **`overrides`** في `package.json` لا تغطي تبعيات Next.js المجمّعة تحت `next/dist/compiled`
 
-| الطبقة   | التقنية                                    |
-| -------- | ------------------------------------------ |
-| الواجهة  | React، MUI، Emotion، RTL                   |
-| الخادم   | Next.js API Routes، SSR                    |
-| البيانات | MongoDB، Mongoose، Repositories            |
-| الملفات  | Storage Strategy (local / cloudinary / s3) |
-| المصادقة | JWT، AuthContext، ProtectedRoute           |
-| الاختبار | Vitest، jsdom، @testing-library/react      |
+| الطبقة   | التقنية                                                         |
+| -------- | --------------------------------------------------------------- |
+| الواجهة  | React، MUI، Emotion، RTL                                        |
+| الخادم   | Next.js API Routes، SSR                                         |
+| البيانات | MongoDB، Mongoose، Repositories                                 |
+| الملفات  | Storage Strategy (local / cloudinary / s3)                      |
+| المصادقة | JWT في cookie HttpOnly، Middleware، AuthContext، ProtectedRoute |
+| الاختبار | Vitest، jsdom، @testing-library/react                           |
 
 ---
 
@@ -57,10 +57,10 @@
 
 ## ملفات مساندة
 
-| الملف                                    | الغرض                                                                                                |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| [concepts-guide.md](concepts-guide.md)   | شرح المفاهيم التقنية (Next.js، TypeScript، MongoDB، Repository، JWT، Strategy، getUserMedia، Vitest) |
-| [quick-reference.md](quick-reference.md) | خريطة الملفات، أوامر npm، مسارات API، روابط الدروس                                                   |
+| الملف                                    | الغرض                                                                                               |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [concepts-guide.md](concepts-guide.md)   | شرح المفاهيم (Next.js، TypeScript، MongoDB، Repository، JWT+Cookie، Strategy، getUserMedia، Vitest) |
+| [quick-reference.md](quick-reference.md) | خريطة الملفات، أوامر npm، مسارات API، روابط الدروس                                                  |
 
 ---
 

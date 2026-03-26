@@ -32,7 +32,12 @@ DATABASE_URL=mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/web-social-e
 
 للتجريب المحلي استخدم `STORAGE_TYPE=local` — الملفات تُحفظ في `public/uploads/`.
 
-## 3. التحقق
+## 3. المصادقة المحلية
+
+- عيّن `JWT_SECRET` في `.env.local` (أي سلسلة عشوائية طويلة للتطوير).
+- الجلسة تُخزَّن في **Cookie HttpOnly** (`auth-token`) بعد تسجيل الدخول؛ في التطوير (`NODE_ENV=development`) الـ cookie **ليس** `Secure`، فيعمل على `http://localhost` دون HTTPS.
+
+## 4. التحقق
 
 ```bash
 npm run dev
@@ -50,3 +55,5 @@ npm run dev
 ```
 
 إذا ظهر `databaseError` أو `storage.error`، راجع الرسالة الظاهرة في الاستجابة.
+
+لتفاصيل مسارات API والجلسة: [api-endpoints.md](api-endpoints.md) و [README.md](../README.md) (قسم تدفق المصادقة).

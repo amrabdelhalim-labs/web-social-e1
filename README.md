@@ -13,17 +13,17 @@
 
 ## الميزات الرئيسية
 
-| الميزة            | التفاصيل                                               |
-| ----------------- | ------------------------------------------------------ |
-| **مشاركة الصور**  | رفع PNG/JPEG مع عنوان ووصف                             |
-| **كاميرا مباشرة** | التقاط صورة من الكاميرا عبر `getUserMedia`             |
-| **صفحة المجتمع**  | عرض صور جميع المستخدمين مع pagination                  |
-| **الإعجاب**       | إضافة/إزالة إعجاب مع عداد فوري                         |
-| **الملف الشخصي**  | تعديل البيانات، الصورة الشخصية، وكلمة المرور           |
-| **المصادقة**      | JWT + bcrypt، حماية المسارات، تحديث تلقائي للـ context |
-| **وضع داكن/فاتح** | تبديل السمة مع الحفاظ على WCAG AA                      |
-| **تخزين مرن**     | محلي / Cloudinary / S3 عبر Strategy Pattern            |
-| **حذف الحساب**    | حذف متسلسل: صور + إعجابات + ملفات التخزين              |
+| الميزة            | التفاصيل                                                        |
+| ----------------- | --------------------------------------------------------------- |
+| **مشاركة الصور**  | رفع PNG/JPEG مع عنوان ووصف                                      |
+| **كاميرا مباشرة** | التقاط صورة من الكاميرا عبر `getUserMedia`                      |
+| **صفحة المجتمع**  | عرض صور جميع المستخدمين مع pagination                           |
+| **الإعجاب**       | إضافة/إزالة إعجاب مع عداد فوري                                  |
+| **الملف الشخصي**  | تعديل البيانات، الصورة الشخصية، وكلمة المرور                    |
+| **المصادقة**      | JWT + bcrypt، Cookie HttpOnly آمن، حماية مسارات Edge Middleware |
+| **وضع داكن/فاتح** | تبديل السمة مع الحفاظ على WCAG AA                               |
+| **تخزين مرن**     | محلي / Cloudinary / S3 عبر Strategy Pattern                     |
+| **حذف الحساب**    | حذف متسلسل: صور + إعجابات + ملفات التخزين                       |
 
 ---
 
@@ -83,10 +83,20 @@ npm run dev
 | المتغير        | الوصف              | مثال                                      |
 | -------------- | ------------------ | ----------------------------------------- |
 | `DATABASE_URL` | رابط اتصال MongoDB | `mongodb://127.0.0.1:27017/web-social-e1` |
-| `JWT_SECRET`   | مفتاح توقيع JWT    | سلسلة عشوائية طويلة                       |
+| `JWT_SECRET`   | مفتاح توقيع JWT    | سلسلة عشوائية طويلة (مطلوب في الإنتاج)    |
 | `STORAGE_TYPE` | نوع التخزين        | `local` \| `cloudinary` \| `s3`           |
 
 للتفاصيل الكاملة: [docs/setup-local.md](docs/setup-local.md)
+
+### تدفق المصادقة (Cookie HttpOnly)
+
+يعتمد المشروع على **JWT مخزّن في HttpOnly Cookie** بدلاً من localStorage:
+
+1. عند تسجيل الدخول/إنشاء حساب، يُعيّن الخادم `Set-Cookie: auth-token=<jwt>` بخصائص `HttpOnly; SameSite=Lax; Secure (الإنتاج فقط)`.
+2. الـ cookie يُرسَل تلقائيًا مع كل طلب من نفس النطاق — لا حاجة لحقن يدوي.
+3. JavaScript **لا يستطيع** قراءة الـ token (محمي من XSS).
+4. Next.js Edge Middleware (`src/middleware.ts`) يحمي مسارات مثل `/my-photos` و`/profile` قبل عرض الصفحة.
+5. تسجيل الخروج يستدعي `POST /api/auth/logout` لمسح الـ cookie من الخادم.
 
 ### Docker (تشغيل سريع مع MongoDB)
 
@@ -109,17 +119,18 @@ docker compose up --build
 web-social-e1/
 ├── Dockerfile
 ├── docker-compose.yml
-├── src/app/
-│   ├── api/              ← REST API Routes (auth, photos, profile, health)
-│   ├── components/       ← مكونات React (photos, profile, camera, layout, common)
-│   ├── context/          ← AuthContext + ThemeContext
-│   ├── hooks/            ← useAuth, useThemeMode, usePhotos, useMyPhotos, useCamera
-│   ├── lib/              ← auth.ts, mongodb.ts, api.ts, storage/, apiErrors.ts
-│   ├── models/           ← User.ts, Photo.ts, Like.ts
-│   ├── repositories/     ← Repository Pattern (طبقة الوصول للبيانات)
-│   ├── validators/       ← دوال التحقق من المدخلات
-│   ├── utils/            ← دوال مساعدة
-│   └── tests/            ← 28 ملف اختبار
+├── src/
+│   ├── middleware.ts     ← Edge Middleware (حماية المسارات)
+│   └── app/
+│       ├── api/              ← REST API Routes (auth, photos, profile, health)
+│       ├── components/       ← مكونات React (photos, profile, camera, layout, common)
+│       ├── context/          ← AuthContext (cookie-based) + ThemeContext
+│       ├── hooks/            ← useAuth, useThemeMode, usePhotos, useMyPhotos, useCamera
+│       ├── lib/              ← auth.ts, authCookie.ts, api.ts, fileValidation.ts, photoSerializer.ts, storage/
+│       ├── models/           ← User.ts, Photo.ts, Like.ts
+│       ├── repositories/     ← Repository Pattern (طبقة الوصول للبيانات)
+│       ├── validators/       ← دوال التحقق من المدخلات
+│       └── tests/            ← 29 ملف اختبار
 ├── docs/                 ← التوثيق الكامل
 │   ├── plans/            ← خطة المشروع وخطة التوثيق
 │   ├── ai/               ← دليل AI للمشروع
@@ -150,9 +161,9 @@ web-social-e1/
 
 ## الاختبارات
 
-المشروع يحتوي **28 ملف اختبار** يغطي:
+المشروع يحتوي **29 ملف اختبار** يغطي:
 
-- الوحدات: دوال المصادقة، التحقق من المدخلات، عميل API، استراتيجيات التخزين
+- الوحدات: دوال المصادقة، التحقق من المدخلات (Magic Bytes)، عميل API، استراتيجيات التخزين
 - المكونات: PhotoCard، PhotoGrid، CameraCapture، AvatarUploader، LikeButton، وغيرها
 - الصفحات: login، register، not-found
 - الخطافات: usePhotos، useMyPhotos، useCamera
@@ -210,6 +221,16 @@ git push heroku main
 ---
 
 ## سجل التغييرات
+
+### v0.1.3 — أمان وأداء وجودة كود
+
+- **auth:** الانتقال من JWT في localStorage إلى **HttpOnly Cookie** — مقاومة لـ XSS
+- **middleware:** إضافة Next.js Edge Middleware لحماية `/my-photos` و`/profile` قبل الرندر
+- **auth api:** إضافة `POST /api/auth/logout` لمسح الـ cookie من الخادم
+- **uploads:** استبدال فحص `file.type` (قابل للتزوير) بفحص **Magic Bytes** الفعلية على الخادم
+- **homepage:** تحويل الصفحة الرئيسية من `'use client'` إلى **Server Component** — SSR كامل للمحتوى الأولي
+- **build:** `export const dynamic = 'force-dynamic'` للصفحة الرئيسية حتى ينجح `next build` في Docker/CI دون اتصال MongoDB وقت البناء
+- **test:** إضافة `fileValidation.test.ts` (17 حالة) وتحديث اختبارات auth-context وauth-middleware وapi-client
 
 ### v0.1.2 — Docker والنشر عبر الحاويات
 

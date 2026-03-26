@@ -1,16 +1,17 @@
 'use client';
 
 /**
- * AuthContext — JWT Authentication State
+ * AuthContext — Cookie-Based Authentication State
  *
  * Manages the global auth state for the client:
- *  - Stores the JWT in localStorage under TOKEN_KEY
+ *  - The JWT lives in an HttpOnly cookie set by the server (inaccessible to JS)
  *  - Exposes login / register / logout / updateUser
- *  - Auto-hydrates from the stored token on mount via GET /api/auth/me
- *  - 401 from the server clears the session immediately
+ *  - Auto-hydrates by calling GET /api/auth/me on mount
+ *    (the cookie is sent automatically by the browser for same-origin requests)
+ *  - 401 from the server sets user to null
+ *  - logout calls POST /api/auth/logout to clear the server-side cookie
  *
- * This is a simple stateless-session implementation — no service workers,
- * no device trust, no offline cache. Token in localStorage; user in memory.
+ * Security: no token is stored or accessible in JavaScript — XSS cannot steal it.
  */
 
 import {
@@ -29,29 +30,22 @@ import type { User, RegisterInput } from '@/app/types';
 export interface AuthContextValue {
   /** Authenticated user, or null if logged out */
   user: User | null;
-  /** JWT stored in memory — localStorage is the persisted copy */
-  token: string | null;
   /** True while the initial /api/auth/me check is in progress */
   loading: boolean;
   /** Logs in with email + password. Throws on failure. */
   login: (email: string, password: string) => Promise<void>;
   /** Creates a new account and logs in. Throws on failure. */
   register: (input: RegisterInput) => Promise<void>;
-  /** Clears the session (token + user). */
+  /** Clears the session by calling the logout API (clears the cookie server-side). */
   logout: () => void;
   /** Syncs in-memory user state after profile changes without re-fetching. */
   updateUser: (updated: User) => void;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const TOKEN_KEY = 'auth-token';
-
 // ─── Context ─────────────────────────────────────────────────────────────────
 
 export const AuthContext = createContext<AuthContextValue>({
   user: null,
-  token: null,
   loading: true,
   login: async () => {},
   register: async () => {},
@@ -61,17 +55,13 @@ export const AuthContext = createContext<AuthContextValue>({
 
 // ─── Internal fetch helper ────────────────────────────────────────────────────
 
-async function apiFetch<T>(
-  path: string,
-  options: RequestInit = {},
-  jwt?: string | null
-): Promise<T> {
+async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> | undefined),
   };
-  if (jwt) headers['Authorization'] = `Bearer ${jwt}`;
 
+  // Cookies are sent automatically for same-origin requests — no manual injection needed
   const res = await fetch(path, { ...options, headers });
   const json = await res.json().catch(() => ({}));
 
@@ -87,73 +77,57 @@ async function apiFetch<T>(
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(TOKEN_KEY);
-  });
   const [loading, setLoading] = useState(true);
   /** Prevents double-init in React StrictMode / concurrent renders */
   const didInit = useRef(false);
 
   /**
-   * Fetches /api/auth/me with the stored JWT.
-   * On 401: clears the invalid token and user.
+   * Calls /api/auth/me — the cookie is sent automatically by the browser.
+   * On 401: user is set to null (session expired or never existed).
    * On other errors: silently sets loading=false, user stays null.
    */
-  const loadUser = useCallback(async (jwt: string) => {
+  const loadUser = useCallback(async () => {
     try {
-      const res = await apiFetch<{ data: User }>('/api/auth/me', {}, jwt);
+      const res = await apiFetch<{ data: User }>('/api/auth/me');
       setUser(res.data);
     } catch (err) {
       const status = (err as Error & { status?: number }).status;
       if (status === 401) {
-        localStorage.removeItem(TOKEN_KEY);
-        setToken(null);
         setUser(null);
       }
-      // For network errors, user stays null — the login page will handle it
+      // Network errors: user stays null — the login page will handle it
     }
   }, []);
 
-  // Hydrate on mount from any stored token
+  // Hydrate on mount — always check the server since we can't read the HttpOnly cookie
   useEffect(() => {
     if (didInit.current) return;
     didInit.current = true;
-
-    const storedToken = token;
-    if (storedToken) {
-      loadUser(storedToken).finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+    loadUser().finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await apiFetch<{ data: { token: string; user: User } }>('/api/auth/login', {
+    const res = await apiFetch<{ data: { user: User } }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    const { token: jwt, user: loggedInUser } = res.data;
-    localStorage.setItem(TOKEN_KEY, jwt);
-    setToken(jwt);
-    setUser(loggedInUser);
+    // Cookie is set by the server response automatically
+    setUser(res.data.user);
   }, []);
 
   const register = useCallback(async (input: RegisterInput) => {
-    const res = await apiFetch<{ data: { token: string; user: User } }>('/api/auth/register', {
+    const res = await apiFetch<{ data: { user: User } }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(input),
     });
-    const { token: jwt, user: newUser } = res.data;
-    localStorage.setItem(TOKEN_KEY, jwt);
-    setToken(jwt);
-    setUser(newUser);
+    // Cookie is set by the server response automatically
+    setUser(res.data.user);
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
+    // Fire-and-forget: clears the HttpOnly cookie server-side
+    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
   }, []);
 
@@ -162,8 +136,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, token, loading, login, register, logout, updateUser }),
-    [user, token, loading, login, register, logout, updateUser]
+    () => ({ user, loading, login, register, logout, updateUser }),
+    [user, loading, login, register, logout, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

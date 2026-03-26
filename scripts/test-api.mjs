@@ -11,7 +11,7 @@
  *
  * What it tests:
  *   §1 System health and storage type detection
- *   §2 Authentication (register, login, me, validation)
+ *   §2 Authentication (register, login, session cookie, me, validation)
  *   §3 Profile management (update info, password change, avatar upload/delete)
  *   §4 Photos CRUD (upload real image, list, mine, like/unlike, edit, delete)
  *   §5 Authorization checks (unauthenticated requests)
@@ -72,12 +72,32 @@ const TEST_EMAIL = `integration-${TIMESTAMP}@test-cleanup.dev`;
 const TEST_PASSWORD = 'IntTest@123456';
 const TEST_NAME = 'مستخدم اختبار تكامل';
 
+/** JWT string extracted from `Set-Cookie: auth-token=...` — sent as Cookie on follow-up requests */
 let token = null;
 let detectedStorageType = 'unknown';
 let uploadedPhotoId = null;
 
 const state = { passed: 0, failed: 0, sections: {} };
 let currentSection = '';
+
+/**
+ * Reads auth-token from Set-Cookie (login/register set HttpOnly cookie; body no longer returns token).
+ */
+function extractAuthTokenFromResponse(res) {
+  const getter = res.headers.getSetCookie?.bind(res.headers);
+  if (typeof getter === 'function') {
+    for (const line of getter()) {
+      const m = line.match(/^auth-token=([^;]+)/);
+      if (m) return m[1].trim();
+    }
+  }
+  const single = res.headers.get('set-cookie');
+  if (single) {
+    const m = single.match(/auth-token=([^;]+)/);
+    if (m) return m[1].trim();
+  }
+  return null;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -103,7 +123,7 @@ async function test(label, fn) {
 
 async function api(path, options = {}) {
   const headers = { 'Content-Type': 'application/json', ...options.headers };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers['Cookie'] = `auth-token=${token}`;
 
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
   const body = await res.json().catch(() => null);
@@ -112,7 +132,7 @@ async function api(path, options = {}) {
 
 async function apiForm(path, formData, method = 'POST') {
   const headers = {};
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers['Cookie'] = `auth-token=${token}`;
 
   const res = await fetch(`${BASE_URL}${path}`, { method, headers, body: formData });
   const body = await res.json().catch(() => null);
@@ -144,9 +164,10 @@ await test('HEAD /api/health returns 200', async () => {
 
 logSection('§2 — Authentication');
 
-await test('POST /api/auth/register creates account + returns token', async () => {
-  const { status, body } = await api('/api/auth/register', {
+await test('POST /api/auth/register creates account + Set-Cookie session', async () => {
+  const res = await fetch(`${BASE_URL}/api/auth/register`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: TEST_NAME,
       email: TEST_EMAIL,
@@ -154,21 +175,25 @@ await test('POST /api/auth/register creates account + returns token', async () =
       confirmPassword: TEST_PASSWORD,
     }),
   });
-  if (status !== 201) throw new Error(`Status: ${status} — ${JSON.stringify(body)}`);
-  if (!body.data?.token) throw new Error('Missing token in response');
+  const body = await res.json().catch(() => null);
+  if (res.status !== 201) throw new Error(`Status: ${res.status} — ${JSON.stringify(body)}`);
   if (!body.data?.user?._id) throw new Error('Missing user._id in response');
   if (body.data.user.email !== TEST_EMAIL) throw new Error('Email mismatch');
-  token = body.data.token;
+  token = extractAuthTokenFromResponse(res);
+  if (!token) throw new Error('Missing auth-token in Set-Cookie');
 });
 
-await test('POST /api/auth/login returns token for valid credentials', async () => {
-  const { status, body } = await api('/api/auth/login', {
+await test('POST /api/auth/login sets session cookie for valid credentials', async () => {
+  const res = await fetch(`${BASE_URL}/api/auth/login`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
   });
-  if (status !== 200) throw new Error(`Status: ${status}`);
-  if (!body.data?.token) throw new Error('Missing token');
-  token = body.data.token;
+  const body = await res.json().catch(() => null);
+  if (res.status !== 200) throw new Error(`Status: ${res.status}`);
+  if (!body.data?.user) throw new Error('Missing user in response');
+  const fromCookie = extractAuthTokenFromResponse(res);
+  if (fromCookie) token = fromCookie;
 });
 
 await test('GET /api/auth/me returns current user', async () => {
@@ -386,7 +411,7 @@ await test(`DELETE /api/photos/${uploadedPhotoId?.slice(0, 8)}… deletes photo 
 
 logSection('§5 — Authorization');
 
-await test('GET /api/auth/me without token → 401', async () => {
+await test('GET /api/auth/me without session cookie → 401', async () => {
   const saved = token;
   token = null;
   const { status } = await api('/api/auth/me');
@@ -394,7 +419,7 @@ await test('GET /api/auth/me without token → 401', async () => {
   if (status !== 401) throw new Error(`Expected 401, got ${status}`);
 });
 
-await test('POST /api/photos without token → 401', async () => {
+await test('POST /api/photos without session → 401', async () => {
   const saved = token;
   token = null;
   const formData = new FormData();
@@ -405,7 +430,7 @@ await test('POST /api/photos without token → 401', async () => {
   if (status !== 401) throw new Error(`Expected 401, got ${status}`);
 });
 
-await test('PUT /api/profile without token → 401', async () => {
+await test('PUT /api/profile without session → 401', async () => {
   const saved = token;
   token = null;
   const { status } = await api('/api/profile', {
@@ -436,6 +461,7 @@ await test('DELETE /api/profile deletes account with password confirmation', asy
     body: JSON.stringify({ password: TEST_PASSWORD + '!' }),
   });
   if (status !== 200) throw new Error(`Status: ${status}`);
+  token = null;
 });
 
 await test('GET /api/auth/me after deletion → 404 or 401', async () => {

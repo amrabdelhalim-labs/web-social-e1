@@ -3,11 +3,14 @@
 /**
  * API Client — Centralized HTTP Layer
  *
- * Provides a generic fetch wrapper that auto-injects the JWT from localStorage,
- * plus typed helpers for every API endpoint defined in the backend.
+ * Provides a generic fetch wrapper and typed helpers for every API endpoint.
+ *
+ * Authentication is cookie-based: the HttpOnly `auth-token` cookie is sent
+ * automatically by the browser for all same-origin requests. No manual token
+ * injection is needed or performed here.
  *
  * Two base functions:
- *  - fetchApi<T>()     → JSON endpoints (auto sets Content-Type: application/json)
+ *  - fetchApi<T>()     → JSON endpoints (sets Content-Type: application/json)
  *  - fetchFormApi<T>() → multipart/form-data endpoints (browser sets boundary)
  *
  * All helpers throw an Error with the Arabic message from the server on non-2xx.
@@ -29,28 +32,18 @@ import type {
   PaginatedApiResponse,
 } from '@/app/types';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const TOKEN_KEY = 'auth-token';
-
 // ─── Base Fetchers ────────────────────────────────────────────────────────────
-
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(TOKEN_KEY);
-}
 
 /**
  * Generic JSON API caller.
+ * The auth cookie is sent automatically — no Authorization header needed.
  * Throws an Error (with the server's Arabic message) on any non-2xx response.
  */
 export async function fetchApi<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> | undefined),
   };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
 
   const res = await fetch(path, { ...options, headers });
   const json = await res.json().catch(() => ({}));
@@ -70,11 +63,7 @@ export async function fetchFormApi<T>(
   formData: FormData,
   method: 'POST' | 'PUT' = 'POST'
 ): Promise<T> {
-  const token = getToken();
-  const headers: Record<string, string> = {};
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-
-  const res = await fetch(path, { method, headers, body: formData });
+  const res = await fetch(path, { method, body: formData });
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
@@ -86,14 +75,14 @@ export async function fetchFormApi<T>(
 // ─── Auth Endpoints ───────────────────────────────────────────────────────────
 
 export function loginApi(input: LoginInput) {
-  return fetchApi<ApiResponse<{ token: string; user: User }>>('/api/auth/login', {
+  return fetchApi<ApiResponse<{ user: User }>>('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify(input),
   });
 }
 
 export function registerApi(input: RegisterInput) {
-  return fetchApi<ApiResponse<{ token: string; user: User }>>('/api/auth/register', {
+  return fetchApi<ApiResponse<{ user: User }>>('/api/auth/register', {
     method: 'POST',
     body: JSON.stringify(input),
   });
@@ -101,6 +90,10 @@ export function registerApi(input: RegisterInput) {
 
 export function getMeApi() {
   return fetchApi<ApiResponse<User>>('/api/auth/me');
+}
+
+export function logoutApi() {
+  return fetchApi<ApiResponse<null>>('/api/auth/logout', { method: 'POST' });
 }
 
 // ─── Profile Endpoints ────────────────────────────────────────────────────────
@@ -131,7 +124,7 @@ export function deleteAvatarApi() {
 
 /**
  * Permanently deletes the account. Requires password confirmation from the user.
- * After success, clear localStorage and redirect to the home page.
+ * After success, the server clears the cookie; client should redirect to home.
  */
 export function deleteAccountApi(password: string) {
   return fetchApi<ApiResponse<null>>('/api/profile', {

@@ -131,6 +131,7 @@ export function validateCommentInput(body: unknown): string[] {
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/app/lib/mongodb';
 import { authenticateRequest } from '@/app/middlewares/auth.middleware';
+// authenticateRequest reads the HttpOnly auth cookie first, then Authorization: Bearer
 import { getCommentRepository } from '@/app/repositories/comment.repository';
 import { validateCommentInput } from '@/app/validators';
 import { validationError, serverError } from '@/app/lib/apiErrors';
@@ -297,8 +298,9 @@ If the feature doesn't require a new DB collection:
 - [ ] Mongoose model has correct indexes
 - [ ] Repository extends `BaseRepository` — no raw Mongoose in API routes
 - [ ] Validation function returns Arabic error messages
-- [ ] API route calls `authenticateRequest()` for protected endpoints
+- [ ] API route calls `authenticateRequest()` for protected endpoints (cookie or Bearer)
 - [ ] Storage cleanup on failure (if feature involves file upload)
+- [ ] If accepting images, use `validateImageBuffer()` — do not rely on `File.type` alone
 - [ ] Cascade delete updated if entity belongs to photo or user
 - [ ] `lib/api.ts` has the client function
 - [ ] Custom hook isolates all API calls

@@ -19,7 +19,7 @@ This repository is self-contained:
 | Type       | Full-Stack SSR (Next.js App Router)              |
 | Stack      | Next.js 16, TypeScript, MongoDB, Mongoose, MUI 7 |
 | Version    | v0.1.3 (see README changelog)                    |
-| Tests      | 29 test files (Vitest + Testing Library)         |
+| Tests      | 33 test files (Vitest + Testing Library)         |
 | Deployment | Docker (Compose/GHCR) + Heroku                   |
 | Node       | >= 20.x, npm >= 10.x                             |
 

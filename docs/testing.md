@@ -10,7 +10,7 @@
 | ---------------------- | ------------------------------------------ |
 | **إطار الاختبار**      | Vitest                                     |
 | **اختبارات المكونات**  | Testing Library (`@testing-library/react`) |
-| **عدد ملفات الاختبار** | 29 ملفًا                                   |
+| **عدد ملفات الاختبار** | 33 ملفًا                                   |
 | **النوع السائد**       | اختبارات وحدة (Unit Tests)                 |
 | **البيئة**             | jsdom                                      |
 
@@ -73,6 +73,8 @@ export default defineConfig({
 | `auth-middleware.test.ts`      | `authenticateRequest`: cookie صالح، Bearer كبديل، أولوية cookie، رفض غير صالح                                                  |
 | `profile-delete-route.test.ts` | منطق مسار `DELETE /api/profile`: cascade، تأكيد كلمة المرور                                                                    |
 | `docker-config.test.ts`        | التحقق من ثوابت Docker: `standalone` في Next، healthcheck في Dockerfile، وربط compose                                          |
+| `middleware.test.ts`           | Edge Middleware: حماية `/my-photos`، منع الوصول للضيوف، إعادة التوجيه مع `?next=`                                              |
+| `photoSerializer.test.ts`      | `serializePhoto`: سلامة الحقول، قيم `isLiked`، معالجة `null`/`undefined`                                                       |
 
 ### 4.2 اختبارات السياقات (Contexts)
 
@@ -107,7 +109,14 @@ export default defineConfig({
 | `DeleteConfirmDialog.test.tsx` | `DeleteConfirmDialog` | حوار التأكيد العام                             |
 | `DeleteAccountDialog.test.tsx` | `DeleteAccountDialog` | حوار حذف الحساب مع تأكيد كلمة المرور           |
 
-### 4.5 اختبارات الصفحات (Pages)
+### 4.5 اختبارات المكونات التفاعلية الجديدة
+
+| الملف                   | ما يختبره                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| `HomePageFeed.test.tsx` | عرض الصور الأولية، "تحميل المزيد"، الحالة الفارغة، إضافة صور، رسالة خطأ، إخفاء زر الصفحة الأخيرة |
+| `route-guards.test.tsx` | `ProtectedRoute`: عرض spinner ثم إعادة توجيه، عرض المحتوى للمستخدم المسجّل                       |
+
+### 4.6 اختبارات الصفحات (Pages)
 
 | الملف                | الصفحة       | ما يختبره                         |
 | -------------------- | ------------ | --------------------------------- |

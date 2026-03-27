@@ -5,7 +5,7 @@
  * Must be used inside <AuthProvider>.
  *
  * Returns:
- *   { user, token, loading, login, register, logout, updateUser }
+ *   { user, loading, login, register, logout, updateUser }
  */
 
 import { useContext } from 'react';

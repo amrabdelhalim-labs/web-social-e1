@@ -12,7 +12,6 @@
  */
 
 import { cookies } from 'next/headers';
-import { Typography } from '@mui/material';
 import { Types } from 'mongoose';
 import { MainLayout } from '@/app/components/layout/MainLayout';
 import { HomePageFeed } from '@/app/components/photos/HomePageFeed';
@@ -85,22 +84,12 @@ export default async function HomePage() {
     photos = result.photos;
     pagination = result.pagination;
   } catch {
-    // DB unavailable at render time — show empty feed; client-side load-more still works
+    // DB unavailable at render time — HomePageFeed still mounts for client-side interaction
   }
 
   return (
     <MainLayout>
-      {photos.length === 0 ? (
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          sx={{ py: { xs: 6, sm: 8 }, textAlign: 'center' }}
-        >
-          لا توجد صور لعرضها بعد.
-        </Typography>
-      ) : (
-        <HomePageFeed initialPhotos={photos} initialPagination={pagination} />
-      )}
+      <HomePageFeed initialPhotos={photos} initialPagination={pagination} />
     </MainLayout>
   );
 }

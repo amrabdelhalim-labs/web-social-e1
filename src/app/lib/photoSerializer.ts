@@ -1,19 +1,20 @@
 /**
  * Photo Serializer
  *
- * Converts a raw Mongoose document (or its _doc object) into a plain,
- * JSON-serializable Photo object safe for use in both API responses and
- * Server Component → Client Component prop passing.
+ * Converts a plain object from `doc.toObject()` (Mongoose) into a
+ * JSON-serializable Photo value safe for API responses and Server Component
+ * → Client Component prop passing.
  *
  * Used by:
- *  - src/app/api/photos/route.ts
- *  - src/app/page.tsx (server-side initial data fetch)
+ *  - src/app/api/photos/route.ts        (public feed)
+ *  - src/app/api/photos/mine/route.ts   (owner's photos)
+ *  - src/app/page.tsx                   (SSR initial feed)
  */
 
 import type { Photo } from '@/app/types';
 
 /**
- * Serializes a raw photo document (plain object from Mongoose _doc or lean query)
+ * Serializes a plain photo object (from `doc.toObject()` or a lean query result)
  * into a type-safe Photo value.
  */
 export function serializePhoto(doc: Record<string, unknown>, isLiked = false): Photo {

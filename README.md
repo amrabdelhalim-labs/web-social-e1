@@ -130,7 +130,7 @@ web-social-e1/
 │       ├── models/           ← User.ts, Photo.ts, Like.ts
 │       ├── repositories/     ← Repository Pattern (طبقة الوصول للبيانات)
 │       ├── validators/       ← دوال التحقق من المدخلات
-│       └── tests/            ← 29 ملف اختبار
+│       └── tests/            ← 33 ملف اختبار
 ├── docs/                 ← التوثيق الكامل
 │   ├── plans/            ← خطة المشروع وخطة التوثيق
 │   ├── ai/               ← دليل AI للمشروع
@@ -161,7 +161,7 @@ web-social-e1/
 
 ## الاختبارات
 
-المشروع يحتوي **29 ملف اختبار** يغطي:
+المشروع يحتوي **33 ملف اختبار** يغطي:
 
 - الوحدات: دوال المصادقة، التحقق من المدخلات (Magic Bytes)، عميل API، استراتيجيات التخزين
 - المكونات: PhotoCard، PhotoGrid، CameraCapture، AvatarUploader، LikeButton، وغيرها
@@ -230,7 +230,13 @@ git push heroku main
 - **uploads:** استبدال فحص `file.type` (قابل للتزوير) بفحص **Magic Bytes** الفعلية على الخادم
 - **homepage:** تحويل الصفحة الرئيسية من `'use client'` إلى **Server Component** — SSR كامل للمحتوى الأولي
 - **build:** `export const dynamic = 'force-dynamic'` للصفحة الرئيسية حتى ينجح `next build` في Docker/CI دون اتصال MongoDB وقت البناء
-- **test:** إضافة `fileValidation.test.ts` (17 حالة) وتحديث اختبارات auth-context وauth-middleware وapi-client
+- **fix(auth):** مسح الـ cookie الفاسد عند 401 وإرسال `credentials: same-origin` عند تسجيل الخروج — منع حلقات إعادة التوجيه
+- **fix(auth):** حفظ مسار الوجهة عبر `?next=` بعد تسجيل الدخول/التسجيل مع `Suspense` لـ `useSearchParams`
+- **fix(api):** استبدال `_doc` بـ `toObject()` لضمان اتساق تسلسل بيانات الصور
+- **fix(ux):** تشغيل `HomePageFeed` دائمًا حتى عند فشل قاعدة البيانات وقت SSR — الـ client component يبقى مُحمَّلًا
+- **style:** إصلاح حلقة `:focus-visible` في الوضع الداكن لتستخدم اللون الأساسي الصحيح `#42a5f5`
+- **refactor:** حذف `_doc?` الزائدة من واجهات `IUser`/`IPhoto`/`ILike` في `types.ts`
+- **test:** إضافة `fileValidation.test.ts`، `middleware.test.ts`، `route-guards.test.tsx`، `HomePageFeed.test.tsx`، `photoSerializer.test.ts` (275 اختبارًا)
 
 ### v0.1.2 — Docker والنشر عبر الحاويات
 

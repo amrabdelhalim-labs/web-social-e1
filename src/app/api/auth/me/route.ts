@@ -2,7 +2,7 @@
  * GET /api/auth/me
  *
  * Returns the currently authenticated user's profile.
- * Requires a valid JWT token in the Authorization header.
+ * Auth source: HttpOnly cookie `auth-token` (primary) or Authorization: Bearer (fallback).
  *
  * Response: { data: user }
  */

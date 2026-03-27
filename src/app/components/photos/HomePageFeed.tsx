@@ -14,7 +14,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { Box, Button, Alert } from '@mui/material';
+import { Box, Button, Alert, Typography } from '@mui/material';
 import { PhotoGrid } from './PhotoGrid';
 import { getPhotosApi } from '@/app/lib/api';
 import type { Photo, PaginatedApiResponse } from '@/app/types';
@@ -55,7 +55,17 @@ export function HomePageFeed({ initialPhotos, initialPagination }: HomePageFeedP
         </Alert>
       )}
 
-      <PhotoGrid photos={photos} />
+      {photos.length === 0 && !hasMore ? (
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{ py: { xs: 6, sm: 8 }, textAlign: 'center' }}
+        >
+          لا توجد صور لعرضها بعد.
+        </Typography>
+      ) : (
+        <PhotoGrid photos={photos} />
+      )}
 
       {hasMore && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: { xs: 2, sm: 3 } }}>

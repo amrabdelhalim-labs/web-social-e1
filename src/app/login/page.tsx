@@ -8,7 +8,7 @@
  * Flow:
  *   1. Client-side validation via validateLoginInput (Arabic error messages)
  *   2. Call login() from AuthContext — throws on server error
- *   3. On success → router.push('/')
+ *   3. On success → router.push(next) where next comes from ?next= query param (defaults to /)
  *   4. On failure → display the server error in an Alert
  */
 

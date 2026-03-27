@@ -54,6 +54,10 @@ export const AuthContext = createContext<AuthContextValue>({
 });
 
 // ─── Internal fetch helper ────────────────────────────────────────────────────
+//
+// Not imported from lib/api.ts because loadUser() needs the HTTP status attached
+// to the thrown error (to distinguish 401 from other failures and clear the
+// stale cookie). lib/api.ts throws plain Error with no status property.
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
@@ -61,8 +65,9 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     ...(options.headers as Record<string, string> | undefined),
   };
 
-  // Cookies are sent automatically for same-origin requests — no manual injection needed
-  const res = await fetch(path, { ...options, headers });
+  // credentials: 'same-origin' — same convention as lib/api.ts; explicit so the
+  // intent is clear and cannot be accidentally overridden by a future refactor.
+  const res = await fetch(path, { credentials: 'same-origin', ...options, headers });
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {

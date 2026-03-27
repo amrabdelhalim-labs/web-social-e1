@@ -26,7 +26,6 @@ export interface Photo {
 // ─── Server-Side Types (Mongoose Documents) ─────────────────────────────────
 
 export interface IUser extends Document {
-  _doc?: Record<string, unknown>;
   name: string;
   email: string;
   password: string;
@@ -36,7 +35,6 @@ export interface IUser extends Document {
 }
 
 export interface IPhoto extends Document {
-  _doc?: Record<string, unknown>;
   title: string;
   description?: string;
   imageUrl: string;
@@ -47,7 +45,6 @@ export interface IPhoto extends Document {
 }
 
 export interface ILike extends Document {
-  _doc?: Record<string, unknown>;
   user: Types.ObjectId | IUser;
   photo: Types.ObjectId | IPhoto;
   createdAt: Date;

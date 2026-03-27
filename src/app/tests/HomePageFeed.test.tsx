@@ -111,6 +111,14 @@ describe('HomePageFeed', () => {
     });
   });
 
+  it('يعرض رسالة "لا توجد صور" عند تمرير قائمة فارغة بدون صفحات إضافية', () => {
+    const emptyPagination = { page: 1, totalPages: 1, total: 0, limit: 12 };
+    render(<HomePageFeed initialPhotos={[]} initialPagination={emptyPagination} />);
+
+    expect(screen.getByText('لا توجد صور لعرضها بعد.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /تحميل المزيد/i })).toBeNull();
+  });
+
   it('يُخفي زر التحميل بعد الوصول للصفحة الأخيرة', async () => {
     globalFetch.mockResolvedValueOnce(
       makeJsonResponse({

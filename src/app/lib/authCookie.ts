@@ -12,6 +12,8 @@
  *  - maxAge    : 7 days — matches JWT expiry (JWT_EXPIRES_IN in auth.ts)
  */
 
+import type { NextRequest } from 'next/server';
+
 interface CookieOptions {
   httpOnly?: boolean;
   secure?: boolean;
@@ -22,10 +24,24 @@ interface CookieOptions {
 
 export const AUTH_COOKIE_NAME = 'auth-token';
 
-export const AUTH_COOKIE_OPTIONS: CookieOptions = {
+const AUTH_COOKIE_BASE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
   path: '/',
   maxAge: 60 * 60 * 24 * 7, // 7 days
 };
+
+function isHttpsRequest(request: NextRequest): boolean {
+  const proto = request.headers.get('x-forwarded-proto');
+  return request.nextUrl.protocol === 'https:' || proto === 'https';
+}
+
+/**
+ * Cookie security mode:
+ * - production over HTTPS/proxy HTTPS: secure=true
+ * - local HTTP development/startup (including production mode on localhost): secure=false
+ */
+export function getAuthCookieOptions(request: NextRequest): CookieOptions {
+  const secure = process.env.NODE_ENV === 'production' ? isHttpsRequest(request) : false;
+  return { ...AUTH_COOKIE_BASE_OPTIONS, secure };
+}

@@ -1,13 +1,55 @@
-/**
+﻿/**
  * useMyPhotos Hook Tests
  *
  * Tests current user's photos: list, upload, update, and remove.
+ * Covers the 401 handler: on Unauthorized, logout() is called and
+ * the user is redirected to /login.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useMyPhotos } from '@/app/hooks/useMyPhotos';
 import * as api from '@/app/lib/api';
+
+// ─── Stable mock functions via vi.hoisted ─────────────────────────────────────
+// All functions AND the router object itself must be hoisted so they are the
+// same reference across every render of the hook. Otherwise useCallback deps
+// change on every render and usePaginatedPhotos useEffect re-fires infinitely.
+
+const { mockReplace, mockPush, mockRouter, mockLogout } = vi.hoisted(() => {
+  const mockReplace = vi.fn();
+  const mockPush = vi.fn();
+  return {
+    mockReplace,
+    mockPush,
+    mockRouter: { replace: mockReplace, push: mockPush },
+    mockLogout: vi.fn().mockResolvedValue(undefined),
+  };
+});
+
+// ─── Router mock ─────────────────────────────────────────────────────────────
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => mockRouter,
+  usePathname: () => '/my-photos',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+// ─── Auth mock ────────────────────────────────────────────────────────────────
+
+vi.mock('@/app/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { _id: 'u1', name: 'علي', email: 'ali@test.com', avatarUrl: null },
+    loading: false,
+    logout: mockLogout,
+    login: vi.fn(),
+    register: vi.fn(),
+    refreshUser: vi.fn(),
+    updateUser: vi.fn(),
+  }),
+}));
+
+// ─── API mock ─────────────────────────────────────────────────────────────────
 
 vi.mock('@/app/lib/api', () => ({
   getMyPhotosApi: vi.fn(),
@@ -34,6 +76,9 @@ describe('useMyPhotos', () => {
       data: [mockPhoto],
       pagination: { page: 1, totalPages: 1, total: 1, limit: 12 },
     });
+    mockLogout.mockClear();
+    mockReplace.mockClear();
+    mockPush.mockClear();
   });
 
   it('fetches user photos on load', async () => {
@@ -73,5 +118,19 @@ describe('useMyPhotos', () => {
     });
 
     expect(result.current.photos).toHaveLength(0);
+  });
+
+  it('calls logout and redirects to /login when photos API returns 401', async () => {
+    const unauthorizedError = Object.assign(new Error('رمز المصادقة غير صالح أو منتهي الصلاحية.'), {
+      status: 401,
+    });
+    vi.mocked(api.getMyPhotosApi).mockRejectedValue(unauthorizedError);
+
+    renderHook(() => useMyPhotos());
+
+    await waitFor(() => {
+      expect(mockLogout).toHaveBeenCalled();
+    });
+    expect(mockReplace).toHaveBeenCalledWith('/login');
   });
 });

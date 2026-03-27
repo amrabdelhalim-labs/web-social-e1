@@ -9,7 +9,7 @@
  *  - Auto-hydrates by calling GET /api/auth/me on mount
  *    (the cookie is sent automatically by the browser for same-origin requests)
  *  - 401 from the server sets user to null
- *  - logout calls POST /api/auth/logout to clear the server-side cookie
+ *  - logout awaits POST /api/auth/logout (cookie cleared) then sets user to null
  *
  * Security: no token is stored or accessible in JavaScript — XSS cannot steal it.
  */
@@ -36,8 +36,13 @@ export interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   /** Creates a new account and logs in. Throws on failure. */
   register: (input: RegisterInput) => Promise<void>;
-  /** Clears the session by calling the logout API (clears the cookie server-side). */
-  logout: () => void;
+  /**
+   * Awaits the logout API (ensures the HttpOnly cookie is cleared server-side)
+   * then clears user state. Always resolves — never throws.
+   */
+  logout: () => Promise<void>;
+  /** Re-checks the server session and updates user state. */
+  refreshUser: () => Promise<boolean>;
   /** Syncs in-memory user state after profile changes without re-fetching. */
   updateUser: (updated: User) => void;
 }
@@ -49,7 +54,8 @@ export const AuthContext = createContext<AuthContextValue>({
   loading: true,
   login: async () => {},
   register: async () => {},
-  logout: () => {},
+  logout: async () => {},
+  refreshUser: async () => false,
   updateUser: () => {},
 });
 
@@ -91,27 +97,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * On 401: user is set to null (session expired or never existed).
    * On other errors: silently sets loading=false, user stays null.
    */
-  const loadUser = useCallback(async () => {
+  const loadUser = useCallback(async (options: { clearOn401?: boolean } = {}) => {
+    const { clearOn401 = true } = options;
     try {
       const res = await apiFetch<{ data: User }>('/api/auth/me');
       setUser(res.data);
+      return res.data;
     } catch (err) {
       const status = (err as Error & { status?: number }).status;
       if (status === 401) {
         setUser(null);
-        // Clear the invalid/expired cookie so the proxy doesn't create a
-        // redirect loop (/my-photos → /login → / → /my-photos) for stale sessions.
-        // try/await is used instead of .catch() so test mocks returning undefined
-        // (not a Promise) don't throw "Cannot read property 'catch' of undefined".
-        try {
-          await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
-        } catch {
-          // ignore — cookie will expire naturally
+        if (clearOn401) {
+          // Clear the invalid/expired cookie so the proxy doesn't create a
+          // redirect loop (/my-photos → /login → / → /my-photos) for stale sessions.
+          // try/await is used instead of .catch() so test mocks returning undefined
+          // (not a Promise) don't throw "Cannot read property 'catch' of undefined".
+          try {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+          } catch {
+            // ignore — cookie will expire naturally
+          }
         }
       }
       // Network errors: user stays null — the login page will handle it
+      return null;
     }
   }, []);
+
+  const refreshUser = useCallback(async () => {
+    const refreshed = await loadUser({ clearOn401: false });
+    return Boolean(refreshed);
+  }, [loadUser]);
 
   // Hydrate on mount — always check the server since we can't read the HttpOnly cookie
   useEffect(() => {
@@ -139,9 +155,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.data.user);
   }, []);
 
-  const logout = useCallback(() => {
-    // Fire-and-forget: clears the HttpOnly cookie server-side
-    fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
+  /**
+   * Awaits server-side cookie deletion before clearing the in-memory user.
+   * This prevents a race condition where ProtectedRoute or other auth checks
+   * would re-fetch /api/auth/me with the still-valid cookie and restore the
+   * session immediately after the user clicked "logout".
+   */
+  const logout = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    } catch {
+      // Network errors: proceed with local logout anyway
+    }
     setUser(null);
   }, []);
 
@@ -150,8 +175,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, login, register, logout, updateUser }),
-    [user, loading, login, register, logout, updateUser]
+    () => ({ user, loading, login, register, logout, refreshUser, updateUser }),
+    [user, loading, login, register, logout, refreshUser, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

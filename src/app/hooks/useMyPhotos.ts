@@ -1,13 +1,17 @@
-'use client';
+﻿'use client';
 
 /**
- * useMyPhotos — Hook for User's Photo Gallery
+ * useMyPhotos -- Hook for User's Photo Gallery
  *
  * Fetches user's photos with pagination, supports upload, edit, delete.
+ * When any request returns 401 (expired or missing session), automatically
+ * calls logout() and redirects to /login so the user can re-authenticate.
  */
 
 import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { getMyPhotosApi, uploadPhotoApi, updatePhotoApi, deletePhotoApi } from '@/app/lib/api';
+import { useAuth } from '@/app/hooks/useAuth';
 import type { Photo, UpdatePhotoInput } from '@/app/types';
 import { usePaginatedPhotos, type PhotosPagination } from './usePaginatedPhotos';
 
@@ -24,7 +28,29 @@ export interface UseMyPhotosReturn {
 }
 
 export function useMyPhotos(): UseMyPhotosReturn {
-  const fetchMine = useCallback((page: number, limit: number) => getMyPhotosApi(page, limit), []);
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  /** Re-directs to /login after clearing the session when any request returns 401. */
+  const handleUnauthorized = useCallback(async () => {
+    await logout();
+    router.replace('/login');
+  }, [logout, router]);
+
+  const fetchMine = useCallback(
+    async (page: number, limit: number) => {
+      try {
+        return await getMyPhotosApi(page, limit);
+      } catch (err) {
+        const status = (err as Error & { status?: number }).status;
+        if (status === 401) {
+          handleUnauthorized();
+        }
+        throw err;
+      }
+    },
+    [handleUnauthorized]
+  );
 
   const { photos, setPhotos, loading, error, pagination, setPagination, loadMore, refresh } =
     usePaginatedPhotos({

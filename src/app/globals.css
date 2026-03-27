@@ -59,19 +59,21 @@ body {
 }
 
 /* ─── Focus ──────────────────────────────────────────────────────────── */
-/* Match the active theme's primary color so the ring is visible in both modes */
-html[data-color-scheme='light'] :focus-visible {
+/* Keep a11y focus ring for keyboard navigation without overriding MUI field focus UI */
+html[data-color-scheme='light']
+  :where(a, button, [role='button'], [tabindex]:not([tabindex='-1'])):focus-visible {
   outline: 2px solid #1976d2;
   outline-offset: 2px;
 }
 
-html[data-color-scheme='dark'] :focus-visible {
+html[data-color-scheme='dark']
+  :where(a, button, [role='button'], [tabindex]:not([tabindex='-1'])):focus-visible {
   outline: 2px solid #42a5f5;
   outline-offset: 2px;
 }
 
 /* Fallback for the brief window before the inline script sets data-color-scheme */
-:focus-visible {
+:where(a, button, [role='button'], [tabindex]:not([tabindex='-1'])):focus-visible {
   outline: 2px solid #1976d2;
   outline-offset: 2px;
 }

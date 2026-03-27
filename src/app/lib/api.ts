@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * API Client — Centralized HTTP Layer
@@ -51,7 +51,9 @@ export async function fetchApi<T>(path: string, options: RequestInit = {}): Prom
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(json?.error?.message ?? 'خطأ غير متوقع من الخادم.');
+    const err = new Error(json?.error?.message ?? 'خطأ غير متوقع من الخادم.');
+    (err as Error & { status?: number }).status = res.status;
+    throw err;
   }
   return json as T;
 }
@@ -69,7 +71,9 @@ export async function fetchFormApi<T>(
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(json?.error?.message ?? 'خطأ غير متوقع من الخادم.');
+    const err = new Error(json?.error?.message ?? 'خطأ غير متوقع من الخادم.');
+    (err as Error & { status?: number }).status = res.status;
+    throw err;
   }
   return json as T;
 }

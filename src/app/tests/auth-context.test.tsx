@@ -172,21 +172,20 @@ describe('AuthContext', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.user).toEqual(MOCK_USER);
 
-    act(() => {
-      result.current.logout();
+    await act(async () => {
+      await result.current.logout();
     });
 
+    // logout() awaits the server call before clearing user state
     expect(result.current.user).toBeNull();
 
-    // Logout should call the logout API to clear the server-side cookie
-    await waitFor(() => {
-      const calls = globalFetch.mock.calls;
-      const logoutCall = calls.find(
-        ([path, options]) =>
-          path === '/api/auth/logout' && (options as RequestInit)?.method === 'POST'
-      );
-      expect(logoutCall).toBeDefined();
-    });
+    // Logout must have called the logout API to clear the server-side cookie
+    const calls = globalFetch.mock.calls;
+    const logoutCall = calls.find(
+      ([path, options]) =>
+        path === '/api/auth/logout' && (options as RequestInit)?.method === 'POST'
+    );
+    expect(logoutCall).toBeDefined();
   });
 
   it('updates user data in memory', async () => {

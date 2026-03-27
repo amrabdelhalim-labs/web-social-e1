@@ -47,9 +47,9 @@ export function UserMenu() {
     router.push(href);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     handleClose();
-    logout();
+    await logout();
     router.push('/');
   };
 

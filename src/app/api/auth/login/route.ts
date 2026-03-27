@@ -17,7 +17,7 @@ import { comparePassword, generateToken } from '@/app/lib/auth';
 import { getUserRepository } from '@/app/repositories/user.repository';
 import { validateLoginInput } from '@/app/validators';
 import { validationError, unauthorizedError, serverError } from '@/app/lib/apiErrors';
-import { AUTH_COOKIE_OPTIONS, AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
+import { AUTH_COOKIE_NAME, getAuthCookieOptions } from '@/app/lib/authCookie';
 import type { User } from '@/app/types';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { data: { user }, message: 'تم تسجيل الدخول بنجاح.' },
       { status: 200 }
     );
-    response.cookies.set(AUTH_COOKIE_NAME, token, AUTH_COOKIE_OPTIONS);
+    response.cookies.set(AUTH_COOKIE_NAME, token, getAuthCookieOptions(request));
     return response;
   } catch (error) {
     console.error('Login error:', error);

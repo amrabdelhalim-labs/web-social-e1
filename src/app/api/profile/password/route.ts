@@ -3,6 +3,7 @@
  *
  * Changes the authenticated user's password.
  * Requires the current password for verification.
+ * Clears the auth cookie on success — the user must re-login.
  *
  * Body: { currentPassword, newPassword, confirmPassword }
  * Response: { message }
@@ -20,6 +21,7 @@ import {
   unauthorizedError,
   serverError,
 } from '@/app/lib/apiErrors';
+import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
@@ -43,7 +45,9 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     const hashed = await hashPassword(body.newPassword);
     await userRepo.update(auth.userId, { password: hashed });
 
-    return NextResponse.json({ message: 'تم تغيير كلمة المرور بنجاح.' }, { status: 200 });
+    const response = NextResponse.json({ message: 'تم تغيير كلمة المرور بنجاح.' }, { status: 200 });
+    response.cookies.set(AUTH_COOKIE_NAME, '', { path: '/', maxAge: 0 });
+    return response;
   } catch (error) {
     console.error('Password change error:', error);
     return serverError();

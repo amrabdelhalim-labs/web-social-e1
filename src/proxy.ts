@@ -1,14 +1,14 @@
 /**
- * Next.js Edge Middleware — Route Protection
+ * Next.js Proxy — Route Protection
  *
- * Runs before every matched request, at the Edge (before the page renders).
+ * Runs before every matched request (before the page renders).
  *
  * Strategy:
  *  - Protected routes (/my-photos, /profile): redirect to /login if no auth cookie.
  *  - Guest-only routes (/login, /register):   redirect to / if auth cookie present.
  *
  * Security note:
- *  This middleware checks for cookie *presence* only, which is fast and sufficient
+ *  This proxy checks for cookie *presence* only, which is fast and sufficient
  *  for preventing the page shell from rendering. Full JWT verification is performed
  *  by `authenticateRequest` inside every API route handler that requires auth.
  *  An invalid/expired cookie will result in a 401 from the API, and the client-side
@@ -21,7 +21,7 @@ import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
 const PROTECTED_PATHS = ['/my-photos', '/profile'];
 const GUEST_ONLY_PATHS = ['/login', '/register'];
 
-export function middleware(request: NextRequest): NextResponse {
+export function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
   const hasAuthCookie = request.cookies.has(AUTH_COOKIE_NAME);
 

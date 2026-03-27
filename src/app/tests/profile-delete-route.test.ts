@@ -91,6 +91,15 @@ describe('DELETE /api/profile', () => {
     expect(mockDeleteUserCascade).toHaveBeenCalledWith('user-1');
   });
 
+  it('clears auth cookie on successful deletion', async () => {
+    const res = await callDeleteProfile({ password: 'correctpass' });
+    expect(res.status).toBe(200);
+
+    const setCookie = res.headers.get('set-cookie') ?? '';
+    expect(setCookie).toContain('auth-token=');
+    expect(setCookie).toMatch(/Max-Age=0|max-age=0/i);
+  });
+
   it('calls comparePassword with trimmed password', async () => {
     await callDeleteProfile({ password: '  mypass  ' });
     expect(comparePassword).toHaveBeenCalledWith('mypass', expect.any(String));

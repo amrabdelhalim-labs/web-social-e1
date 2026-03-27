@@ -18,6 +18,7 @@ import {
   serverError,
 } from '@/app/lib/apiErrors';
 import { getStorageService } from '@/app/lib/storage/storage.service';
+import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
 import type { User } from '@/app/types';
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
@@ -101,7 +102,9 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       await storage.deleteFiles(filesToDelete);
     }
 
-    return NextResponse.json({ message: 'تم حذف الحساب نهائيًا.' }, { status: 200 });
+    const response = NextResponse.json({ message: 'تم حذف الحساب نهائيًا.' }, { status: 200 });
+    response.cookies.set(AUTH_COOKIE_NAME, '', { path: '/', maxAge: 0 });
+    return response;
   } catch (error) {
     console.error('Account deletion error:', error);
     return serverError();

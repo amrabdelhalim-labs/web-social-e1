@@ -12,11 +12,17 @@
  *  - maxAge    : 7 days — matches JWT expiry (JWT_EXPIRES_IN in auth.ts)
  */
 
-import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+interface CookieOptions {
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: 'strict' | 'lax' | 'none';
+  path?: string;
+  maxAge?: number;
+}
 
 export const AUTH_COOKIE_NAME = 'auth-token';
 
-export const AUTH_COOKIE_OPTIONS: Partial<ResponseCookie> = {
+export const AUTH_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',

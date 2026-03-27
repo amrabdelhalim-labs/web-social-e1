@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const status = (err as Error & { status?: number }).status;
       if (status === 401) {
         setUser(null);
-        // Clear the invalid/expired cookie so the edge middleware doesn't create a
+        // Clear the invalid/expired cookie so the proxy doesn't create a
         // redirect loop (/my-photos → /login → / → /my-photos) for stale sessions.
         // try/await is used instead of .catch() so test mocks returning undefined
         // (not a Promise) don't throw "Cannot read property 'catch' of undefined".

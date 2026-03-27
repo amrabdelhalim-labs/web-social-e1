@@ -11,6 +11,7 @@
 | **إطار الاختبار**      | Vitest                                     |
 | **اختبارات المكونات**  | Testing Library (`@testing-library/react`) |
 | **عدد ملفات الاختبار** | 33 ملفًا                                   |
+| **عدد ملفات الاختبار** | 34 ملفًا                                   |
 | **النوع السائد**       | اختبارات وحدة (Unit Tests)                 |
 | **البيئة**             | jsdom                                      |
 
@@ -63,18 +64,19 @@ export default defineConfig({
 
 ### 4.1 اختبارات الوحدة (Utilities & Logic)
 
-| الملف                          | ما يختبره                                                                                                                      |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `auth.test.ts`                 | `generateToken`، `verifyToken`، `hashPassword`، `comparePassword`                                                              |
-| `validators.test.ts`           | `validateLoginInput`، `validateRegisterInput`، `validatePhotoInput`، `validateUpdatePhotoInput`، `validateChangePasswordInput` |
-| `api-client.test.ts`           | دوال طبقة HTTP (`lib/api.ts`): JSON/multipart، عدم حقن Authorization (جلسة عبر cookie)                                         |
-| `fileValidation.test.ts`       | `detectImageType` / `validateImageBuffer`: PNG، JPEG، رفض تزوير المحتوى                                                        |
-| `storage.test.ts`              | `getStorageService`، `resetStorageService`، LocalStorageStrategy                                                               |
-| `auth-middleware.test.ts`      | `authenticateRequest`: cookie صالح، Bearer كبديل، أولوية cookie، رفض غير صالح                                                  |
-| `profile-delete-route.test.ts` | منطق مسار `DELETE /api/profile`: cascade، تأكيد كلمة المرور                                                                    |
-| `docker-config.test.ts`        | التحقق من ثوابت Docker: `standalone` في Next، healthcheck في Dockerfile، وربط compose                                          |
-| `middleware.test.ts`           | Edge Middleware: حماية `/my-photos`، منع الوصول للضيوف، إعادة التوجيه مع `?next=`                                              |
-| `photoSerializer.test.ts`      | `serializePhoto`: سلامة الحقول، قيم `isLiked`، معالجة `null`/`undefined`                                                       |
+| الملف                            | ما يختبره                                                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `auth.test.ts`                   | `generateToken`، `verifyToken`، `hashPassword`، `comparePassword`                                                              |
+| `validators.test.ts`             | `validateLoginInput`، `validateRegisterInput`، `validatePhotoInput`، `validateUpdatePhotoInput`، `validateChangePasswordInput` |
+| `api-client.test.ts`             | دوال طبقة HTTP (`lib/api.ts`): JSON/multipart، عدم حقن Authorization (جلسة عبر cookie)                                         |
+| `fileValidation.test.ts`         | `detectImageType` / `validateImageBuffer`: PNG، JPEG، رفض تزوير المحتوى                                                        |
+| `storage.test.ts`                | `getStorageService`، `resetStorageService`، LocalStorageStrategy                                                               |
+| `auth-middleware.test.ts`        | `authenticateRequest`: cookie صالح، Bearer كبديل، أولوية cookie، رفض غير صالح                                                  |
+| `profile-delete-route.test.ts`   | منطق مسار `DELETE /api/profile`: cascade، تأكيد كلمة المرور، مسح الكوكي                                                        |
+| `profile-password-route.test.ts` | منطق مسار `PUT /api/profile/password`: التحقق، تغيير الـ hash، إبطال الجلسة                                                    |
+| `docker-config.test.ts`          | التحقق من ثوابت Docker: `standalone` في Next، healthcheck في Dockerfile، وربط compose                                          |
+| `photoSerializer.test.ts`        | `serializePhoto`: تحويل وثيقة Mongoose إلى كائن Photo مسطّح                                                                    |
+| `proxy.test.ts`                  | Proxy: حماية المسارات المحمية، السماح للعامة، إعادة التوجيه                                                                    |
 
 ### 4.2 اختبارات السياقات (Contexts)
 
@@ -82,6 +84,7 @@ export default defineConfig({
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------- |
 | `auth-context.test.tsx`  | `AuthContext`: `/api/auth/me` عند التحميل، `login`/`register` بدون localStorage، `logout` يستدعي `/api/auth/logout` |
 | `theme-context.test.tsx` | `ThemeContext`: السمة الافتراضية (SSR)، التبديل، الحفظ في localStorage                                              |
+| `route-guards.test.tsx`  | `ProtectedRoute` و `GuestRoute`: إعادة توجيه المستخدم وفق حالة المصادقة                                             |
 
 ### 4.3 اختبارات الخطافات (Hooks)
 
@@ -118,11 +121,12 @@ export default defineConfig({
 
 ### 4.6 اختبارات الصفحات (Pages)
 
-| الملف                | الصفحة       | ما يختبره                         |
-| -------------------- | ------------ | --------------------------------- |
-| `login.test.tsx`     | `/login`     | عرض الحقول، التحقق، إعادة التوجيه |
-| `register.test.tsx`  | `/register`  | عرض الحقول، التحقق، التسجيل       |
-| `not-found.test.tsx` | `/not-found` | عرض صفحة الخطأ 404                |
+| الملف                   | الصفحة         | ما يختبره                         |
+| ----------------------- | -------------- | --------------------------------- |
+| `login.test.tsx`        | `/login`       | عرض الحقول، التحقق، إعادة التوجيه |
+| `register.test.tsx`     | `/register`    | عرض الحقول، التحقق، التسجيل       |
+| `not-found.test.tsx`    | `/not-found`   | عرض صفحة الخطأ 404                |
+| `HomePageFeed.test.tsx` | `/` (SSR feed) | عرض شبكة الصور الأولية من SSR     |
 
 ---
 
@@ -176,13 +180,13 @@ it('toggles like status', async () => {
 
 ## 6. الفلسفة العامة للاختبار
 
-| المبدأ                       | التطبيق                                                                |
-| ---------------------------- | ---------------------------------------------------------------------- |
-| **اختبر السلوك، لا التنفيذ** | تحقق من ما يظهر للمستخدم وما يحدث عند تفاعله                           |
-| **معزولية كاملة**            | كل اختبار مستقل، لا تبعيات بين الاختبارات                              |
-| **وهمية مركّزة**             | الـ mocks في `setup.ts` للأشياء العامة، `vi.fn()` للخاصة               |
-| **رسائل بالإنجليزية**        | جميع أوصاف `describe` و `it` بالإنجليزية                               |
-| **نص UI بالعربية**           | قيم `getByText`، `getByLabelText`، `toHaveTextContent` تعكس UI الحقيقي |
+| المبدأ                        | التطبيق                                                                |
+| ----------------------------- | ---------------------------------------------------------------------- |
+| **اختبر السلوك، لا التنفيذ**  | تحقق من ما يظهر للمستخدم وما يحدث عند تفاعله                           |
+| **معزولية كاملة**             | كل اختبار مستقل، لا تبعيات بين الاختبارات                              |
+| **وهمية مركّزة**              | الـ mocks في `setup.ts` للأشياء العامة، `vi.fn()` للخاصة               |
+| **رسائل بالإنجليزية/العربية** | أوصاف `describe` و `it` بالإنجليزية أو العربية حسب السياق              |
+| **نص UI بالعربية**            | قيم `getByText`، `getByLabelText`، `toHaveTextContent` تعكس UI الحقيقي |
 
 ---
 

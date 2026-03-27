@@ -1,6 +1,6 @@
 # الدرس 08: صفحات المصادقة
 
-> هدف الدرس: فهم صفحات تسجيل الدخول وإنشاء الحساب في صوري — المكونات المشتركة (`AuthFormLayout`، `PasswordField`، `SubmitButton`)، التحقق من المدخلات، حماية الضيوف (`GuestRoute` + **Edge Middleware**)، وربطها بـ [JWT والجلسة (Cookie HttpOnly)](../concepts-guide.md) — القسم 5.
+> هدف الدرس: فهم صفحات تسجيل الدخول وإنشاء الحساب في صوري — المكونات المشتركة (`AuthFormLayout`، `PasswordField`، `SubmitButton`)، التحقق من المدخلات، حماية الضيوف (`GuestRoute` + **Proxy**)، وربطها بـ [JWT والجلسة (Cookie HttpOnly)](../concepts-guide.md) — القسم 5.
 
 ---
 

@@ -13,17 +13,17 @@
 
 ## الميزات الرئيسية
 
-| الميزة            | التفاصيل                                                        |
-| ----------------- | --------------------------------------------------------------- |
-| **مشاركة الصور**  | رفع PNG/JPEG مع عنوان ووصف                                      |
-| **كاميرا مباشرة** | التقاط صورة من الكاميرا عبر `getUserMedia`                      |
-| **صفحة المجتمع**  | عرض صور جميع المستخدمين مع pagination                           |
-| **الإعجاب**       | إضافة/إزالة إعجاب مع عداد فوري                                  |
-| **الملف الشخصي**  | تعديل البيانات، الصورة الشخصية، وكلمة المرور                    |
-| **المصادقة**      | JWT + bcrypt، Cookie HttpOnly آمن، حماية مسارات Edge Middleware |
-| **وضع داكن/فاتح** | تبديل السمة مع الحفاظ على WCAG AA                               |
-| **تخزين مرن**     | محلي / Cloudinary / S3 عبر Strategy Pattern                     |
-| **حذف الحساب**    | حذف متسلسل: صور + إعجابات + ملفات التخزين                       |
+| الميزة            | التفاصيل                                              |
+| ----------------- | ----------------------------------------------------- |
+| **مشاركة الصور**  | رفع PNG/JPEG مع عنوان ووصف                            |
+| **كاميرا مباشرة** | التقاط صورة من الكاميرا عبر `getUserMedia`            |
+| **صفحة المجتمع**  | عرض صور جميع المستخدمين مع pagination                 |
+| **الإعجاب**       | إضافة/إزالة إعجاب مع عداد فوري                        |
+| **الملف الشخصي**  | تعديل البيانات، الصورة الشخصية، وكلمة المرور          |
+| **المصادقة**      | JWT + bcrypt، Cookie HttpOnly آمن، حماية مسارات Proxy |
+| **وضع داكن/فاتح** | تبديل السمة مع الحفاظ على WCAG AA                     |
+| **تخزين مرن**     | محلي / Cloudinary / S3 عبر Strategy Pattern           |
+| **حذف الحساب**    | حذف متسلسل: صور + إعجابات + ملفات التخزين             |
 
 ---
 
@@ -95,7 +95,7 @@ npm run dev
 1. عند تسجيل الدخول/إنشاء حساب، يُعيّن الخادم `Set-Cookie: auth-token=<jwt>` بخصائص `HttpOnly; SameSite=Lax; Secure (الإنتاج فقط)`.
 2. الـ cookie يُرسَل تلقائيًا مع كل طلب من نفس النطاق — لا حاجة لحقن يدوي.
 3. JavaScript **لا يستطيع** قراءة الـ token (محمي من XSS).
-4. Next.js Edge Middleware (`src/middleware.ts`) يحمي مسارات مثل `/my-photos` و`/profile` قبل عرض الصفحة.
+4. Next.js Proxy (`src/proxy.ts`) يحمي مسارات مثل `/my-photos` و`/profile` قبل عرض الصفحة.
 5. تسجيل الخروج يستدعي `POST /api/auth/logout` لمسح الـ cookie من الخادم.
 
 ### Docker (تشغيل سريع مع MongoDB)
@@ -120,7 +120,7 @@ web-social-e1/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── src/
-│   ├── middleware.ts     ← Edge Middleware (حماية المسارات)
+│   ├── proxy.ts          ← Proxy (حماية المسارات)
 │   └── app/
 │       ├── api/              ← REST API Routes (auth, photos, profile, health)
 │       ├── components/       ← مكونات React (photos, profile, camera, layout, common)
@@ -130,7 +130,7 @@ web-social-e1/
 │       ├── models/           ← User.ts, Photo.ts, Like.ts
 │       ├── repositories/     ← Repository Pattern (طبقة الوصول للبيانات)
 │       ├── validators/       ← دوال التحقق من المدخلات
-│       └── tests/            ← 33 ملف اختبار
+│       └── tests/            ← 34 ملف اختبار
 ├── docs/                 ← التوثيق الكامل
 │   ├── plans/            ← خطة المشروع وخطة التوثيق
 │   ├── ai/               ← دليل AI للمشروع
@@ -143,25 +143,25 @@ web-social-e1/
 
 ## الأوامر المتاحة
 
-| الأمر                   | الوصف                                           |
-| ----------------------- | ----------------------------------------------- |
-| `npm run dev`           | خادم التطوير (Webpack)                          |
-| `npm run build`         | بناء للإنتاج                                    |
-| `npm start`             | تشغيل خادم الإنتاج                              |
-| `npm test`              | تشغيل الاختبارات مرة واحدة                      |
-| `npm run test:watch`    | تشغيل الاختبارات في وضع المراقبة                |
-| `npm run test:coverage` | تشغيل الاختبارات مع تقرير التغطية               |
-| `npm run lint`          | فحص الكود بـ ESLint                             |
-| `npm run format`        | تنسيق الكود بـ Prettier                         |
-| `npm run format:check`  | التحقق من التنسيق فقط                           |
-| `npm run validate`      | format:check + lint + test (فحص شامل قبل الدفع) |
-| `npm run db:init`       | إنشاء قاعدة البيانات المحلية                    |
+| الأمر                   | الوصف                                                                      |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `npm run dev`           | خادم التطوير (Webpack)                                                     |
+| `npm run build`         | بناء للإنتاج                                                               |
+| `npm start`             | تشغيل خادم الإنتاج                                                         |
+| `npm test`              | تشغيل الاختبارات مرة واحدة                                                 |
+| `npm run test:watch`    | تشغيل الاختبارات في وضع المراقبة                                           |
+| `npm run test:coverage` | تشغيل الاختبارات مع تقرير التغطية                                          |
+| `npm run lint`          | فحص الكود بـ ESLint                                                        |
+| `npm run format`        | تنسيق الكود بـ Prettier                                                    |
+| `npm run format:check`  | التحقق من التنسيق فقط                                                      |
+| `npm run validate`      | clean + required-files + lint + typecheck + test + docker:check (فحص شامل) |
+| `npm run db:init`       | إنشاء قاعدة البيانات المحلية                                               |
 
 ---
 
 ## الاختبارات
 
-المشروع يحتوي **33 ملف اختبار** يغطي:
+المشروع يحتوي **34 ملف اختبار** يغطي:
 
 - الوحدات: دوال المصادقة، التحقق من المدخلات (Magic Bytes)، عميل API، استراتيجيات التخزين
 - المكونات: PhotoCard، PhotoGrid، CameraCapture، AvatarUploader، LikeButton، وغيرها
@@ -225,7 +225,7 @@ git push heroku main
 ### v0.1.3 — أمان وأداء وجودة كود
 
 - **auth:** الانتقال من JWT في localStorage إلى **HttpOnly Cookie** — مقاومة لـ XSS
-- **middleware:** إضافة Next.js Edge Middleware لحماية `/my-photos` و`/profile` قبل الرندر
+- **proxy:** حماية مسارات `/my-photos` و`/profile` عبر Next.js Proxy قبل الرندر
 - **auth api:** إضافة `POST /api/auth/logout` لمسح الـ cookie من الخادم
 - **uploads:** استبدال فحص `file.type` (قابل للتزوير) بفحص **Magic Bytes** الفعلية على الخادم
 - **homepage:** تحويل الصفحة الرئيسية من `'use client'` إلى **Server Component** — SSR كامل للمحتوى الأولي

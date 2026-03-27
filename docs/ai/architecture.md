@@ -16,7 +16,7 @@
                      │  HTTP (fetch)
 ┌────────────────────▼────────────────────────────┐
 │              Next.js App Router (Server)         │
-│  ├─ Edge Middleware (src/middleware.ts)          │
+│  ├─ Proxy (src/proxy.ts)                        │
 │  ├─ Page Components (RSC + client islands)       │
 │  └─ API Routes  (src/app/api/**/route.ts)        │
 │       │                                          │
@@ -91,7 +91,7 @@ Client  ──POST /api/auth/login──►  API Route
 
 Browser: cookie sent automatically on same-origin fetch()
 API routes: authenticateRequest() reads cookie first, then Authorization: Bearer (fallback)
-Edge: src/middleware.ts checks cookie presence for /my-photos, /profile (redirect to /login if absent)
+Proxy: src/proxy.ts checks cookie presence for /my-photos, /profile (redirect to /login if absent)
 Client: AuthContext keeps user in memory only; logout calls POST /api/auth/logout to clear cookie
 ```
 
@@ -192,27 +192,27 @@ AuthContext.login()
   ├─ setUser(user)  (browser stores cookie — JS cannot read it)
   └─ no localStorage for auth token
   │
-Edge middleware already blocks unauthenticated access to /my-photos, /profile
+Proxy already blocks unauthenticated access to /my-photos, /profile
 ```
 
 ---
 
 ## 4. File Naming & Location Rules
 
-| Layer        | Location                         | Rule                                    |
-| ------------ | -------------------------------- | --------------------------------------- |
-| Models       | `src/app/models/`                | PascalCase, one model per file          |
-| Repositories | `src/app/repositories/`          | `*.repository.ts`                       |
-| Storage      | `src/app/lib/storage/`           | `*.strategy.ts` + `storage.service.ts`  |
-| Auth cookie  | `src/app/lib/authCookie.ts`      | cookie name + HttpOnly options          |
-| File verify  | `src/app/lib/fileValidation.ts`  | magic-byte image detection              |
-| API Routes   | `src/app/api/**/route.ts`        | Next.js App Router convention           |
-| Middleware   | `src/middleware.ts`              | Edge route protection (cookie presence) |
-| Components   | `src/app/components/<category>/` | PascalCase                              |
-| Hooks        | `src/app/hooks/`                 | `use*.ts`                               |
-| Contexts     | `src/app/context/`               | `*Context.tsx`                          |
-| Types        | `src/app/types.ts`               | single file for all shared types        |
-| Config       | `src/app/config.ts`              | single file for all constants           |
+| Layer        | Location                         | Rule                                   |
+| ------------ | -------------------------------- | -------------------------------------- |
+| Models       | `src/app/models/`                | PascalCase, one model per file         |
+| Repositories | `src/app/repositories/`          | `*.repository.ts`                      |
+| Storage      | `src/app/lib/storage/`           | `*.strategy.ts` + `storage.service.ts` |
+| Auth cookie  | `src/app/lib/authCookie.ts`      | cookie name + HttpOnly options         |
+| File verify  | `src/app/lib/fileValidation.ts`  | magic-byte image detection             |
+| API Routes   | `src/app/api/**/route.ts`        | Next.js App Router convention          |
+| Proxy        | `src/proxy.ts`                   | Route protection (cookie presence)     |
+| Components   | `src/app/components/<category>/` | PascalCase                             |
+| Hooks        | `src/app/hooks/`                 | `use*.ts`                              |
+| Contexts     | `src/app/context/`               | `*Context.tsx`                         |
+| Types        | `src/app/types.ts`               | single file for all shared types       |
+| Config       | `src/app/config.ts`              | single file for all constants          |
 
 ---
 

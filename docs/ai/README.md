@@ -47,7 +47,7 @@ This repository is self-contained:
 | `src/app/types.ts`                | Shared TypeScript contracts                                |
 | `src/app/providers.tsx`           | Provider tree: Theme -> Auth                               |
 | `src/app/context/AuthContext.tsx` | user session in memory; cookie-based auth (no token in JS) |
-| `src/middleware.ts`               | Edge protection for `/my-photos`, `/profile`               |
+| `src/proxy.ts`                    | Route protection for `/my-photos`, `/profile`              |
 | `src/app/lib/authCookie.ts`       | HttpOnly session cookie options                            |
 | `src/app/lib/fileValidation.ts`   | server-side image magic-byte checks                        |
 | `src/app/lib/photoSerializer.ts`  | shared photo JSON shape (API + RSC)                        |

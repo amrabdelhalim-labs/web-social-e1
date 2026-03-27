@@ -9,7 +9,7 @@
 | الطبقة           | المسار                    | أمثلة                                                                                         |
 | ---------------- | ------------------------- | --------------------------------------------------------------------------------------------- |
 | الصفحات          | `src/app/*/page.tsx`      | `page.tsx` (RSC + `HomePageFeed`)، `login/page.tsx`، `my-photos/page.tsx`، `profile/page.tsx` |
-| Edge Middleware  | `src/middleware.ts`       | حماية `/my-photos`، `/profile`؛ إعادة توجيه الضيف من `/login` إن وُجدت جلسة                   |
+| Proxy            | `src/proxy.ts`            | حماية `/my-photos`، `/profile`؛ إعادة توجيه الضيف من `/login` إن وُجدت جلسة                   |
 | مسارات API       | `src/app/api/**/route.ts` | `api/auth/login/route.ts`, `api/auth/logout/route.ts`, `api/photos/route.ts` …                |
 | المكونات         | `src/app/components/`     | `photos/PhotoCard.tsx`, `layout/UserMenu.tsx`, `profile/AvatarUploader.tsx`                   |
 | السياقات         | `src/app/context/`        | `AuthContext.tsx`, `ThemeContext.tsx`                                                         |

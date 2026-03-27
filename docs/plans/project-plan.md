@@ -460,7 +460,7 @@ feat(api): add auth, profile management, photos CRUD, and likes API routes
 
 1. `ThemeContext.tsx` — MUI theme مع dark/light + RTL + Cairo font + WCAG AA
 2. `AuthContext.tsx` — حالة المستخدم في الذاكرة؛ جلسة عبر **HttpOnly cookie**؛ login/register/logout + updateUser
-3. `src/middleware.ts` — Edge: حماية `/my-photos` و`/profile` قبل الرندر
+3. `src/proxy.ts` — حماية `/my-photos` و`/profile` قبل الرندر
 4. `providers.tsx` — شجرة Providers
 5. `useAuth.ts`, `useThemeMode.ts` — custom hooks
 6. `lib/api.ts` — طبقة HTTP (بدون حقن Bearer؛ الـ cookie تُرسَل تلقائيًا) + `logoutApi`
@@ -731,7 +731,7 @@ web-social-e1/
 │   └── validate-workflow.mjs
 │
 ├── src/
-│   ├── middleware.ts               ← Edge Middleware (حماية مسارات محددة)
+│   ├── proxy.ts                    ← Proxy (حماية مسارات محددة)
 │   └── app/
 │       ├── layout.tsx              ← Root layout (html, dir=rtl, fonts, anti-FOUC script)
 │       ├── page.tsx                ← RSC: التغذية العامة؛ عميل: HomePageFeed.tsx

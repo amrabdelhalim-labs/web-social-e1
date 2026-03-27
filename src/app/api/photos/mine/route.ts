@@ -17,7 +17,7 @@ import { DEFAULT_PAGE_SIZE } from '@/app/config';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     const { searchParams } = request.nextUrl;

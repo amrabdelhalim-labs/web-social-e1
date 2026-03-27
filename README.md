@@ -95,8 +95,9 @@ npm run dev
 1. عند تسجيل الدخول/إنشاء حساب، يُعيّن الخادم `Set-Cookie: auth-token=<jwt>` بخصائص `HttpOnly; SameSite=Lax; Secure (الإنتاج فقط)`.
 2. الـ cookie يُرسَل تلقائيًا مع كل طلب من نفس النطاق — لا حاجة لحقن يدوي.
 3. JavaScript **لا يستطيع** قراءة الـ token (محمي من XSS).
-4. Next.js Proxy (`src/proxy.ts`) يحمي مسارات مثل `/my-photos` و`/profile` قبل عرض الصفحة.
-5. تسجيل الخروج يستدعي `POST /api/auth/logout` لمسح الـ cookie من الخادم.
+4. الخادم يتحقق من `sessionVersion` لكل مستخدم مع كل طلب محمي؛ أي mismatch يُبطل الجلسة فورًا.
+5. Next.js Proxy (`src/proxy.ts`) يحمي المسارات الحساسة مثل `/my-photos` و`/profile` قبل عرض الصفحة.
+6. تسجيل الخروج وتغيير كلمة المرور يُبطلان الجلسة (رفع `sessionVersion`) ثم مسح الـ cookie؛ يلزم تسجيل دخول جديد.
 
 ### Docker (تشغيل سريع مع MongoDB)
 

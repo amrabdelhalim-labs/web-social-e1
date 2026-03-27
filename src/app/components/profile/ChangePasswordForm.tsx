@@ -8,11 +8,15 @@
 
 import { useState } from 'react';
 import { Box, Button, Paper, Typography, CircularProgress } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import { PasswordField } from '@/app/components/common/PasswordField';
+import { useAuth } from '@/app/hooks/useAuth';
 import { changePasswordApi } from '@/app/lib/api';
 import { validateChangePasswordInput } from '@/app/validators';
 
 export function ChangePasswordForm() {
+  const router = useRouter();
+  const { logout } = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -43,10 +47,9 @@ export function ChangePasswordForm() {
         newPassword,
         confirmPassword,
       });
-      setMessage({ type: 'success', text: 'تم تغيير كلمة المرور بنجاح.' });
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      await logout();
+      router.replace('/login');
+      return;
     } catch (err) {
       setMessage({
         type: 'error',

@@ -9,6 +9,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockFindById = vi.fn();
 const mockUpdate = vi.fn();
+const mockBumpSessionVersion = vi.fn();
 
 vi.mock('@/app/lib/mongodb', () => ({ connectDB: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/app/middlewares/auth.middleware', () => ({
@@ -18,6 +19,7 @@ vi.mock('@/app/repositories/user.repository', () => ({
   getUserRepository: vi.fn(() => ({
     findById: mockFindById,
     update: mockUpdate,
+    bumpSessionVersion: mockBumpSessionVersion,
   })),
 }));
 vi.mock('@/app/lib/auth', () => ({
@@ -34,6 +36,7 @@ beforeEach(() => {
     password: '$2a$12$oldhash',
   });
   mockUpdate.mockResolvedValue({});
+  mockBumpSessionVersion.mockResolvedValue(1);
   (comparePassword as ReturnType<typeof vi.fn>).mockResolvedValue(true);
 });
 
@@ -81,5 +84,13 @@ describe('PUT /api/profile/password', () => {
     const res = await callChangePassword(validBody);
     const json = await res.json();
     expect(json.message).toMatch(/تم تغيير كلمة المرور/);
+  });
+
+  it('invalidates sessions before updating password', async () => {
+    await callChangePassword(validBody);
+
+    const bumpOrder = mockBumpSessionVersion.mock.invocationCallOrder[0];
+    const updateOrder = mockUpdate.mock.invocationCallOrder[0];
+    expect(bumpOrder).toBeLessThan(updateOrder);
   });
 });

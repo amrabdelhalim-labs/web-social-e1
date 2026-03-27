@@ -31,7 +31,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       )
     );
 
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     const userId = auth.error ? null : auth.userId;
 
     await connectDB();
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let uploadedUrl: string | null = null;
 
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     const formData = await request.formData();

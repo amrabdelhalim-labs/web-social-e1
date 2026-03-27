@@ -16,7 +16,7 @@ import { hashPassword, generateToken } from '@/app/lib/auth';
 import { getUserRepository } from '@/app/repositories/user.repository';
 import { validateRegisterInput } from '@/app/validators';
 import { validationError, conflictError, serverError } from '@/app/lib/apiErrors';
-import { AUTH_COOKIE_NAME, getAuthCookieOptions } from '@/app/lib/authCookie';
+import { setAuthCookie } from '@/app/lib/authCookie';
 import type { User } from '@/app/types';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       password: hashedPassword,
     });
 
-    const token = generateToken(newUser._id.toString());
+    const token = generateToken(newUser._id.toString(), newUser.sessionVersion ?? 0);
 
     const user: User = {
       _id: newUser._id.toString(),
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { data: { user }, message: 'تم إنشاء الحساب بنجاح.' },
       { status: 201 }
     );
-    response.cookies.set(AUTH_COOKIE_NAME, token, getAuthCookieOptions(request));
+    setAuthCookie(response, token, request);
     return response;
   } catch (error) {
     console.error('Register error:', error);

@@ -9,6 +9,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockFindById = vi.fn();
 const mockDeleteUserCascade = vi.fn();
+const mockBumpSessionVersion = vi.fn();
 
 vi.mock('@/app/lib/mongodb', () => ({ connectDB: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/app/middlewares/auth.middleware', () => ({
@@ -18,6 +19,7 @@ vi.mock('@/app/repositories/user.repository', () => ({
   getUserRepository: vi.fn(() => ({
     findById: mockFindById,
     deleteUserCascade: mockDeleteUserCascade,
+    bumpSessionVersion: mockBumpSessionVersion,
   })),
 }));
 vi.mock('@/app/repositories/photo.repository', () => ({
@@ -44,6 +46,7 @@ beforeEach(() => {
     avatarUrl: null,
   });
   mockDeleteUserCascade.mockResolvedValue({});
+  mockBumpSessionVersion.mockResolvedValue(1);
   (comparePassword as ReturnType<typeof vi.fn>).mockResolvedValue(true);
 });
 

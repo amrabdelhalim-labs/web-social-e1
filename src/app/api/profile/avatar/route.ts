@@ -15,7 +15,7 @@ import type { User, StorageFile } from '@/app/types';
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     const formData = await request.formData();
@@ -81,7 +81,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     await connectDB();

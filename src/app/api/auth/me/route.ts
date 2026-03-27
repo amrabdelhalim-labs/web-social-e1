@@ -16,7 +16,7 @@ import type { User } from '@/app/types';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     await connectDB();

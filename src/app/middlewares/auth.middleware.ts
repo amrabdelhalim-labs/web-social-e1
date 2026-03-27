@@ -20,6 +20,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/app/lib/auth';
 import { unauthorizedError } from '@/app/lib/apiErrors';
 import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
+import { connectDB } from '@/app/lib/mongodb';
+import { getUserRepository } from '@/app/repositories/user.repository';
 import type { ApiResponse } from '@/app/types';
 
 interface AuthSuccess {
@@ -39,7 +41,7 @@ export type AuthResult = AuthSuccess | AuthFailure;
  * Returns { userId } on success, or { error: NextResponse } on failure.
  * Never throws — all error paths return a typed 401 response.
  */
-export function authenticateRequest(request: NextRequest): AuthResult {
+export async function authenticateRequest(request: NextRequest): Promise<AuthResult> {
   // Primary: HttpOnly cookie (XSS-safe)
   const cookieToken = request.cookies.get(AUTH_COOKIE_NAME)?.value ?? null;
 
@@ -53,10 +55,31 @@ export function authenticateRequest(request: NextRequest): AuthResult {
     return { error: unauthorizedError('رمز المصادقة مفقود.') };
   }
 
+  let payload: { id: string; sv?: number };
   try {
-    const payload = verifyToken(token);
-    return { userId: payload.id };
+    payload = verifyToken(token);
   } catch {
     return { error: unauthorizedError('رمز المصادقة غير صالح أو منتهي الصلاحية.') };
+  }
+
+  try {
+    await connectDB();
+    const userRepo = getUserRepository();
+    const foundUser = await userRepo.findById(payload.id);
+
+    if (!foundUser) {
+      return { error: unauthorizedError('الجلسة غير صالحة. يرجى تسجيل الدخول مرة أخرى.') };
+    }
+
+    const tokenSessionVersion = payload.sv ?? 0;
+    const currentSessionVersion = foundUser.sessionVersion ?? 0;
+
+    if (tokenSessionVersion !== currentSessionVersion) {
+      return { error: unauthorizedError('انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.') };
+    }
+
+    return { userId: payload.id };
+  } catch {
+    return { error: unauthorizedError('تعذر التحقق من الجلسة. يرجى تسجيل الدخول مرة أخرى.') };
   }
 }

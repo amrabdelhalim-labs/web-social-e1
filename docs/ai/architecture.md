@@ -90,8 +90,9 @@ Client  ──POST /api/auth/login──►  API Route
 ◄──────── { user } in JSON body ───┘   (token NOT in body — XSS-safe)
 
 Browser: cookie sent automatically on same-origin fetch()
-API routes: authenticateRequest() reads cookie first, then Authorization: Bearer (fallback)
-Proxy: src/proxy.ts checks cookie presence for /my-photos, /profile (redirect to /login if absent)
+API routes: authenticateRequest() reads cookie first, then Authorization: Bearer (fallback), and validates user sessionVersion
+Proxy: src/proxy.ts checks cookie presence only for protected routes (/my-photos, /profile);
+       prefetch/data fetch requests skip redirect while document navigation is still enforced
 Client: AuthContext keeps user in memory only; logout calls POST /api/auth/logout to clear cookie
 ```
 
@@ -184,7 +185,7 @@ API Route:
   ├─ validateLoginInput()
   ├─ userRepo.findByEmail()
   ├─ comparePassword()
-  ├─ generateToken(userId) → JWT
+  ├─ generateToken(userId, sessionVersion) → JWT
   └─ NextResponse + Set-Cookie (auth-token)
   │
 AuthContext.login()
@@ -227,7 +228,8 @@ Proxy already blocks unauthenticated access to /my-photos, /profile
 7. **ThemeContext uses Emotion `CacheProvider`** — not `AppRouterCacheProvider` (avoids Webpack/Turbopack conflict)
 8. **Run with Webpack** (`next dev --webpack`) — avoids Turbopack issues with MUI
 9. **Do not store auth JWT in localStorage** — session uses HttpOnly `auth-token` cookie set by login/register routes
-10. **Image uploads** — validate with `validateImageBuffer()` (magic bytes); never trust `File.type` alone
+10. **Sensitive auth actions must revoke old tokens** — use `sessionVersion` bump on logout/password change
+11. **Image uploads** — validate with `validateImageBuffer()` (magic bytes); never trust `File.type` alone
 
 ---
 

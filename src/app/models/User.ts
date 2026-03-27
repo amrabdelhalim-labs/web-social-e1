@@ -40,6 +40,15 @@ const userSchema = new Schema<IUser>(
       default: null,
       trim: true,
     },
+    /**
+     * Session version used to revoke previously-issued JWTs.
+     * Incrementing this value invalidates all older tokens immediately.
+     */
+    sessionVersion: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   { timestamps: true }
 );

@@ -17,7 +17,7 @@ import { comparePassword, generateToken } from '@/app/lib/auth';
 import { getUserRepository } from '@/app/repositories/user.repository';
 import { validateLoginInput } from '@/app/validators';
 import { validationError, unauthorizedError, serverError } from '@/app/lib/apiErrors';
-import { AUTH_COOKIE_NAME, getAuthCookieOptions } from '@/app/lib/authCookie';
+import { setAuthCookie } from '@/app/lib/authCookie';
 import type { User } from '@/app/types';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return unauthorizedError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
     }
 
-    const token = generateToken(foundUser._id.toString());
+    const token = generateToken(foundUser._id.toString(), foundUser.sessionVersion ?? 0);
 
     const user: User = {
       _id: foundUser._id.toString(),
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { data: { user }, message: 'تم تسجيل الدخول بنجاح.' },
       { status: 200 }
     );
-    response.cookies.set(AUTH_COOKIE_NAME, token, getAuthCookieOptions(request));
+    setAuthCookie(response, token, request);
     return response;
   } catch (error) {
     console.error('Login error:', error);

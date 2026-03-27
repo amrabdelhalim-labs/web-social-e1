@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * useMyPhotos -- Hook for User's Photo Gallery
@@ -44,7 +44,7 @@ export function useMyPhotos(): UseMyPhotosReturn {
       } catch (err) {
         const status = (err as Error & { status?: number }).status;
         if (status === 401) {
-          handleUnauthorized();
+          await handleUnauthorized();
         }
         throw err;
       }

@@ -36,6 +36,7 @@ DATABASE_URL=mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/web-social-e
 
 - عيّن `JWT_SECRET` في `.env.local` (أي سلسلة عشوائية طويلة للتطوير).
 - الجلسة تُخزَّن في **Cookie HttpOnly** (`auth-token`) بعد تسجيل الدخول؛ في التطوير (`NODE_ENV=development`) الـ cookie **ليس** `Secure`، فيعمل على `http://localhost` دون HTTPS.
+- الخادم يتحقق أيضًا من `sessionVersion` لكل مستخدم؛ تسجيل الخروج أو تغيير كلمة المرور يُبطل الجلسات السابقة ويتطلب تسجيل دخول جديد.
 
 ## 4. التحقق
 

@@ -17,7 +17,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PUT(request: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     const { id } = await context.params;
@@ -64,7 +64,7 @@ export async function PUT(request: NextRequest, context: RouteContext): Promise<
 
 export async function DELETE(request: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     const { id } = await context.params;

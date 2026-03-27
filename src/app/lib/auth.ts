@@ -25,10 +25,10 @@ const JWT_SECRET_VALUE = JWT_SECRET ?? 'dev-only-insecure-secret';
 const JWT_EXPIRES_IN = '7d';
 const BCRYPT_SALT_ROUNDS = 12;
 
-/** Signs a JWT containing the user's MongoDB _id */
-export function generateToken(userId: string): string {
+/** Signs a JWT containing the user's MongoDB _id + session version */
+export function generateToken(userId: string, sessionVersion: number = 0): string {
   const options: SignOptions = { expiresIn: JWT_EXPIRES_IN };
-  return jwt.sign({ id: userId }, JWT_SECRET_VALUE, options);
+  return jwt.sign({ id: userId, sv: sessionVersion }, JWT_SECRET_VALUE, options);
 }
 
 /**
@@ -42,7 +42,11 @@ export function verifyToken(token: string): JwtPayload {
     throw new Error('Invalid token payload');
   }
 
-  return payload;
+  if (payload.sv !== undefined && (!Number.isInteger(payload.sv) || payload.sv < 0)) {
+    throw new Error('Invalid token session version');
+  }
+
+  return { ...payload, sv: payload.sv ?? 0 };
 }
 
 /** Hashes a plain-text password with bcrypt (12 rounds) */

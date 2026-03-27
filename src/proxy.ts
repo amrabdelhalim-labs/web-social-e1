@@ -5,37 +5,41 @@
  *
  * Strategy:
  *  - Protected routes (/my-photos, /profile): redirect to /login if no auth cookie.
- *  - Guest-only routes (/login, /register):   redirect to / if auth cookie present.
+ *  - Prefetch requests are excluded from redirects to avoid stale unauthenticated
+ *    redirect caching after a successful login.
+ *  - Redirects are also limited to navigation/document requests, so App Router
+ *    data/prefetch fetches are not treated as hard unauthenticated navigations.
  *
  * Security note:
- *  This proxy checks for cookie *presence* only, which is fast and sufficient
- *  for preventing the page shell from rendering. Full JWT verification is performed
- *  by `authenticateRequest` inside every API route handler that requires auth.
- *  An invalid/expired cookie will result in a 401 from the API, and the client-side
- *  AuthContext will then clear the user state and redirect to /login.
+ *  This proxy checks cookie *presence* only to prevent protected page shell rendering.
+ *  Full JWT + session-version verification happens in `authenticateRequest`.
+ *  Guest-only redirects are intentionally handled on the client (GuestRoute), so
+ *  stale/invalid cookies never block access to /login or /register.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
 
 const PROTECTED_PATHS = ['/my-photos', '/profile'];
-const GUEST_ONLY_PATHS = ['/login', '/register'];
 
 export function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
   const hasAuthCookie = request.cookies.has(AUTH_COOKIE_NAME);
+  const isPrefetch =
+    request.headers.has('next-router-prefetch') || request.headers.get('purpose') === 'prefetch';
+  const secFetchMode = request.headers.get('sec-fetch-mode');
+  const secFetchDest = request.headers.get('sec-fetch-dest');
+  const isNavigationRequest =
+    (secFetchMode === null && secFetchDest === null) ||
+    secFetchMode === 'navigate' ||
+    secFetchDest === 'document';
 
   const isProtected = PROTECTED_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
-  const isGuestOnly = GUEST_ONLY_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
 
-  if (isProtected && !hasAuthCookie) {
+  if (!isPrefetch && isNavigationRequest && isProtected && !hasAuthCookie) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('next', pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  if (isGuestOnly && hasAuthCookie) {
-    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();

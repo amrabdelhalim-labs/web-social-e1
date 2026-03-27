@@ -54,7 +54,7 @@ export function DeleteAccountDialog({ open, onClose }: DeleteAccountDialogProps)
     setError('');
     try {
       await deleteAccountApi(password);
-      logout();
+      await logout();
       handleClose();
       router.push('/');
     } catch (err) {

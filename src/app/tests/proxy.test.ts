@@ -4,8 +4,7 @@
  * Verifies the route-protection logic in src/proxy.ts:
  *  - Protected routes (/my-photos, /profile) redirect to /login when no cookie
  *  - Protected routes pass through when cookie is present
- *  - Guest-only routes (/login, /register) redirect to / when cookie is present
- *  - Guest-only routes pass through when no cookie
+ *  - Guest-only routes (/login, /register) always pass through
  *  - Unmatched routes always pass through
  *  - The redirect to /login carries the ?next= parameter
  */
@@ -18,6 +17,27 @@ import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
 function makeRequest(pathname: string, withCookie = false): NextRequest {
   const url = `http://localhost:3000${pathname}`;
   const headers: Record<string, string> = {};
+  if (withCookie) {
+    headers['cookie'] = `${AUTH_COOKIE_NAME}=fake-jwt-token`;
+  }
+  return new NextRequest(url, { headers });
+}
+
+function makePrefetchRequest(pathname: string, withCookie = false): NextRequest {
+  const url = `http://localhost:3000${pathname}`;
+  const headers: Record<string, string> = { purpose: 'prefetch', 'next-router-prefetch': '1' };
+  if (withCookie) {
+    headers['cookie'] = `${AUTH_COOKIE_NAME}=fake-jwt-token`;
+  }
+  return new NextRequest(url, { headers });
+}
+
+function makeDataFetchRequest(pathname: string, withCookie = false): NextRequest {
+  const url = `http://localhost:3000${pathname}`;
+  const headers: Record<string, string> = {
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-dest': 'empty',
+  };
   if (withCookie) {
     headers['cookie'] = `${AUTH_COOKIE_NAME}=fake-jwt-token`;
   }
@@ -52,6 +72,18 @@ describe('proxy — protected routes', () => {
     expect(res.headers.get('location')).toContain('/login');
   });
 
+  it('لا يُعيد توجيه طلبات prefetch لمسار محمي عند غياب الكوكي', () => {
+    const req = makePrefetchRequest('/my-photos', false);
+    const res = proxy(req);
+    expect(res.headers.get('location')).toBeNull();
+  });
+
+  it('لا يُعيد توجيه طلبات data fetch غير الملاحية لمسار محمي عند غياب الكوكي', () => {
+    const req = makeDataFetchRequest('/my-photos', false);
+    const res = proxy(req);
+    expect(res.headers.get('location')).toBeNull();
+  });
+
   it('يسمح بالوصول إلى /my-photos عند وجود الكوكي', () => {
     const req = makeRequest('/my-photos', true);
     const res = proxy(req);
@@ -66,16 +98,16 @@ describe('proxy — protected routes', () => {
 });
 
 describe('proxy — guest-only routes', () => {
-  it('يُعيد توجيه /login إلى / عند وجود الكوكي', () => {
+  it('يسمح بالوصول إلى /login حتى عند وجود الكوكي', () => {
     const req = makeRequest('/login', true);
     const res = proxy(req);
-    expect(res.headers.get('location')).toContain('/');
+    expect(res.headers.get('location')).toBeNull();
   });
 
-  it('يُعيد توجيه /register إلى / عند وجود الكوكي', () => {
+  it('يسمح بالوصول إلى /register حتى عند وجود الكوكي', () => {
     const req = makeRequest('/register', true);
     const res = proxy(req);
-    expect(res.headers.get('location')).toContain('/');
+    expect(res.headers.get('location')).toBeNull();
   });
 
   it('يسمح بالوصول إلى /login عند غياب الكوكي', () => {

@@ -21,11 +21,11 @@ import {
   unauthorizedError,
   serverError,
 } from '@/app/lib/apiErrors';
-import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
+import { clearAuthCookie } from '@/app/lib/authCookie';
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     const body = await request.json();
@@ -42,11 +42,15 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     const isMatch = await comparePassword(body.currentPassword, foundUser.password);
     if (!isMatch) return unauthorizedError('كلمة المرور الحالية غير صحيحة.');
 
+    const bumpedVersion = await userRepo.bumpSessionVersion(auth.userId);
+    if (bumpedVersion === null) return notFoundError('المستخدم غير موجود.');
+
     const hashed = await hashPassword(body.newPassword);
-    await userRepo.update(auth.userId, { password: hashed });
+    const updated = await userRepo.update(auth.userId, { password: hashed });
+    if (!updated) return notFoundError('المستخدم غير موجود.');
 
     const response = NextResponse.json({ message: 'تم تغيير كلمة المرور بنجاح.' }, { status: 200 });
-    response.cookies.set(AUTH_COOKIE_NAME, '', { path: '/', maxAge: 0 });
+    clearAuthCookie(response, request);
     return response;
   } catch (error) {
     console.error('Password change error:', error);

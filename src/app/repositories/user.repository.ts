@@ -32,6 +32,20 @@ class UserRepository extends BaseRepository<IUser> {
   }
 
   /**
+   * Increments the user's sessionVersion, invalidating all previously-issued tokens.
+   * Returns the new version or null when the user does not exist.
+   */
+  async bumpSessionVersion(userId: string): Promise<number | null> {
+    const updated = await User.findByIdAndUpdate(
+      userId,
+      { $inc: { sessionVersion: 1 } },
+      { new: true, select: 'sessionVersion' }
+    ).lean<{ sessionVersion: number } | null>();
+
+    return updated?.sessionVersion ?? null;
+  }
+
+  /**
    * Deletes the user and all related data.
    *
    * Uses a MongoDB transaction when available (replica set). Falls back to

@@ -12,7 +12,7 @@
  *  - maxAge    : 7 days — matches JWT expiry (JWT_EXPIRES_IN in auth.ts)
  */
 
-import type { NextRequest } from 'next/server';
+import type { NextRequest, NextResponse } from 'next/server';
 
 interface CookieOptions {
   httpOnly?: boolean;
@@ -44,4 +44,14 @@ function isHttpsRequest(request: NextRequest): boolean {
 export function getAuthCookieOptions(request: NextRequest): CookieOptions {
   const secure = process.env.NODE_ENV === 'production' ? isHttpsRequest(request) : false;
   return { ...AUTH_COOKIE_BASE_OPTIONS, secure };
+}
+
+/** Sets the auth cookie with centralized security options. */
+export function setAuthCookie(response: NextResponse, token: string, request: NextRequest): void {
+  response.cookies.set(AUTH_COOKIE_NAME, token, getAuthCookieOptions(request));
+}
+
+/** Clears the auth cookie while preserving the same security attributes. */
+export function clearAuthCookie(response: NextResponse, request: NextRequest): void {
+  response.cookies.set(AUTH_COOKIE_NAME, '', { ...getAuthCookieOptions(request), maxAge: 0 });
 }

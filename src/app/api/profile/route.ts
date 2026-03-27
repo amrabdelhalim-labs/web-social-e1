@@ -18,12 +18,12 @@ import {
   serverError,
 } from '@/app/lib/apiErrors';
 import { getStorageService } from '@/app/lib/storage/storage.service';
-import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
+import { clearAuthCookie } from '@/app/lib/authCookie';
 import type { User } from '@/app/types';
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     const body = await request.json();
@@ -67,7 +67,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const auth = authenticateRequest(request);
+    const auth = await authenticateRequest(request);
     if (auth.error) return auth.error;
 
     let body: { password?: string };
@@ -96,6 +96,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     const filesToDelete = userPhotos.map((p) => p.imageUrl);
     if (foundUser.avatarUrl) filesToDelete.push(foundUser.avatarUrl);
 
+    await userRepo.bumpSessionVersion(auth.userId);
     await userRepo.deleteUserCascade(auth.userId);
 
     if (filesToDelete.length > 0) {
@@ -103,7 +104,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     }
 
     const response = NextResponse.json({ message: 'تم حذف الحساب نهائيًا.' }, { status: 200 });
-    response.cookies.set(AUTH_COOKIE_NAME, '', { path: '/', maxAge: 0 });
+    clearAuthCookie(response, request);
     return response;
   } catch (error) {
     console.error('Account deletion error:', error);

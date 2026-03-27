@@ -18,6 +18,7 @@ import { HomePageFeed } from '@/app/components/photos/HomePageFeed';
 import { connectDB } from '@/app/lib/mongodb';
 import { getPhotoRepository } from '@/app/repositories/photo.repository';
 import { getLikeRepository } from '@/app/repositories/like.repository';
+import { getUserRepository } from '@/app/repositories/user.repository';
 import { verifyToken } from '@/app/lib/auth';
 import { serializePhoto } from '@/app/lib/photoSerializer';
 import { AUTH_COOKIE_NAME } from '@/app/lib/authCookie';
@@ -31,6 +32,8 @@ async function fetchInitialPhotos(): Promise<{
   photos: Photo[];
   pagination: { page: number; totalPages: number; total: number; limit: number };
 }> {
+  await connectDB();
+
   // Determine authenticated user from cookie for liked-status calculation
   let userId: string | null = null;
   try {
@@ -38,13 +41,18 @@ async function fetchInitialPhotos(): Promise<{
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
     if (token) {
       const payload = verifyToken(token);
-      userId = payload.id;
+      const userRepo = getUserRepository();
+      const foundUser = await userRepo.findById(payload.id);
+      const tokenSessionVersion = payload.sv ?? 0;
+      const currentSessionVersion = foundUser?.sessionVersion ?? 0;
+      if (foundUser && tokenSessionVersion === currentSessionVersion) {
+        userId = payload.id;
+      }
     }
   } catch {
     // Invalid/expired cookie — treat as guest
   }
 
-  await connectDB();
   const photoRepo = getPhotoRepository();
   const likeRepo = getLikeRepository();
 

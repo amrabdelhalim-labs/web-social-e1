@@ -29,12 +29,11 @@ describe('generateToken / verifyToken', () => {
     expect(() => verifyToken('invalid-token')).toThrow();
   });
 
-  it('rejects token signed with different secret', () => {
+  it('rejects token signed with different secret', async () => {
     // Token signed with different secret
-    import('jsonwebtoken').then((jwt) => {
-      const fakeToken = jwt.default.sign({ id: 'hacker' }, 'wrong-secret');
-      expect(() => verifyToken(fakeToken)).toThrow();
-    });
+    const jwt = await import('jsonwebtoken');
+    const fakeToken = jwt.default.sign({ id: 'hacker' }, 'wrong-secret');
+    expect(() => verifyToken(fakeToken)).toThrow();
   });
 
   it('rejects empty string', () => {

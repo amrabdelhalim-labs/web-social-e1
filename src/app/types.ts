@@ -30,6 +30,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   avatarUrl: string | null;
+  sessionVersion: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -84,6 +85,7 @@ export interface PaginatedApiResponse<T> {
 
 export interface JwtPayload {
   id: string;
+  sv?: number;
   iat?: number;
   exp?: number;
 }

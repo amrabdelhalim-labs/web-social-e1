@@ -71,7 +71,7 @@ export default defineConfig({
 | `api-client.test.ts`             | دوال طبقة HTTP (`lib/api.ts`): JSON/multipart، عدم حقن Authorization (جلسة عبر cookie)                                         |
 | `fileValidation.test.ts`         | `detectImageType` / `validateImageBuffer`: PNG، JPEG، رفض تزوير المحتوى                                                        |
 | `storage.test.ts`                | `getStorageService`، `resetStorageService`، LocalStorageStrategy                                                               |
-| `auth-middleware.test.ts`        | `authenticateRequest`: cookie صالح، Bearer كبديل، أولوية cookie، رفض غير صالح                                                  |
+| `auth-middleware.test.ts`        | `authenticateRequest`: cookie صالح، Bearer كبديل، أولوية cookie، رفض غير صالح، والتحقق من `sessionVersion`                     |
 | `profile-delete-route.test.ts`   | منطق مسار `DELETE /api/profile`: cascade، تأكيد كلمة المرور، مسح الكوكي                                                        |
 | `profile-password-route.test.ts` | منطق مسار `PUT /api/profile/password`: التحقق، تغيير الـ hash، إبطال الجلسة                                                    |
 | `docker-config.test.ts`          | التحقق من ثوابت Docker: `standalone` في Next، healthcheck في Dockerfile، وربط compose                                          |

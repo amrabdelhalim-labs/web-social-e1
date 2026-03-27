@@ -10,8 +10,7 @@
 | ---------------------- | ------------------------------------------ |
 | **إطار الاختبار**      | Vitest                                     |
 | **اختبارات المكونات**  | Testing Library (`@testing-library/react`) |
-| **عدد ملفات الاختبار** | 33 ملفًا                                   |
-| **عدد ملفات الاختبار** | 34 ملفًا                                   |
+| **عدد ملفات الاختبار** | 35 ملفًا (`*.test.ts` و `*.test.tsx`)      |
 | **النوع السائد**       | اختبارات وحدة (Unit Tests)                 |
 | **البيئة**             | jsdom                                      |
 
@@ -46,15 +45,15 @@ export default defineConfig({
 
 ## 3. أوامر التشغيل
 
-| الأمر                                        | الوصف                                                     |
-| -------------------------------------------- | --------------------------------------------------------- |
-| `npm test`                                   | تشغيل واحد وإنهاء                                         |
-| `npm run test:watch`                         | وضع المراقبة — يُعيد تشغيل الاختبارات عند التعديل         |
-| `npm run test:coverage`                      | تشغيل الاختبارات مع تقرير التغطية                         |
-| `npm run test -- --reporter=verbose`         | تشغيل مع تفاصيل كل حالة                                   |
-| `npm run test -- src/app/tests/auth.test.ts` | تشغيل ملف محدد                                            |
-| `npm run docker:check`                       | فحص إعدادات Docker الحرجة                                 |
-| `npm run validate`                           | فحص شامل: format + lint + typecheck + test + docker:check |
+| الأمر                                        | الوصف                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------ |
+| `npm test`                                   | تشغيل واحد وإنهاء                                                              |
+| `npm run test:watch`                         | وضع المراقبة — يُعيد تشغيل الاختبارات عند التعديل                              |
+| `npm run test:coverage`                      | تشغيل الاختبارات مع تقرير التغطية                                              |
+| `npm run test -- --reporter=verbose`         | تشغيل مع تفاصيل كل حالة                                                        |
+| `npm run test -- src/app/tests/auth.test.ts` | تشغيل ملف محدد                                                                 |
+| `npm run docker:check`                       | فحص إعدادات Docker الحرجة                                                      |
+| `npm run validate`                           | فحص شامل فعلي: clean + required-files + lint + typecheck + test + docker:check |
 
 قبل نشر صورة إلى **GHCR**، يمر المستودع أيضًا بمسح **Trivy** (على الملفات ثم على الصورة) كما في [deployment.md](deployment.md) — مع **`.trivyignore`** (`trivyignores` في `docker-publish.yml`) وسياسة **`overrides`** مقابل تبعيات Next.js المجمّعة.
 

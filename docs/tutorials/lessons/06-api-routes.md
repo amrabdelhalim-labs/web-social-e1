@@ -6,7 +6,7 @@
 
 ## 1. لمحة عامة
 
-كل مسار API في صوري ملف `route.ts` داخل `app/api/`. المجلد يحدّد المسار: `api/auth/login` → `api/auth/login/route.ts`. كل ملف يُصدّر دوالاً بأسماء HTTP: `GET`، `POST`، `PUT`، `DELETE`. العميل يستدعي `fetch` عبر دوال موحّدة في `lib/api.ts` تُحقن التوكن تلقائياً.
+كل مسار API في صوري ملف `route.ts` داخل `app/api/`. المجلد يحدّد المسار: `api/auth/login` → `api/auth/login/route.ts`. كل ملف يُصدّر دوالاً بأسماء HTTP: `GET`، `POST`، `PUT`، `DELETE`. العميل يستدعي `fetch` عبر دوال موحّدة في `lib/api.ts`، والمصادقة تتم عبر **Cookie HttpOnly** تُرسل تلقائياً لنفس النطاق (لا يوجد حقن `Authorization` في العميل).
 
 **تشبيه:** مسارات API نوافذ خدمة في نفس المبنى — كل نافذة تخدم طلباً مختلفاً، لكن القواعد الموحّدة (شكل الاستجابة، رموز الأخطاء) تجعل التعامل معها متسقاً.
 
@@ -129,7 +129,7 @@ return NextResponse.json(
 
 ### ٥.٣ POST /api/auth/logout
 
-مسح جلسة المستخدم: يستدعي `response.cookies.delete(AUTH_COOKIE_NAME)`.
+مسح جلسة المستخدم: يمسح cookie عبر `clearAuthCookie(...)`، ويحاول أيضًا رفع `sessionVersion` عند وجود توكن صالح لإبطال الجلسة الحالية.
 
 ### ٥.٤ GET /api/auth/me
 
@@ -150,9 +150,9 @@ if (!foundUser) return unauthorizedError('البريد الإلكتروني أو
 const isMatch = await comparePassword(body.password, foundUser.password);
 if (!isMatch) return unauthorizedError('...');
 
-const token = generateToken(foundUser._id.toString());
+const token = generateToken(foundUser._id.toString(), foundUser.sessionVersion ?? 0);
 const response = NextResponse.json({ data: { user }, message: '...' }, { status: 200 });
-response.cookies.set(AUTH_COOKIE_NAME, token, AUTH_COOKIE_OPTIONS);
+setAuthCookie(response, token, request);
 return response;
 ```
 

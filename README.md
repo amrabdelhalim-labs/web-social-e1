@@ -131,13 +131,13 @@ web-social-e1/
 │       ├── models/           ← User.ts, Photo.ts, Like.ts
 │       ├── repositories/     ← Repository Pattern (طبقة الوصول للبيانات)
 │       ├── validators/       ← دوال التحقق من المدخلات
-│       └── tests/            ← 34 ملف اختبار
+│       └── tests/            ← 35 ملف اختبار
 ├── docs/                 ← التوثيق الكامل
 │   ├── plans/            ← خطة المشروع وخطة التوثيق
 │   ├── ai/               ← دليل AI للمشروع
-│   └── tutorials/        ← دروس تعليمية (قيد الإنشاء)
+│   └── tutorials/        ← دروس تعليمية ومواد شرح
 ├── public/uploads/       ← ملفات التخزين المحلي
-└── scripts/              ← سكربتات المساعدة (db:init, test-api)
+└── scripts/              ← سكربتات المساعدة (db:init, validate, docker:check, format, test-api)
 ```
 
 ---
@@ -162,7 +162,7 @@ web-social-e1/
 
 ## الاختبارات
 
-المشروع يحتوي **34 ملف اختبار** يغطي:
+المشروع يحتوي **35 ملف اختبار** يغطي:
 
 - الوحدات: دوال المصادقة، التحقق من المدخلات (Magic Bytes)، عميل API، استراتيجيات التخزين
 - المكونات: PhotoCard، PhotoGrid، CameraCapture، AvatarUploader، LikeButton، وغيرها

@@ -9,7 +9,7 @@
 | الطبقة           | المسار                    | أمثلة                                                                                         |
 | ---------------- | ------------------------- | --------------------------------------------------------------------------------------------- |
 | الصفحات          | `src/app/*/page.tsx`      | `page.tsx` (RSC + `HomePageFeed`)، `login/page.tsx`، `my-photos/page.tsx`، `profile/page.tsx` |
-| Proxy            | `src/proxy.ts`            | حماية `/my-photos`، `/profile`؛ إعادة توجيه الضيف من `/login` إن وُجدت جلسة                   |
+| Proxy            | `src/proxy.ts`            | حماية `/my-photos` و`/profile` عند غياب cookie الجلسة؛ صفحات الضيوف تُدار عبر `GuestRoute`    |
 | مسارات API       | `src/app/api/**/route.ts` | `api/auth/login/route.ts`, `api/auth/logout/route.ts`, `api/photos/route.ts` …                |
 | المكونات         | `src/app/components/`     | `photos/PhotoCard.tsx`, `layout/UserMenu.tsx`, `profile/AvatarUploader.tsx`                   |
 | السياقات         | `src/app/context/`        | `AuthContext.tsx`, `ThemeContext.tsx`                                                         |
@@ -25,21 +25,21 @@
 
 ## 2. أوامر npm
 
-| الأمر                   | الوصف                        |
-| ----------------------- | ---------------------------- |
-| `npm run dev`           | خادم التطوير                 |
-| `npm run build`         | بناء للإنتاج                 |
-| `npm start`             | تشغيل خادم الإنتاج           |
-| `npm test`              | اختبارات تشغيل واحد          |
-| `npm run test:watch`    | اختبارات (watch)             |
-| `npm run test:coverage` | اختبارات مع تقرير التغطية    |
-| `npm run lint`          | ESLint                       |
-| `npm run format`        | Prettier                     |
-| `npm run format:check`  | التحقق من التنسيق            |
-| `npm run typecheck`     | فحص TypeScript بدون إخراج    |
-| `npm run docker:check`  | فحص إعدادات Docker الأساسية  |
-| `npm run validate`      | format:check + lint + test   |
-| `npm run db:init`       | إنشاء قاعدة البيانات المحلية |
+| الأمر                   | الوصف                                                           |
+| ----------------------- | --------------------------------------------------------------- |
+| `npm run dev`           | خادم التطوير                                                    |
+| `npm run build`         | بناء للإنتاج                                                    |
+| `npm start`             | تشغيل خادم الإنتاج                                              |
+| `npm test`              | اختبارات تشغيل واحد                                             |
+| `npm run test:watch`    | اختبارات (watch)                                                |
+| `npm run test:coverage` | اختبارات مع تقرير التغطية                                       |
+| `npm run lint`          | ESLint                                                          |
+| `npm run format`        | Prettier                                                        |
+| `npm run format:check`  | التحقق من التنسيق                                               |
+| `npm run typecheck`     | فحص TypeScript بدون إخراج                                       |
+| `npm run docker:check`  | فحص إعدادات Docker الأساسية                                     |
+| `npm run validate`      | clean + required-files + lint + typecheck + test + docker:check |
+| `npm run db:init`       | إنشاء قاعدة البيانات المحلية                                    |
 
 ---
 

@@ -6,7 +6,9 @@
 
 ## 1. لمحة عامة
 
-واجهة الصور في صوري مبنية على طبقتين: خطافات (`usePhotos`، `useMyPhotos`) تجلب البيانات وتنفّذ العمليات، ومكونات (`PhotoCard`، `PhotoGrid`، `PhotoUploadForm`...) تعرض وتتفاعل. الصفحة الرئيسية تعرض صور الجميع مع الإعجاب؛ صفحة صوري تعرض صور المستخدم مع رفع وتعديل وحذف.
+واجهة الصور في صوري مبنية على طبقتين: خطافات ومكونات عرض.  
+حاليًا الصفحة الرئيسية تعتمد على **Server Component** (`src/app/page.tsx`) لجلب الصفحة الأولى من قاعدة البيانات ثم تمريرها إلى `HomePageFeed` (Client Component) لاستكمال pagination.  
+صفحة صوري تعتمد `useMyPhotos` لإدارة صور المستخدم (رفع/تعديل/حذف).
 
 **تشبيه:** الخطافات مثل "مدير المخزن" — يجلب الصور ويُحدّثها؛ المكونات مثل "واجهة العرض" — تعرض كل صورة وتستقبل ضغطات المستخدم.
 
@@ -75,7 +77,7 @@ handleClose();
 
 ### ٤.١ usePhotos
 
-خطاف الصفحة الرئيسية: يجلب `getPhotosApi` مع pagination، ويوفّر `toggleLike` مع optimistic update (تحديث فوري ثم التراجع عند الفشل).
+`usePhotos` خطاف موجود لا يزال مفيدًا كنمط تعليمي لإدارة feed كامل من العميل (تحميل + pagination + optimistic like)، لكنه **ليس** المسار الرئيسي المستخدم حاليًا في الصفحة الرئيسية بعد التحول إلى SSR.
 
 ```typescript
 // usePhotos — toggleLike مع optimistic update
@@ -154,17 +156,16 @@ function useNextImage(src: string): boolean {
 ## 7. الصفحة الرئيسية — page.tsx
 
 ```typescript
-// page.tsx — التدفق
-const { photos, loading, error, pagination, loadMore } = usePhotos();
-
+// page.tsx — التدفق الحالي (SSR + client handoff)
+const result = await fetchInitialPhotos(); // on server
 return (
   <MainLayout>
-    {loading && photos.length === 0 ? <PhotoGridSkeleton /> : ...}
-    <PhotoGrid photos={photos} />
-    {hasMore && <Button onClick={loadMore}>تحميل المزيد</Button>}
+    <HomePageFeed initialPhotos={result.photos} initialPagination={result.pagination} />
   </MainLayout>
 );
 ```
+
+التفاعل (تحميل المزيد) يتم داخل `HomePageFeed` عبر `getPhotosApi` في العميل.
 
 ---
 

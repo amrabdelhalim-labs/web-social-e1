@@ -52,7 +52,7 @@
 - `build` و `start`: بناء وتشغيل الإنتاج.
 - `test`: تشغيل الاختبارات مرة واحدة؛ `test:watch` لوضع المراقبة.
 - `docker:check`: فحص سريع لسلامة ملفات Docker المهمة.
-- `validate`: فحص شامل (تنسيق + lint + typecheck + اختبارات + Docker checks) قبل الإيداع.
+- `validate`: فحص شامل فعلي (clean + required-files + lint + typecheck + اختبارات + Docker checks) قبل الإيداع.
 
 ---
 

@@ -206,16 +206,17 @@ it('shows error for invalid email format', async () => {
 
 ### ٤.١ اختبارات الوحدة (Utilities & Logic)
 
-| الملف                          | ما يختبره                                                                         |
-| ------------------------------ | --------------------------------------------------------------------------------- |
-| `auth.test.ts`                 | `generateToken`، `verifyToken`، `hashPassword`، `comparePassword`                 |
-| `validators.test.ts`           | `validateLoginInput`، `validateRegisterInput`، `validatePhotoInput`، وغيرها       |
-| `api-client.test.ts`           | `fetchApi`، `fetchFormApi`، دوال المسارات؛ **لا** حقن Authorization (جلسة cookie) |
-| `fileValidation.test.ts`       | `detectImageType` / `validateImageBuffer` (PNG، JPEG، رفض تزوير المحتوى)          |
-| `storage.test.ts`              | `getStorageService`، `resetStorageService`، LocalStorageStrategy                  |
-| `auth-middleware.test.ts`      | `authenticateRequest`: cookie، Bearer، أولوية cookie، رفض غير صالح                |
-| `profile-delete-route.test.ts` | منطق مسار `DELETE /api/profile` (cascade، تأكيد كلمة المرور)                      |
-| `docker-config.test.ts`        | ثوابت Docker الحرجة: `standalone`، healthcheck، وربط compose                      |
+| الملف                            | ما يختبره                                                                         |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| `auth.test.ts`                   | `generateToken`، `verifyToken`، `hashPassword`، `comparePassword`                 |
+| `validators.test.ts`             | `validateLoginInput`، `validateRegisterInput`، `validatePhotoInput`، وغيرها       |
+| `api-client.test.ts`             | `fetchApi`، `fetchFormApi`، دوال المسارات؛ **لا** حقن Authorization (جلسة cookie) |
+| `fileValidation.test.ts`         | `detectImageType` / `validateImageBuffer` (PNG، JPEG، رفض تزوير المحتوى)          |
+| `storage.test.ts`                | `getStorageService`، `resetStorageService`، LocalStorageStrategy                  |
+| `auth-middleware.test.ts`        | `authenticateRequest`: cookie، Bearer، أولوية cookie، رفض غير صالح                |
+| `profile-delete-route.test.ts`   | منطق مسار `DELETE /api/profile` (cascade، تأكيد كلمة المرور)                      |
+| `profile-password-route.test.ts` | منطق مسار `PUT /api/profile/password` (التحقق، تغيير الـ hash، إبطال الجلسة)      |
+| `docker-config.test.ts`          | ثوابت Docker الحرجة: `standalone`، healthcheck، وربط compose                      |
 
 ### ٤.٢ اختبارات السياقات والخطافات
 
@@ -257,15 +258,15 @@ it('shows error for invalid email format', async () => {
 
 ## 5. أوامر التشغيل
 
-| الأمر                                        | الوصف                                             |
-| -------------------------------------------- | ------------------------------------------------- |
-| `npm test`                                   | تشغيل واحد وإنهاء                                 |
-| `npm run test:watch`                         | وضع المراقبة — يُعيد تشغيل الاختبارات عند التعديل |
-| `npm run test:coverage`                      | تشغيل الاختبارات مع تقرير التغطية                 |
-| `npm run test -- --reporter=verbose`         | تشغيل مع تفاصيل كل حالة                           |
-| `npm run test -- src/app/tests/auth.test.ts` | تشغيل ملف محدد                                    |
-| `npm run docker:check`                       | فحص سكربتي لملفات Docker وworkflow                |
-| `npm run validate`                           | فحص شامل: format + lint + test                    |
+| الأمر                                        | الوصف                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------ |
+| `npm test`                                   | تشغيل واحد وإنهاء                                                              |
+| `npm run test:watch`                         | وضع المراقبة — يُعيد تشغيل الاختبارات عند التعديل                              |
+| `npm run test:coverage`                      | تشغيل الاختبارات مع تقرير التغطية                                              |
+| `npm run test -- --reporter=verbose`         | تشغيل مع تفاصيل كل حالة                                                        |
+| `npm run test -- src/app/tests/auth.test.ts` | تشغيل ملف محدد                                                                 |
+| `npm run docker:check`                       | فحص سكربتي لملفات Docker وworkflow                                             |
+| `npm run validate`                           | فحص شامل فعلي: clean + required-files + lint + typecheck + test + docker:check |
 
 ---
 
